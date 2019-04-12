@@ -836,6 +836,7 @@ float AC_AttitudeControl::rate_target_to_motor_roll(float rate_actual_rads, floa
 
     // Compute output in range -1 ~ +1
     float output = get_rate_roll_pid().get_p() + integrator + get_rate_roll_pid().get_d() + get_rate_roll_pid().get_ff(rate_target_rads);
+    _tr = output;
 
     // Constrain output
     return constrain_float(output, -1.0f, 1.0f);
@@ -859,6 +860,7 @@ float AC_AttitudeControl::rate_target_to_motor_pitch(float rate_actual_rads, flo
 
     // Compute output in range -1 ~ +1
     float output = get_rate_pitch_pid().get_p() + integrator + get_rate_pitch_pid().get_d() + get_rate_pitch_pid().get_ff(rate_target_rads);
+    _tp = output;
 
     // Constrain output
     return constrain_float(output, -1.0f, 1.0f);
@@ -882,6 +884,7 @@ float AC_AttitudeControl::rate_target_to_motor_yaw(float rate_actual_rads, float
 
     // Compute output in range -1 ~ +1
     float output = get_rate_yaw_pid().get_p() + integrator + get_rate_yaw_pid().get_d() + get_rate_yaw_pid().get_ff(rate_target_rads);
+    _ty = output;
 
     // Constrain output
     return constrain_float(output, -1.0f, 1.0f);

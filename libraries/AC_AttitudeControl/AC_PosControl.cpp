@@ -632,6 +632,13 @@ void AC_PosControl::run_z_controller()
 
     // send throttle to attitude controller with angle boost
     _attitude_control.set_throttle_out(thr_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ);
+
+    AP::logger().Write("INPUT", "TimeUS,ut,tr,tp,ty", "Qffff",
+                                            AP_HAL::micros64(),
+                                            (double)thr_out,
+                                            (double)_attitude_control._tr,
+                                            (double)_attitude_control._tp,
+                                            (double)_attitude_control._ty);
 }
 
 ///
