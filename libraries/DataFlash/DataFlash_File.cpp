@@ -21,6 +21,9 @@
 #include <AP_InternalError/AP_InternalError.h>
 #include <AP_RTC/AP_RTC.h>
 <<<<<<< HEAD:libraries/DataFlash/DataFlash_File.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash_File.cpp
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_File.cpp
+=======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_File.cpp
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_File.cpp
@@ -862,7 +865,11 @@ void DataFlash_File::stop_logging(void)
     // best-case effort to avoid annoying the IO thread
 <<<<<<< HEAD:libraries/DataFlash/DataFlash_File.cpp
 <<<<<<< HEAD:libraries/DataFlash/DataFlash_File.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash_File.cpp
     const bool have_sem = write_fd_semaphore->take(1);
+=======
+    const bool have_sem = write_fd_semaphore.take(hal.util->get_soft_armed()?1:20);
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_File.cpp
 =======
     const bool have_sem = write_fd_semaphore.take(hal.util->get_soft_armed()?1:20);
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_File.cpp
@@ -877,9 +884,13 @@ void DataFlash_File::stop_logging(void)
     if (have_sem) {
 <<<<<<< HEAD:libraries/DataFlash/DataFlash_File.cpp
 <<<<<<< HEAD:libraries/DataFlash/DataFlash_File.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash_File.cpp
         write_fd_semaphore->give();
     } else {
         _internal_errors++;
+=======
+        write_fd_semaphore.give();
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_File.cpp
 =======
         write_fd_semaphore.give();
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_File.cpp

@@ -34,8 +34,11 @@ const AP_Param::GroupInfo AP_LandingGear::var_info[] = {
     AP_GROUPINFO("STARTUP", 2, AP_LandingGear, _startup_behaviour, (uint8_t)AP_LandingGear::LandingGear_Startup_WaitForPilotInput),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 
@@ -88,6 +91,9 @@ const AP_Param::GroupInfo AP_LandingGear::var_info[] = {
     AP_GROUPINFO("RETRACT_ALT", 8, AP_LandingGear, _retract_alt, 0),
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -114,6 +120,9 @@ void AP_LandingGear::init()
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

@@ -68,8 +68,11 @@ void AP_Tuning::check_selector_switch(void)
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     RC_Channel *selchan = RC_Channels::rc_channel(selector-1);
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     if (!rc().has_valid_input()) {

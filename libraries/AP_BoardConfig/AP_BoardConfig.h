@@ -179,6 +179,20 @@ public:
     static bool watchdog_enabled(void) {
         return _singleton?(_singleton->_options & BOARD_OPTION_WATCHDOG)!=0:false;
     }
+<<<<<<< HEAD
+
+>>>>>>> upstream/master
+=======
+#endif
+
+    enum board_options {
+        BOARD_OPTION_WATCHDOG = (1 << 0),
+    };
+
+    // return true if watchdog enabled
+    static bool watchdog_enabled(void) {
+        return _singleton?(_singleton->_options & BOARD_OPTION_WATCHDOG)!=0:false;
+    }
 
 >>>>>>> upstream/master
 private:
@@ -188,9 +202,12 @@ private:
     AP_Int8 pwm_count;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     
 #if AP_FEATURE_BOARD_DETECT || defined(AP_FEATURE_BRD_PWM_COUNT_PARAM) || AP_FEATURE_SAFETY_BUTTON
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 
@@ -256,6 +273,10 @@ private:
 
     // real-time-clock; private because access is via the singleton
     AP_RTC rtc;
+
+#ifdef HAL_GPIO_PWM_VOLT_PIN
+    AP_Int8 _pwm_volt_sel;
+#endif
 
 #ifdef HAL_GPIO_PWM_VOLT_PIN
     AP_Int8 _pwm_volt_sel;

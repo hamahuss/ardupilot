@@ -18,7 +18,11 @@
 #include <AP_HAL/AP_HAL.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+#include <AP_Common/Location.h>
+>>>>>>> upstream/master
 =======
 #include <AP_Common/Location.h>
 >>>>>>> upstream/master

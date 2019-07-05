@@ -221,9 +221,12 @@ uint32_t get_fattime()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // get RTC backup register 0
 static uint32_t get_rtc_backup0(void)
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #if !defined(NO_FASTBOOT)
@@ -231,6 +234,9 @@ static uint32_t get_rtc_backup0(void)
 // get RTC backup registers starting at given idx
 void get_rtc_backup(uint8_t idx, uint32_t *v, uint8_t n)
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -271,6 +277,7 @@ void set_fast_reboot(enum rtc_boot_magic v)
     uint32_t vv = (uint32_t)v;
     set_rtc_backup(0, &vv, 1);
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 <<<<<<< HEAD
@@ -283,6 +290,8 @@ void set_rtc_backup(uint8_t idx, const uint32_t *v, uint8_t n)
 }
 
 =======
+=======
+>>>>>>> upstream/master
 }
 
 #else // NO_FASTBOOT
@@ -291,6 +300,16 @@ void set_rtc_backup(uint8_t idx, const uint32_t *v, uint8_t n)
 void set_rtc_backup(uint8_t idx, const uint32_t *v, uint8_t n)
 {
 }
+<<<<<<< HEAD
+=======
+
+// get RTC backup registers starting at given idx
+void get_rtc_backup(uint8_t idx, uint32_t *v, uint8_t n)
+{
+    return 0;
+}
+#endif // NO_FASTBOOT
+>>>>>>> upstream/master
 
 >>>>>>> upstream/master
 // get RTC backup registers starting at given idx
@@ -342,6 +361,9 @@ void peripheral_power_enable(void)
         chThdSleep(chTimeMS2I(1));
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

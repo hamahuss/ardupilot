@@ -72,9 +72,12 @@ protected:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         float bouyancy_acceleration = GRAVITY_MSS + net_bouyancy/weight;
     } frame_proprietary;
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     } frame_property;

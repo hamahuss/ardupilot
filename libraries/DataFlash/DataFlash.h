@@ -12,9 +12,12 @@
 #include <AP_RPM/AP_RPM.h>
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.h
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.h
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
 #include <AP_RangeFinder/AP_RangeFinder.h>
 #include <DataFlash/LogStructure.h>
 =======
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
 #include <AP_Logger/LogStructure.h>
@@ -214,6 +217,9 @@ public:
     void WriteCritical(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...);
     void WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical=false);
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.h
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
+=======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
@@ -254,6 +260,9 @@ public:
     void set_force_log_disarmed(bool force_logging) { _force_log_disarmed = force_logging; }
     bool log_while_disarmed(void) const;
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.h
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
+=======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
@@ -439,6 +448,9 @@ private:
     uint16_t _log_data_page;
 
     GCS_MAVLINK *_log_sending_link;
+
+    // last time arming failed, for backends
+    uint32_t _last_arming_failure_ms;
 
     // last time arming failed, for backends
     uint32_t _last_arming_failure_ms;

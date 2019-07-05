@@ -124,8 +124,12 @@ void CRRCSim::recv_fdm(const struct sitl_input &input)
     loc2.lng = pkt.longitude * 1.0e7;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     memset(&loc1, 0, sizeof(loc1));
     Vector2f posdelta = location_diff(loc1, loc2);
+=======
+    const Vector2f posdelta = loc1.get_distance_NE(loc2);
+>>>>>>> upstream/master
 =======
     const Vector2f posdelta = loc1.get_distance_NE(loc2);
 >>>>>>> upstream/master

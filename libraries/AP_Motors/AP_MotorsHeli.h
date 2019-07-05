@@ -140,6 +140,9 @@ public:
     void enable_rsc_parameters(void);
 
 
+    void enable_rsc_parameters(void);
+
+
     // var_info for holding Parameter information
     static const struct AP_Param::GroupInfo var_info[];
 

@@ -269,6 +269,18 @@ float AR_AttitudeControl::get_turn_rate_from_heading(float heading_rad, float ra
 // return a desired turn-rate given a desired heading in radians
 float AR_AttitudeControl::get_turn_rate_from_heading(float heading_rad, float rate_max_rads) const
 {
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+    // calculate the desired turn rate (in radians) from the angle error (also in radians)
+    float desired_rate = get_turn_rate_from_heading(heading_rad, rate_max_rads);
+
+    return get_steering_out_rate(desired_rate, motor_limit_left, motor_limit_right, dt);
+}
+
+// return a desired turn-rate given a desired heading in radians
+float AR_AttitudeControl::get_turn_rate_from_heading(float heading_rad, float rate_max_rads) const
+{
 >>>>>>> upstream/master
     const float yaw_error = wrap_PI(heading_rad - _ahrs.yaw);
 

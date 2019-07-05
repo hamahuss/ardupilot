@@ -31,6 +31,9 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_BattMonitor/AP_BattMonitor.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -185,6 +188,9 @@ AP_OSD::AP_OSD()
 #endif
     previous_pwm_screen = -1;
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -321,6 +327,9 @@ void AP_OSD::update_current_screen()
         was_failsafe = false;
     }
     
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     if (rc_channel == 0) {
         return;

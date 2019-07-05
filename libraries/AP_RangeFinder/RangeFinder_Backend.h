@@ -35,10 +35,13 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     void update_pre_arm_check();
 
     enum Rotation orientation() const { return (Rotation)state.orientation.get(); }
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     enum Rotation orientation() const { return (Rotation)params.orientation.get(); }
@@ -88,6 +91,9 @@ protected:
 
     // semaphore for access to shared frontend data
     AP_HAL::Semaphore *_sem;    
+
+    //Type Backend initialised with
+    RangeFinder::RangeFinder_Type _backend_type;
 
     //Type Backend initialised with
     RangeFinder::RangeFinder_Type _backend_type;

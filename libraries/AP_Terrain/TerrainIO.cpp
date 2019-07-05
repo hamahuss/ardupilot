@@ -232,8 +232,13 @@ void AP_Terrain::seek_offset(void)
     // shift another two blocks east to ensure room is available
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     location_offset(loc2, 0, 2*grid_spacing*TERRAIN_GRID_BLOCK_SIZE_Y);
     Vector2f offset = location_diff(loc1, loc2);
+=======
+    loc2.offset(0, 2*grid_spacing*TERRAIN_GRID_BLOCK_SIZE_Y);
+    const Vector2f offset = loc1.get_distance_NE(loc2);
+>>>>>>> upstream/master
 =======
     loc2.offset(0, 2*grid_spacing*TERRAIN_GRID_BLOCK_SIZE_Y);
     const Vector2f offset = loc1.get_distance_NE(loc2);

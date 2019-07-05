@@ -276,9 +276,12 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
         
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         bus.i2c_active = true;
         osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_READY, "i2cStart state");
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
         osalSysLock();
@@ -286,6 +289,9 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
         osalSysUnlock();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

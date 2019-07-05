@@ -451,17 +451,23 @@ Vector2f* AC_Fence::get_boundary_points(uint16_t& num_points) const
     // return array minus the first point which holds the return location
     if (_boundary == nullptr) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> upstream/master
         return nullptr;
     }
     if (!_boundary_valid) {
         return nullptr;
     }
+<<<<<<< HEAD
 =======
         return nullptr;
     }
     if (!_boundary_valid) {
         return nullptr;
     }
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     // minus one for return point, minus one for closing point
     // (_boundary_valid is not true unless we have a closing point AND

@@ -29,6 +29,10 @@
 #include <AP_Param/AP_Param.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+#include <AP_Common/Location.h>
+>>>>>>> upstream/master
 =======
 #include <AP_Common/Location.h>
 >>>>>>> upstream/master
@@ -94,9 +98,13 @@ public:
     // init sets up INS board orientation
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     virtual void init() {
         set_orientation();
     };
+=======
+    virtual void init();
+>>>>>>> upstream/master
 =======
     virtual void init();
 >>>>>>> upstream/master
@@ -232,6 +240,9 @@ public:
     // see if EKF lane switching is possible to avoid EKF failsafe
     virtual void check_lane_switch(void) {}
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -588,7 +599,10 @@ public:
 protected:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     void update_nmea_out();

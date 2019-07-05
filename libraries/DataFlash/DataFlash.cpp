@@ -25,8 +25,11 @@ extern const AP_HAL::HAL& hal;
 
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 const AP_Param::GroupInfo DataFlash_Class::var_info[] = {
 =======
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 // by default log for 15 seconds after disarming
@@ -402,7 +405,10 @@ void DataFlash_Class::validate_structures(const struct LogStructure *logstructur
         passed = validate_structure(logstructure, i) && passed;
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 =======
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
     }
@@ -767,8 +773,11 @@ void DataFlash_Class::Log_Write(const char *name, const char *labels, const char
 
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 void DataFlash_Class::Log_WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list)
 =======
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 void AP_Logger::WriteCritical(const char *name, const char *labels, const char *fmt, ...)
@@ -791,6 +800,9 @@ void AP_Logger::WriteCritical(const char *name, const char *labels, const char *
 
 void AP_Logger::WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical)
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
+=======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
@@ -814,7 +826,11 @@ void AP_Logger::WriteV(const char *name, const char *labels, const char *units, 
         va_copy(arg_copy, arg_list);
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
         backends[i]->Log_Write(f->msg_type, arg_copy);
+=======
+        backends[i]->Write(f->msg_type, arg_copy, is_critical);
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 =======
         backends[i]->Write(f->msg_type, arg_copy, is_critical);
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp

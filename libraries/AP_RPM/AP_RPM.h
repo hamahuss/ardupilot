@@ -99,7 +99,10 @@ private:
 
     void detect_instance(uint8_t instance);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 };
 
 namespace AP {

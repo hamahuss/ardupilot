@@ -139,6 +139,9 @@ float Submarine::calculate_buoyancy_acceleration()
     // bouyant force is proportional to fraction of height in water
     return frame_property.buoyancy_acceleration * below_water_level/frame_property.height;
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

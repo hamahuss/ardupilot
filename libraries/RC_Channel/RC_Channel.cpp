@@ -41,6 +41,9 @@ uint32_t RC_Channel::configured_mask;
 #include <AP_Arming/AP_Arming.h>
 #include <AP_GPS/AP_GPS.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -142,11 +145,16 @@ RC_Channel::set_pwm(int16_t pwm)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (has_override()) {
         radio_in = override_value;
 =======
     if (has_override() && !rc().ignore_overrides()) {
         radio_in = override_value;
+=======
+    if (has_override() && !rc().ignore_overrides()) {
+        radio_in = override_value;
+>>>>>>> upstream/master
 =======
     if (has_override() && !rc().ignore_overrides()) {
         radio_in = override_value;
@@ -361,6 +369,7 @@ void RC_Channel::set_override(const uint16_t v, const uint32_t timestamp_us)
         return;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     override_value = v;
 =======
     if (!rc().gcs_overrides_enabled()) {
@@ -368,11 +377,16 @@ void RC_Channel::set_override(const uint16_t v, const uint32_t timestamp_us)
     }
 =======
 >>>>>>> upstream/master
+=======
+>>>>>>> upstream/master
 
     last_override_time = timestamp_us != 0 ? timestamp_us : AP_HAL::millis();
     override_value = v;
     rc().new_override_received();
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

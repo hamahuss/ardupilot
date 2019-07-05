@@ -24,6 +24,9 @@
 =======
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

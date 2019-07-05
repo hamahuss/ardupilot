@@ -11,6 +11,9 @@
 #include <GCS_MAVLink/GCS.h>
 #include <AP_GPS/AP_GPS.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

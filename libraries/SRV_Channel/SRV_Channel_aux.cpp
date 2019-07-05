@@ -48,8 +48,11 @@ void SRV_Channel::output_ch(void)
             } else {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                 output_pwm = rc->get_radio_in();
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
                 const int16_t radio_in = c->get_radio_in();
@@ -64,6 +67,9 @@ void SRV_Channel::output_ch(void)
                     }
                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

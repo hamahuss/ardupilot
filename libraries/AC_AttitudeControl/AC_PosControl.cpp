@@ -627,8 +627,12 @@ void AC_PosControl::run_z_controller()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     float thr_out = (p+i+d)*0.001f +_motors.get_throttle_hover();
     _ut = thr_out;
+=======
+    float thr_out = (p + i + d) * 0.001f + _motors.get_throttle_hover();
+>>>>>>> upstream/master
 =======
     float thr_out = (p + i + d) * 0.001f + _motors.get_throttle_hover();
 >>>>>>> upstream/master

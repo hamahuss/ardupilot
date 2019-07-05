@@ -502,9 +502,15 @@ void AP_Landing_Deepstall::build_approach_path(bool use_current_heading)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     float arc_heading_deg = target_heading_deg + (landing_point.flags.loiter_ccw ? -90.0f : 90.0f);
     location_update(arc, arc_heading_deg, loiter_radius_m_abs);
     location_update(arc_entry, arc_heading_deg, loiter_radius_m_abs * 2);
+=======
+    float arc_heading_deg = target_heading_deg + (landing_point.loiter_ccw ? -90.0f : 90.0f);
+    arc.offset_bearing(arc_heading_deg, loiter_radius_m_abs);
+    arc_entry.offset_bearing(arc_heading_deg, loiter_radius_m_abs * 2);
+>>>>>>> upstream/master
 =======
     float arc_heading_deg = target_heading_deg + (landing_point.loiter_ccw ? -90.0f : 90.0f);
     arc.offset_bearing(arc_heading_deg, loiter_radius_m_abs);

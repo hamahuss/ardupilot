@@ -570,6 +570,9 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
             update_motor_control(ROTOR_CONTROL_IDLE);
             break;
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

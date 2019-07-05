@@ -17,8 +17,11 @@
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <AP_AHRS/AP_AHRS.h>
 #include <StorageManager/StorageManager.h>
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 

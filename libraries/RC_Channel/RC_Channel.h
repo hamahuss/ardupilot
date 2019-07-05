@@ -21,12 +21,15 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     // used to get min/max/trim limit value based on _reverse
     enum LimitValue {
         RC_CHANNEL_LIMIT_TRIM,
         RC_CHANNEL_LIMIT_MIN,
         RC_CHANNEL_LIMIT_MAX
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     enum ChannelType {
@@ -89,7 +92,10 @@ public:
 
     int16_t    stick_mixing(const int16_t servo_in);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 
     // get control input with zero deadzone
     int16_t    get_control_in_zero_dz(void) const;
@@ -231,6 +237,9 @@ protected:
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -322,6 +331,7 @@ public:
     bool ignore_rc_failsafe(void) const {
         return get_singleton() != nullptr && (_options & uint32_t(Option::IGNORE_FAILSAFE));
 <<<<<<< HEAD
+<<<<<<< HEAD
     }
 
     bool ignore_overrides() const {
@@ -332,6 +342,18 @@ public:
         return _options & uint32_t(Option::IGNORE_RECEIVER);
     }
 
+=======
+    }
+
+    bool ignore_overrides() const {
+        return _options & uint32_t(Option::IGNORE_OVERRIDES);
+    }
+
+    bool ignore_receiver() const {
+        return _options & uint32_t(Option::IGNORE_RECEIVER);
+    }
+
+>>>>>>> upstream/master
 =======
     }
 
@@ -361,6 +383,9 @@ protected:
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -369,11 +394,14 @@ private:
     static RC_Channel *channels;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     static bool has_new_overrides;
     static AP_Float *override_timeout;
     RC_Channel obj_channels[NUM_RC_CHANNELS];
 =======
 =======
+=======
+>>>>>>> upstream/master
 
     bool has_new_overrides;
 

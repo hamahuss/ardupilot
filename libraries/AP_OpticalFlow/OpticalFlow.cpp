@@ -7,7 +7,10 @@
 #include "AP_OpticalFlow_CXOF.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #include "AP_OpticalFlow_MAV.h"
@@ -113,6 +116,7 @@ void OpticalFlow::init(void)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     // return immediately if not enabled
     if (!_enabled) {
         return;
@@ -157,11 +161,23 @@ void OpticalFlow::init(void)
     }
 
 >>>>>>> upstream/master
+=======
+     _log_bit = log_bit;
+
+    // return immediately if not enabled or backend already created
+    if ((_type == (int8_t)OpticalFlowType::NONE) || (backend != nullptr)) {
+        return;
+    }
+
+>>>>>>> upstream/master
     switch ((OpticalFlowType)_type.get()) {
     case OpticalFlowType::NONE:
         break;
     case OpticalFlowType::PX4FLOW:
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -171,8 +187,11 @@ void OpticalFlow::init(void)
         backend = AP_OpticalFlow_Pixart::detect("pixartflow", *this);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #endif
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
         if (backend == nullptr) {
@@ -201,6 +220,9 @@ void OpticalFlow::init(void)
 #endif
         break;
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -220,6 +242,9 @@ void OpticalFlow::update(void)
         return;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -232,7 +257,10 @@ void OpticalFlow::update(void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 void OpticalFlow::handle_msg(const mavlink_message_t *msg)

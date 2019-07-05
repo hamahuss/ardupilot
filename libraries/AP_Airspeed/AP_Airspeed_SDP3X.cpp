@@ -200,6 +200,7 @@ float AP_Airspeed_SDP3X::_correct_pressure(float press)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     float temperature;
     AP_Baro *baro = AP_Baro::get_instance();
 
@@ -209,6 +210,8 @@ float AP_Airspeed_SDP3X::_correct_pressure(float press)
 
     float sign = 1;
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     float sign = 1.0f;
@@ -248,6 +251,7 @@ float AP_Airspeed_SDP3X::_correct_pressure(float press)
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     AP_Baro *baro = AP_Baro::get_singleton();
 
@@ -260,6 +264,8 @@ float AP_Airspeed_SDP3X::_correct_pressure(float press)
         return press;
     }
 
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     float rho_air = baro->get_pressure() / (ISA_GAS_CONSTANT * (temperature + C_TO_KELVIN));
 

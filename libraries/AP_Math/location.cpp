@@ -24,6 +24,7 @@
 #include "location.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 float longitude_scale(const struct Location &loc)
 {
@@ -50,6 +51,8 @@ uint32_t get_distance_cm(const struct Location &loc1, const struct Location &loc
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
+=======
+>>>>>>> upstream/master
 
 // return horizontal distance between two positions in cm
 float get_horizontal_distance_cm(const Vector3f &origin, const Vector3f &destination)
@@ -57,6 +60,7 @@ float get_horizontal_distance_cm(const Vector3f &origin, const Vector3f &destina
     return norm(destination.x-origin.x,destination.y-origin.y);
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 // return bearing in centi-degrees between two locations
@@ -73,6 +77,8 @@ int32_t get_bearing_cd(const struct Location &loc1, const struct Location &loc2)
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
+=======
+>>>>>>> upstream/master
 // return bearing in centi-degrees between two positions
 float get_bearing_cd(const Vector3f &origin, const Vector3f &destination)
 {
@@ -83,6 +89,7 @@ float get_bearing_cd(const Vector3f &origin, const Vector3f &destination)
     return bearing;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 // see if location is past a line perpendicular to
@@ -224,6 +231,8 @@ void print_latlon(AP_HAL::BetterStream *s, int32_t lat_or_lon)
     s->printf("%ld.%07ld",(long)dec_portion,(long)frac_portion);
 }
 
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 =======

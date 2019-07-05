@@ -186,7 +186,10 @@ private:
     bool            _boundary_valid = false;        // true if boundary forms a closed polygon
     uint32_t        _boundary_update_ms;            // system time of last update to the boundary
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 };
 
 namespace AP {

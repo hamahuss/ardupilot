@@ -600,7 +600,10 @@ def write_SPI_config(f):
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 def parse_spi_device(dev):
@@ -1029,6 +1032,9 @@ def write_ADC_config(f):
             f.write('#define FMU_SERVORAIL_ADC_CHAN %u\n' % chan)
             f.write('#define HAL_HAVE_SERVO_VOLTAGE 1\n')
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

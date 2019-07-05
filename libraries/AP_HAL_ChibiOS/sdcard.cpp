@@ -20,7 +20,10 @@
 #include <AP_BoardConfig/AP_BoardConfig.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "Semaphores.h"
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 =======
@@ -103,7 +106,11 @@ bool sdcard_init()
         printf("No sdcard SPI device found\n");
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         sem.give();
+=======
+        sdcard_running = false;
+>>>>>>> upstream/master
 =======
         sdcard_running = false;
 >>>>>>> upstream/master
@@ -148,7 +155,11 @@ bool sdcard_init()
 #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     sem.give();
+=======
+    sdcard_running = false;
+>>>>>>> upstream/master
 =======
     sdcard_running = false;
 >>>>>>> upstream/master

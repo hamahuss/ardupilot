@@ -665,8 +665,13 @@ void AC_AttitudeControl::attitude_controller_run_quat()
     // todo: this should probably be a matrix that couples yaw as well.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     _rate_target_ang_vel.x += attitude_error_vector.y * _ahrs.get_gyro().z;
     _rate_target_ang_vel.y += -attitude_error_vector.x * _ahrs.get_gyro().z;
+=======
+    _rate_target_ang_vel.x += constrain_float(attitude_error_vector.y, -M_PI / 4, M_PI / 4) * _ahrs.get_gyro().z;
+    _rate_target_ang_vel.y += -constrain_float(attitude_error_vector.x, -M_PI / 4, M_PI / 4) * _ahrs.get_gyro().z;
+>>>>>>> upstream/master
 =======
     _rate_target_ang_vel.x += constrain_float(attitude_error_vector.y, -M_PI / 4, M_PI / 4) * _ahrs.get_gyro().z;
     _rate_target_ang_vel.y += -constrain_float(attitude_error_vector.x, -M_PI / 4, M_PI / 4) * _ahrs.get_gyro().z;
@@ -1112,9 +1117,12 @@ float AC_AttitudeControl::max_rate_step_bf_roll()
     float alpha = get_rate_roll_pid().get_filt_alpha();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     float alpha_remaining = 1-alpha;
     return 2.0f*_motors.get_throttle_hover()*AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX/((alpha_remaining*alpha_remaining*alpha_remaining*alpha*get_rate_roll_pid().kD())/_dt + get_rate_roll_pid().kP());
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     float alpha_remaining = 1 - alpha;
@@ -1122,6 +1130,9 @@ float AC_AttitudeControl::max_rate_step_bf_roll()
     float throttle_hover = constrain_float(_motors.get_throttle_hover(), 0.1f, 0.5f);
     return 2.0f * throttle_hover * AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX / ((alpha_remaining * alpha_remaining * alpha_remaining * alpha * get_rate_roll_pid().kD()) / _dt + get_rate_roll_pid().kP());
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -1133,9 +1144,12 @@ float AC_AttitudeControl::max_rate_step_bf_pitch()
     float alpha = get_rate_pitch_pid().get_filt_alpha();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     float alpha_remaining = 1-alpha;
     return 2.0f*_motors.get_throttle_hover()*AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX/((alpha_remaining*alpha_remaining*alpha_remaining*alpha*get_rate_pitch_pid().kD())/_dt + get_rate_pitch_pid().kP());
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     float alpha_remaining = 1 - alpha;
@@ -1143,6 +1157,9 @@ float AC_AttitudeControl::max_rate_step_bf_pitch()
     float throttle_hover = constrain_float(_motors.get_throttle_hover(), 0.1f, 0.5f);
     return 2.0f * throttle_hover * AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX / ((alpha_remaining * alpha_remaining * alpha_remaining * alpha * get_rate_pitch_pid().kD()) / _dt + get_rate_pitch_pid().kP());
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -1154,9 +1171,12 @@ float AC_AttitudeControl::max_rate_step_bf_yaw()
     float alpha = get_rate_yaw_pid().get_filt_alpha();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     float alpha_remaining = 1-alpha;
     return 2.0f*_motors.get_throttle_hover()*AC_ATTITUDE_RATE_RP_CONTROLLER_OUT_MAX/((alpha_remaining*alpha_remaining*alpha_remaining*alpha*get_rate_yaw_pid().kD())/_dt + get_rate_yaw_pid().kP());
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     float alpha_remaining = 1 - alpha;

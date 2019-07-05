@@ -16,10 +16,13 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     void set_capabilities(uint64_t cap) { capabilities |= cap; }
     void clear_capabilities(uint64_t cap) { capabilities &= ~(cap); }
     uint64_t get_capabilities() const { return capabilities; }
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     // return the time that the armed state last changed
@@ -36,6 +39,9 @@ public:
     // return true if this is a watchdog reset boot and we were armed
     bool was_watchdog_armed() const { return was_watchdog_reset() && persistent_data.armed; }
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -171,8 +177,12 @@ protected:
     bool soft_armed = false;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     uint64_t capabilities = 0;
 
+=======
+    uint32_t last_armed_change_ms;
+>>>>>>> upstream/master
 =======
     uint32_t last_armed_change_ms;
 >>>>>>> upstream/master

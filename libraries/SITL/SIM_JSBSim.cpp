@@ -129,9 +129,12 @@ bool JSBSim::create_templates(void)
     fprintf(f, "<?xml version=\"1.0\"?>\n"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             "<output name=\"127.0.0.1\" type=\"FLIGHTGEAR\" port=\"%u\" protocol=\"udp\" rate=\"1000\"/>\n",
             fdm_port);
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
             "<output name=\"127.0.0.1\" type=\"FLIGHTGEAR\" port=\"%u\" protocol=\"UDP\" rate=\"%f\">\n"
@@ -139,6 +142,9 @@ bool JSBSim::create_templates(void)
             "</output>",
             fdm_port, rate_hz);
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

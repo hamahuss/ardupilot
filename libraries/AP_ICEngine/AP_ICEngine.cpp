@@ -102,9 +102,12 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     AP_GROUPINFO("START_PCT", 10, AP_ICEngine, start_percent, 5),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     
     AP_GROUPEND    
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 
@@ -117,6 +120,9 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
 
     AP_GROUPEND
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

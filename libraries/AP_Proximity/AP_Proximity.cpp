@@ -26,6 +26,9 @@
 #include "AP_Proximity_MorseSITL.h"
 #include <AP_AHRS/AP_AHRS.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

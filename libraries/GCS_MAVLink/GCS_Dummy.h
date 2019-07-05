@@ -60,8 +60,11 @@ class GCS_Dummy : public GCS
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     void send_statustext(MAV_SEVERITY severity, uint8_t dest_bitmask, const char *text) { hal.console->printf("TOGCS: %s\n", text); }
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     void send_statustext(MAV_SEVERITY severity, uint8_t dest_bitmask, const char *text) override { hal.console->printf("TOGCS: %s\n", text); }

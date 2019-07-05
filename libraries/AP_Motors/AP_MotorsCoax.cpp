@@ -80,7 +80,11 @@ void AP_MotorsCoax::output_to_motors()
             break;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         case SPIN_WHEN_ARMED:
+=======
+        case SpoolState::GROUND_IDLE:
+>>>>>>> upstream/master
 =======
         case SpoolState::GROUND_IDLE:
 >>>>>>> upstream/master

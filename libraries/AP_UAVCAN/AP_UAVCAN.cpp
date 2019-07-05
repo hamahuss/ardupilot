@@ -532,6 +532,7 @@ bool AP_UAVCAN::try_init(void)
     AP_OpticalFlow_HereFlow::subscribe_msgs(this);
     AP_RangeFinder_UAVCAN::subscribe_msgs(this);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> upstream/master
 
     uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength2> *magnetic2;
@@ -567,6 +568,8 @@ bool AP_UAVCAN::try_init(void)
         debug_uavcan(1, "UAVCAN BatteryInfo subscriber start problem\n\r");
         return false;
     }
+=======
+>>>>>>> upstream/master
 
     act_out_array[_uavcan_i] = new uavcan::Publisher<uavcan::equipment::actuator::ArrayCommand>(*node);
     act_out_array[_uavcan_i]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));

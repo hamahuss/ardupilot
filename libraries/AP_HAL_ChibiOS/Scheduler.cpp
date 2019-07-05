@@ -59,6 +59,12 @@ THD_WORKING_AREA(_monitor_thread_wa, MONITOR_THD_WA_SIZE);
 #ifndef HAL_NO_MONITOR_THREAD
 THD_WORKING_AREA(_monitor_thread_wa, MONITOR_THD_WA_SIZE);
 #endif
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
+#ifndef HAL_NO_MONITOR_THREAD
+THD_WORKING_AREA(_monitor_thread_wa, MONITOR_THD_WA_SIZE);
+#endif
 >>>>>>> upstream/master
 
 Scheduler::Scheduler()
@@ -71,6 +77,15 @@ void Scheduler::init()
     chBSemObjectInit(&_io_semaphore, false);
 <<<<<<< HEAD
 =======
+
+#ifndef HAL_NO_MONITOR_THREAD
+    // setup the monitor thread - this is used to detect software lockups
+    _monitor_thread_ctx = chThdCreateStatic(_monitor_thread_wa,
+                     sizeof(_monitor_thread_wa),
+                     APM_MONITOR_PRIORITY,        /* Initial priority.    */
+                     _monitor_thread,             /* Thread function.     */
+                     this);                     /* Thread parameter.    */
+#endif
 
 #ifndef HAL_NO_MONITOR_THREAD
     // setup the monitor thread - this is used to detect software lockups
@@ -334,7 +349,10 @@ void Scheduler::_timer_thread(void *arg)
             }
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
     }
 }
 
@@ -375,6 +393,9 @@ void Scheduler::_monitor_thread(void *arg)
             // at 500ms we declare an internal error
             AP::internalerror().error(AP_InternalError::error_t::main_loop_stuck);
         }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     }
 }

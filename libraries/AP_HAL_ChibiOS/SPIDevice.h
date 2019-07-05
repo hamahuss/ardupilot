@@ -129,6 +129,9 @@ private:
     // low level transfer function
     bool do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len) WARN_IF_UNUSED;
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

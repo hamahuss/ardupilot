@@ -457,9 +457,12 @@ void AP_InertialSensor_Backend::update_gyro(uint8_t instance)
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     _sem->give();
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     // possily update the notch filter parameters
@@ -472,6 +475,9 @@ void AP_InertialSensor_Backend::update_gyro(uint8_t instance)
         _last_notch_attenuation_dB[instance] = _gyro_notch_attenuation_dB();
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

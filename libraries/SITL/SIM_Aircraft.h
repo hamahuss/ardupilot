@@ -32,6 +32,9 @@
 #include "SIM_Precland.h"
 #include <Filter/Filter.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -189,8 +192,13 @@ protected:
     AP_Int8 *ahrs_orientation;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     
     enum {
+=======
+
+    enum GroundBehaviour {
+>>>>>>> upstream/master
 =======
 
     enum GroundBehaviour {

@@ -240,6 +240,9 @@ bool AP_BattMonitor_Backend::reset_remaining(float percentage)
     return true;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

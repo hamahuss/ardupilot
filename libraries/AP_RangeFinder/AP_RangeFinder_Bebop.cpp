@@ -64,8 +64,13 @@ static const uint16_t waveform_mode1[32] = {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 AP_RangeFinder_Bebop::AP_RangeFinder_Bebop(RangeFinder::RangeFinder_State &_state) :
     AP_RangeFinder_Backend(_state, MAV_DISTANCE_SENSOR_ULTRASOUND),
+=======
+AP_RangeFinder_Bebop::AP_RangeFinder_Bebop(RangeFinder::RangeFinder_State &_state, AP_RangeFinder_Params &_params) :
+    AP_RangeFinder_Backend(_state, _params),
+>>>>>>> upstream/master
 =======
 AP_RangeFinder_Bebop::AP_RangeFinder_Bebop(RangeFinder::RangeFinder_State &_state, AP_RangeFinder_Params &_params) :
     AP_RangeFinder_Backend(_state, _params),

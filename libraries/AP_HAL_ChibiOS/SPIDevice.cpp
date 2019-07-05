@@ -162,9 +162,12 @@ bool SPIDevice::do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     bus.bouncebuffer_setup(send, len, recv, len);
 
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     bool ret = true;
@@ -181,6 +184,9 @@ bool SPIDevice::do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len)
     osalSysLock();
     hal.util->persistent_data.spi_count++;
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -211,6 +217,9 @@ bool SPIDevice::do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len)
     bus.bouncebuffer_finish(send, recv, len);
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

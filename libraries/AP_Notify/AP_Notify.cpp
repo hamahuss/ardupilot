@@ -323,6 +323,9 @@ void AP_Notify::add_backends(void)
     ADD_BACKEND(new SITL_SFML_LED());
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

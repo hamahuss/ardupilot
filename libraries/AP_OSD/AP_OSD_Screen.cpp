@@ -36,6 +36,9 @@
 #include <AP_GPS/AP_GPS.h>
 #include <AP_Baro/AP_Baro.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -579,8 +582,13 @@ void AP_OSD_Screen::draw_home(uint8_t x, uint8_t y)
         const Location &home_loc = ahrs.get_home();
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         float distance = get_distance(home_loc, loc);
         int32_t angle = wrap_360_cd(get_bearing_cd(loc, home_loc) - ahrs.yaw_sensor);
+=======
+        float distance = home_loc.get_distance(loc);
+        int32_t angle = wrap_360_cd(loc.get_bearing_to(home_loc) - ahrs.yaw_sensor);
+>>>>>>> upstream/master
 =======
         float distance = home_loc.get_distance(loc);
         int32_t angle = wrap_360_cd(loc.get_bearing_to(home_loc) - ahrs.yaw_sensor);

@@ -10,9 +10,12 @@
 #include <AP_Common/AP_Common.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <AP_GPS/AP_GPS.h>
 #include <GCS_MAVLink/GCS.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 =======

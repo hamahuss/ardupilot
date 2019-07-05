@@ -530,7 +530,10 @@ bool AP_Mission::read_cmd_from_storage(uint16_t index, Mission_Command& cmd) con
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
         PackedContent packed_content {};
@@ -567,7 +570,10 @@ bool AP_Mission::write_cmd_to_storage(uint16_t index, Mission_Command& cmd)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     PackedContent packed {};
@@ -1850,6 +1856,9 @@ const char *AP_Mission::Mission_Command::type() const {
     case MAV_CMD_NAV_LOITER_TO_ALT:
         return "LoitAltitude";
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -1923,6 +1932,9 @@ const char *AP_Mission::Mission_Command::type() const {
         return "Parachute";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

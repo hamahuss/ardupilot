@@ -21,6 +21,9 @@ public:
     static AP_Arming *get_singleton();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -63,6 +66,9 @@ public:
     virtual bool arm(AP_Arming::Method method, bool do_arming_checks=true);
     virtual bool disarm();
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -79,7 +85,11 @@ public:
     // checks.  Those go here:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     bool arm_checks(uint8_t method);
+=======
+    virtual bool arm_checks(AP_Arming::Method method);
+>>>>>>> upstream/master
 =======
     virtual bool arm_checks(AP_Arming::Method method);
 >>>>>>> upstream/master
@@ -158,6 +168,9 @@ protected:
     virtual bool proximity_checks(bool report) const;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -180,6 +193,10 @@ private:
     bool ins_accels_consistent(const AP_InertialSensor &ins);
     bool ins_gyros_consistent(const AP_InertialSensor &ins);
 
+};
+
+namespace AP {
+    AP_Arming &arming();
 };
 
 namespace AP {

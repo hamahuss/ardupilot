@@ -108,6 +108,9 @@ public:
         SerialProtocol_NMEAOutput = 20,
         SerialProtocol_WindVane = 21,
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
