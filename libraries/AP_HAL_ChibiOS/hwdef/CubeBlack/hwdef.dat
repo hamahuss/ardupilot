@@ -5,7 +5,10 @@
 include ../fmuv3/hwdef.dat
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 define HAL_CHIBIOS_ARCH_CUBEBLACK 1
 
 env OPTIMIZE -O3
@@ -74,4 +77,7 @@ PA8 nVDD_5V_PERIPH_EN OUTPUT HIGH
 # means sensors off, then it is pulled HIGH in peripheral_power_enable()
 undef PE3
 PE3 VDD_3V3_SENSORS_EN OUTPUT LOW
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master

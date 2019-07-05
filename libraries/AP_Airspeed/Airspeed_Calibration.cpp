@@ -12,6 +12,9 @@
 =======
 #include <GCS_MAVLink/GCS.h>
 #include <AP_Baro/AP_Baro.h>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 
 #include "AP_Airspeed.h"
@@ -168,6 +171,7 @@ void AP_Airspeed::update_calibration(const Vector3f &vground, int16_t max_airspe
 void AP_Airspeed::log_mavlink_send(mavlink_channel_t chan, const Vector3f &vground)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     mavlink_msg_airspeed_autocal_send(chan,
                                       vground.x,
                                       vground.y,
@@ -182,6 +186,8 @@ void AP_Airspeed::log_mavlink_send(mavlink_channel_t chan, const Vector3f &vgrou
                                       state[primary].calibration.P.b.y,
                                       state[primary].calibration.P.c.z);
 =======
+=======
+>>>>>>> upstream/master
     const mavlink_airspeed_autocal_t packet{
         vground.x,
         vground.y,
@@ -198,5 +204,8 @@ void AP_Airspeed::log_mavlink_send(mavlink_channel_t chan, const Vector3f &vgrou
     };
     gcs().send_to_active_channels(MAVLINK_MSG_ID_AIRSPEED_AUTOCAL,
                                   (const char *)&packet);
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 }

@@ -28,6 +28,10 @@
 #include <AP_InertialSensor/AP_InertialSensor.h>
 #include <AP_Param/AP_Param.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+#include <AP_Common/Location.h>
+>>>>>>> upstream/master
 =======
 #include <AP_Common/Location.h>
 >>>>>>> upstream/master
@@ -89,9 +93,13 @@ public:
 
     // init sets up INS board orientation
 <<<<<<< HEAD
+<<<<<<< HEAD
     virtual void init() {
         set_orientation();
     };
+=======
+    virtual void init();
+>>>>>>> upstream/master
 =======
     virtual void init();
 >>>>>>> upstream/master
@@ -223,6 +231,9 @@ public:
 
     // see if EKF lane switching is possible to avoid EKF failsafe
     virtual void check_lane_switch(void) {}
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     
     // Euler angles (radians)
@@ -576,7 +587,10 @@ public:
 
 protected:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
     void update_nmea_out();
 
     // multi-thread access support

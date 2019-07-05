@@ -9,6 +9,9 @@
 =======
 #include <AP_Logger/AP_Logger.h>
 #include <AP_GPS/AP_GPS.h>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 #include <new>
 
@@ -589,6 +592,9 @@ const AP_Param::GroupInfo NavEKF2::var_info[] = {
     // @Units: mGauss
     AP_GROUPINFO("MAG_EF_LIM", 52, NavEKF2, _mag_ef_limit, 50),
     
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     AP_GROUPEND
 };

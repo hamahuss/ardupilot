@@ -55,6 +55,9 @@ public:
         SITL = 10
     };
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     // init - initialise sensor
     void init(void);

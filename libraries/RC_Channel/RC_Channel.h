@@ -20,12 +20,15 @@ public:
     RC_Channel(void);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // used to get min/max/trim limit value based on _reverse
     enum LimitValue {
         RC_CHANNEL_LIMIT_TRIM,
         RC_CHANNEL_LIMIT_MIN,
         RC_CHANNEL_LIMIT_MAX
 =======
+=======
+>>>>>>> upstream/master
     enum ChannelType {
         RC_CHANNEL_TYPE_ANGLE = 0,
         RC_CHANNEL_TYPE_RANGE = 1,
@@ -85,6 +88,12 @@ public:
     bool       has_override() const;
 
     int16_t    stick_mixing(const int16_t servo_in);
+<<<<<<< HEAD
+=======
+
+    // get control input with zero deadzone
+    int16_t    get_control_in_zero_dz(void) const;
+>>>>>>> upstream/master
 
     // get control input with zero deadzone
     int16_t     get_control_in_zero_dz(void);
@@ -221,6 +230,9 @@ protected:
     };
 
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 private:
 
@@ -309,6 +321,7 @@ public:
     // should we ignore RC failsafe bits from receivers?
     bool ignore_rc_failsafe(void) const {
         return get_singleton() != nullptr && (_options & uint32_t(Option::IGNORE_FAILSAFE));
+<<<<<<< HEAD
     }
 
     bool ignore_overrides() const {
@@ -319,6 +332,18 @@ public:
         return _options & uint32_t(Option::IGNORE_RECEIVER);
     }
 
+=======
+    }
+
+    bool ignore_overrides() const {
+        return _options & uint32_t(Option::IGNORE_OVERRIDES);
+    }
+
+    bool ignore_receiver() const {
+        return _options & uint32_t(Option::IGNORE_RECEIVER);
+    }
+
+>>>>>>> upstream/master
     float override_timeout_ms() const {
         return _override_timeout.get() * 1e3f;
     }
@@ -335,15 +360,26 @@ protected:
         has_new_overrides = true;
     }
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 private:
     // this static arrangement is to avoid static pointers in AP_Param tables
     static RC_Channel *channels;
 <<<<<<< HEAD
+<<<<<<< HEAD
     static bool has_new_overrides;
     static AP_Float *override_timeout;
     RC_Channel obj_channels[NUM_RC_CHANNELS];
 =======
+=======
+
+    bool has_new_overrides;
+
+    AP_Float _override_timeout;
+    AP_Int32  _options;
+>>>>>>> upstream/master
 
     bool has_new_overrides;
 

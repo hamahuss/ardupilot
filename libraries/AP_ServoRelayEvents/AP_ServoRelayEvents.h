@@ -40,9 +40,12 @@ private:
     static AP_ServoRelayEvents *_singleton;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     AP_Relay &relay;
     uint16_t mask;
 
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     // event control state

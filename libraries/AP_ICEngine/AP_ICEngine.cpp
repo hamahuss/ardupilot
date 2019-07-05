@@ -101,9 +101,12 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     // @Range: 0 100
     AP_GROUPINFO("START_PCT", 10, AP_ICEngine, start_percent, 5),
 <<<<<<< HEAD
+<<<<<<< HEAD
     
     AP_GROUPEND    
 =======
+=======
+>>>>>>> upstream/master
 
     // @Param: IDLE_PCT
     // @DisplayName: Throttle percentage for engine idle
@@ -113,6 +116,9 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     AP_GROUPINFO("IDLE_PCT", 11, AP_ICEngine, idle_percent, 0),
 
     AP_GROUPEND
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 };
 

@@ -24,6 +24,9 @@
 #include <AP_GPS/AP_GPS.h>
 #include <AP_Baro/AP_Baro.h>
 #include <AP_NMEA_Output/AP_NMEA_Output.h>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 
 extern const AP_HAL::HAL& hal;
@@ -261,8 +264,13 @@ Vector2f AP_AHRS::groundspeed_vector(void)
         const Vector3f wind = wind_estimate();
         const Vector2f wind2d(wind.x, wind.y);
 <<<<<<< HEAD
+<<<<<<< HEAD
         const Vector2f airspeed_vector(cosf(yaw) * airspeed, sinf(yaw) * airspeed);
         gndVelADS = airspeed_vector - wind2d;
+=======
+        const Vector2f airspeed_vector(_cos_yaw * airspeed, _sin_yaw * airspeed);
+        gndVelADS = airspeed_vector + wind2d;
+>>>>>>> upstream/master
 =======
         const Vector2f airspeed_vector(_cos_yaw * airspeed, _sin_yaw * airspeed);
         gndVelADS = airspeed_vector + wind2d;

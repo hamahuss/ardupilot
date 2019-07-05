@@ -8,10 +8,13 @@
 #include <AP_Terrain/AP_Terrain.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 extern const AP_HAL::HAL& hal;
 
 AP_Terrain *Location_Class::_terrain = nullptr;
 =======
+=======
+>>>>>>> upstream/master
 AP_Terrain *Location::_terrain = nullptr;
 >>>>>>> upstream/master
 
@@ -115,8 +118,11 @@ Location_Class::ALT_FRAME Location_Class::get_alt_frame() const
 bool Location_Class::get_alt_cm(ALT_FRAME desired_frame, int32_t &ret_alt_cm) const
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     Location_Class::ALT_FRAME frame = get_alt_frame();
 =======
+=======
+>>>>>>> upstream/master
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     if (!initialised()) {
         AP_HAL::panic("Should not be called on invalid location");
@@ -291,6 +297,20 @@ void Location::offset_bearing(float bearing, float distance)
     offset(ofs_north, ofs_east);
 }
 
+/*
+ *  extrapolate latitude/longitude given bearing and distance
+ * Note that this function is accurate to about 1mm at a distance of
+ * 100m. This function has the advantage that it works in relative
+ * positions, so it keeps the accuracy even when dealing with small
+ * distances and floating point numbers
+ */
+void Location::offset_bearing(float bearing, float distance)
+{
+    const float ofs_north = cosf(radians(bearing)) * distance;
+    const float ofs_east  = sinf(radians(bearing)) * distance;
+    offset(ofs_north, ofs_east);
+}
+
 float Location::longitude_scale() const
 {
     float scale = cosf(lat * (1.0e-7f * DEG_TO_RAD));
@@ -384,4 +404,7 @@ float Location::line_path_proportion(const Location &point1, const Location &poi
     }
     return (vec1 * vec2) / dsquared;
 }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master

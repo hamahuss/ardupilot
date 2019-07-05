@@ -563,6 +563,7 @@ void AP_Baro::init(void)
 #elif HAL_BARO_DEFAULT == HAL_BARO_LPS22H_I2C
     ADD_BACKEND(AP_Baro_LPS2XH::probe(*this,
                                       std::move(hal.i2c_mgr->get_device(HAL_BARO_LPS22H_I2C_BUS, HAL_BARO_LPS22H_I2C_ADDR))));
+<<<<<<< HEAD
 #endif
 
 #if defined(BOARD_I2C_BUS_EXT) && CONFIG_HAL_BOARD == HAL_BOARD_F4LIGHT
@@ -578,6 +579,8 @@ void AP_Baro::init(void)
 
     ADD_BACKEND(AP_Baro_BMP085::probe(*this,
                                           std::move(hal.i2c_mgr->get_device(BOARD_I2C_BUS_EXT, HAL_BARO_BMP085_I2C_ADDR))));
+=======
+>>>>>>> upstream/master
 #endif
 
     // can optionally have baro on I2C too

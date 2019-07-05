@@ -47,8 +47,11 @@ void SRV_Channel::output_ch(void)
                 output_pwm = rc->get_radio_trim();
             } else {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 output_pwm = rc->get_radio_in();
 =======
+=======
+>>>>>>> upstream/master
                 const int16_t radio_in = c->get_radio_in();
                 if (!ign_small_rcin_changes) {
                     output_pwm = radio_in;
@@ -60,6 +63,9 @@ void SRV_Channel::output_ch(void)
                         ign_small_rcin_changes = false;
                     }
                 }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
             }
         }

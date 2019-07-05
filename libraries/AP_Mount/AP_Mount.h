@@ -25,7 +25,10 @@
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 

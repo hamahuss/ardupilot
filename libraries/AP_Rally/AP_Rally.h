@@ -16,8 +16,11 @@
 
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
+<<<<<<< HEAD
 #include <AP_AHRS/AP_AHRS.h>
 #include <StorageManager/StorageManager.h>
+=======
+>>>>>>> upstream/master
 
 struct PACKED RallyLocation {
     int32_t lat;        //Latitude * 10^7

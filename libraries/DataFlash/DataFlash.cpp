@@ -24,8 +24,11 @@ extern const AP_HAL::HAL& hal;
 #endif 
 
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 const AP_Param::GroupInfo DataFlash_Class::var_info[] = {
 =======
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 // by default log for 15 seconds after disarming
 #ifndef HAL_LOGGER_ARM_PERSIST
 #define HAL_LOGGER_ARM_PERSIST 15
@@ -398,7 +401,10 @@ void DataFlash_Class::validate_structures(const struct LogStructure *logstructur
         const struct LogStructure *logstructure = &logstructures[i];
         passed = validate_structure(logstructure, i) && passed;
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 =======
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
     }
 
     // ensure units are unique:
@@ -760,8 +766,11 @@ void DataFlash_Class::Log_Write(const char *name, const char *labels, const char
 }
 
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 void DataFlash_Class::Log_WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list)
 =======
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 void AP_Logger::WriteCritical(const char *name, const char *labels, const char *fmt, ...)
 {
     va_list arg_list;
@@ -781,6 +790,9 @@ void AP_Logger::WriteCritical(const char *name, const char *labels, const char *
 }
 
 void AP_Logger::WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical)
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
+=======
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 {
     struct log_write_fmt *f = msg_fmt_for_name(name, labels, units, mults, fmt);
@@ -801,7 +813,11 @@ void AP_Logger::WriteV(const char *name, const char *labels, const char *units, 
         va_list arg_copy;
         va_copy(arg_copy, arg_list);
 <<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
         backends[i]->Log_Write(f->msg_type, arg_copy);
+=======
+        backends[i]->Write(f->msg_type, arg_copy, is_critical);
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 =======
         backends[i]->Write(f->msg_type, arg_copy, is_critical);
 >>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp

@@ -86,7 +86,11 @@ void AP_MotorsTri::output_to_motors()
             rc_write(AP_MOTORS_CH_TRI_YAW, _yaw_servo->get_trim());
             break;
 <<<<<<< HEAD
+<<<<<<< HEAD
         case SPIN_WHEN_ARMED:
+=======
+        case SpoolState::GROUND_IDLE:
+>>>>>>> upstream/master
 =======
         case SpoolState::GROUND_IDLE:
 >>>>>>> upstream/master

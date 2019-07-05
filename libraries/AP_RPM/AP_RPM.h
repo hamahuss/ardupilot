@@ -98,4 +98,11 @@ private:
     uint8_t num_instances:2;
 
     void detect_instance(uint8_t instance);
+<<<<<<< HEAD
+=======
+};
+
+namespace AP {
+    AP_RPM *rpm();
+>>>>>>> upstream/master
 };

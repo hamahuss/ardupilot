@@ -2,9 +2,12 @@
 
 #include <AP_AHRS/AP_AHRS.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <AP_InertialSensor/AP_InertialSensor.h>          // ArduPilot Mega IMU Library
 #include <AP_Baro/AP_Baro.h>                    // ArduPilot Mega Barometer Library
 #include <AP_Buffer/AP_Buffer.h>                  // FIFO buffer library
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #include <AP_NavEKF/AP_Nav_Common.h> // definitions shared by inertial and ekf nav filters

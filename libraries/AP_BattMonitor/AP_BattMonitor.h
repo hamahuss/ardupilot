@@ -136,8 +136,13 @@ public:
     int8_t get_highest_failsafe_priority(void) const { return _highest_failsafe_priority; };
 
     /// get_type - returns battery monitor type
+<<<<<<< HEAD
     enum AP_BattMonitor_Params::BattMonitor_Type get_type() { return get_type(AP_BATT_PRIMARY_INSTANCE); }
     enum AP_BattMonitor_Params::BattMonitor_Type get_type(uint8_t instance) { return _params[instance].type(); }
+=======
+    enum AP_BattMonitor_Params::BattMonitor_Type get_type() const { return get_type(AP_BATT_PRIMARY_INSTANCE); }
+    enum AP_BattMonitor_Params::BattMonitor_Type get_type(uint8_t instance) const { return _params[instance].type(); }
+>>>>>>> upstream/master
 
     /// true when (voltage * current) > watt_max
     bool overpower_detected() const;
@@ -168,6 +173,9 @@ public:
     // reset battery remaining percentage
     bool reset_remaining(uint16_t battery_mask, float percentage);
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     static const struct AP_Param::GroupInfo var_info[];
 

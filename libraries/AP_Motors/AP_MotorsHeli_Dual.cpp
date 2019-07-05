@@ -569,6 +569,9 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
             // sends idle output to motors and wait for rotor to stop
             update_motor_control(ROTOR_CONTROL_IDLE);
             break;
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     }
 }

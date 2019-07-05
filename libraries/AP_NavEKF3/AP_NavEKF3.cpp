@@ -9,6 +9,9 @@
 =======
 #include <AP_Logger/AP_Logger.h>
 #include <AP_GPS/AP_GPS.h>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 #include <new>
 

@@ -3,7 +3,12 @@
 #include "AP_Compass.h"
 #include "AP_Compass_Backend.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <stdio.h>
+=======
+
+#include <AP_BattMonitor/AP_BattMonitor.h>
+>>>>>>> upstream/master
 =======
 
 #include <AP_BattMonitor/AP_BattMonitor.h>

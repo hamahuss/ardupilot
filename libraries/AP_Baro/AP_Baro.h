@@ -241,6 +241,9 @@ private:
 
     // semaphore for API access from threads
     HAL_Semaphore_Recursive            _rsem;
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 };
 

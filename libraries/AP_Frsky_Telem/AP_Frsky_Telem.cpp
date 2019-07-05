@@ -27,6 +27,9 @@
 #include <AP_BattMonitor/AP_BattMonitor.h>
 #include <AP_RangeFinder/AP_RangeFinder.h>
 #include <AP_Common/AP_FWVersion.h>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 #include <GCS_MAVLink/GCS.h>
 #include <AP_Common/Location.h>
@@ -39,6 +42,7 @@ AP_Frsky_Telem::AP_Frsky_Telem(void) :
   _statustext_queue(FRSKY_TELEM_PAYLOAD_STATUS_CAPACITY)
 {
 }
+<<<<<<< HEAD
 
 //constructor
 AP_Frsky_Telem::AP_Frsky_Telem(AP_AHRS &ahrs, const AP_BattMonitor &battery, const RangeFinder &rng) :
@@ -46,14 +50,20 @@ AP_Frsky_Telem::AP_Frsky_Telem(AP_AHRS &ahrs, const AP_BattMonitor &battery, con
     _battery(battery),
     _rng(rng)
     {}
+=======
+>>>>>>> upstream/master
 
 /*
  * init - perform required initialisation
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
 void AP_Frsky_Telem::init(const AP_SerialManager &serial_manager,
                           const uint8_t mav_type,
                           const uint32_t *ap_valuep)
+=======
+bool AP_Frsky_Telem::init()
+>>>>>>> upstream/master
 =======
 bool AP_Frsky_Telem::init()
 >>>>>>> upstream/master

@@ -15,10 +15,13 @@ public:
     bool get_soft_armed() const { return soft_armed; }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     void set_capabilities(uint64_t cap) { capabilities |= cap; }
     void clear_capabilities(uint64_t cap) { capabilities &= ~(cap); }
     uint64_t get_capabilities() const { return capabilities; }
 =======
+=======
+>>>>>>> upstream/master
     // return the time that the armed state last changed
     uint32_t get_last_armed_change() const { return last_armed_change_ms; };
 
@@ -32,6 +35,9 @@ public:
 
     // return true if this is a watchdog reset boot and we were armed
     bool was_watchdog_armed() const { return was_watchdog_reset() && persistent_data.armed; }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 
     virtual const char* get_custom_log_directory() const { return nullptr; }
@@ -164,8 +170,12 @@ protected:
     // values until the vehicle code has fully started
     bool soft_armed = false;
 <<<<<<< HEAD
+<<<<<<< HEAD
     uint64_t capabilities = 0;
 
+=======
+    uint32_t last_armed_change_ms;
+>>>>>>> upstream/master
 =======
     uint32_t last_armed_change_ms;
 >>>>>>> upstream/master

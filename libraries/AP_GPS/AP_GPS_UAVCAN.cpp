@@ -23,6 +23,9 @@
 #if HAL_WITH_UAVCAN
 =======
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 #include <AP_UAVCAN/AP_UAVCAN.h>
 #include <AP_BoardConfig/AP_BoardConfig.h>

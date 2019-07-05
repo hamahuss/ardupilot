@@ -36,13 +36,21 @@
 #include "AP_RangeFinder_Wasp.h"
 #include "AP_RangeFinder_Benewake.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> upstream/master
 #include "AP_RangeFinder_Benewake_TFMiniPlus.h"
 #include "AP_RangeFinder_PWM.h"
 #include "AP_RangeFinder_BLPing.h"
 #include "AP_RangeFinder_UAVCAN.h"
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 #include <AP_BoardConfig/AP_BoardConfig.h>
+
+#include <AP_Logger/AP_Logger.h>
 
 #include <AP_Logger/AP_Logger.h>
 
@@ -569,9 +577,13 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
 const AP_Param::GroupInfo *RangeFinder::backend_var_info[RANGEFINDER_MAX_INSTANCES];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 RangeFinder::RangeFinder(AP_SerialManager &_serial_manager, enum Rotation orientation_default) :
     num_instances(0),
     estimated_terrain_height(0),
+=======
+RangeFinder::RangeFinder(AP_SerialManager &_serial_manager) :
+>>>>>>> upstream/master
 =======
 RangeFinder::RangeFinder(AP_SerialManager &_serial_manager) :
 >>>>>>> upstream/master
@@ -580,11 +592,14 @@ RangeFinder::RangeFinder(AP_SerialManager &_serial_manager) :
     AP_Param::setup_object_defaults(this, var_info);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     // set orientation defaults
     for (uint8_t i=0; i<RANGEFINDER_MAX_INSTANCES; i++) {
         state[i].orientation.set_default(orientation_default);
     }
 
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
@@ -616,6 +631,9 @@ void RangeFinder::init(enum Rotation orientation_default)
         params[i].orientation.set_default(orientation_default);
     }
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     for (uint8_t i=0, serial_instance = 0; i<RANGEFINDER_MAX_INSTANCES; i++) {
         // serial_instance will be increased inside detect_instance
@@ -735,6 +753,14 @@ void RangeFinder::detect_instance(uint8_t instance, uint8_t& serial_instance)
             }
         }
         break;
+    case RangeFinder_TYPE_BenewakeTFminiPlus:
+        FOREACH_I2C(i) {
+            if (_add_backend(AP_RangeFinder_Benewake_TFMiniPlus::detect(state[instance], params[instance],
+                                                                        hal.i2c_mgr->get_device(i, params[instance].address)))) {
+                break;
+            }
+        }
+        break;
 #if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS
 >>>>>>> upstream/master
     case RangeFinder_TYPE_PX4_PWM:
@@ -807,6 +833,11 @@ void RangeFinder::detect_instance(uint8_t instance, uint8_t& serial_instance)
     case RangeFinder_TYPE_BenewakeTFmini:
         if (AP_RangeFinder_Benewake::detect(serial_manager, serial_instance)) {
             drivers[instance] = new AP_RangeFinder_Benewake(state[instance], serial_manager, serial_instance++, AP_RangeFinder_Benewake::BENEWAKE_TFmini);
+        }
+        break;
+    case RangeFinder_TYPE_BLPing:
+        if (AP_RangeFinder_BLPing::detect(serial_manager, serial_instance)) {
+            drivers[instance] = new AP_RangeFinder_BLPing(state[instance], params[instance], serial_manager, serial_instance++);
         }
         break;
     case RangeFinder_TYPE_BLPing:
@@ -943,6 +974,7 @@ uint8_t RangeFinder::range_valid_count_orient(enum Rotation orientation) const
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /*
   returns true if pre-arm checks have passed for all range finders
   these checks involve the user lifting or rotating the vehicle so that sensor readings between
@@ -961,6 +993,8 @@ bool RangeFinder::pre_arm_check() const
 
 =======
 >>>>>>> upstream/master
+=======
+>>>>>>> upstream/master
 const Vector3f &RangeFinder::get_pos_offset_orient(enum Rotation orientation) const
 {
     AP_RangeFinder_Backend *backend = find_instance(orientation);
@@ -977,6 +1011,36 @@ MAV_DISTANCE_SENSOR RangeFinder::get_mav_distance_sensor_type_orient(enum Rotati
         return MAV_DISTANCE_SENSOR_UNKNOWN;
     }
     return backend->get_mav_distance_sensor_type();
+}
+
+// Write an RFND (rangefinder) packet
+void RangeFinder::Log_RFND()
+{
+    if (_log_rfnd_bit == uint32_t(-1)) {
+        return;
+    }
+
+    AP_Logger &logger = AP::logger();
+    if (!logger.should_log(_log_rfnd_bit)) {
+        return;
+    }
+
+    for (uint8_t i=0; i<RANGEFINDER_MAX_INSTANCES; i++) {
+        const AP_RangeFinder_Backend *s = get_backend(i);
+        if (s == nullptr) {
+            continue;
+        }
+
+        const struct log_RFND pkt = {
+                LOG_PACKET_HEADER_INIT(LOG_RFND_MSG),
+                time_us      : AP_HAL::micros64(),
+                instance     : i,
+                dist         : s->distance_cm(),
+                status       : (uint8_t)s->status(),
+                orient       : s->orientation(),
+        };
+        AP::logger().WriteBlock(&pkt, sizeof(pkt));
+    }
 }
 
 // Write an RFND (rangefinder) packet

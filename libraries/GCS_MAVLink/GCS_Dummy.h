@@ -59,8 +59,11 @@ class GCS_Dummy : public GCS
     const GCS_MAVLINK_Dummy &chan(const uint8_t ofs) const override { return dummy_backend; };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     void send_statustext(MAV_SEVERITY severity, uint8_t dest_bitmask, const char *text) { hal.console->printf("TOGCS: %s\n", text); }
 =======
+=======
+>>>>>>> upstream/master
     void send_statustext(MAV_SEVERITY severity, uint8_t dest_bitmask, const char *text) override { hal.console->printf("TOGCS: %s\n", text); }
 
     MAV_TYPE frame_type() const override { return MAV_TYPE_FIXED_WING; }

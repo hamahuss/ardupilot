@@ -180,6 +180,7 @@ void DataFlash_Class::Log_Write_GPS(uint8_t i, uint64_t time_us)
 
 
 <<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
+<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 // Write an RFND (rangefinder) packet
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
 {
@@ -199,6 +200,8 @@ void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
     WriteBlock(&pkt, sizeof(pkt));
 }
 
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 // Write an RCIN packet
@@ -252,7 +255,11 @@ void DataFlash_Class::Log_Write_RCOUT(void)
 
 // Write an RSSI packet
 <<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
+<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 void DataFlash_Class::Log_Write_RSSI(AP_RSSI &rssi)
+=======
+void AP_Logger::Write_RSSI()
+>>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 =======
 void AP_Logger::Write_RSSI()
 >>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
@@ -1563,6 +1570,7 @@ void DataFlash_Class::Log_Write_ESC(void)
 }
 
 <<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
+<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 // Write a AIRSPEED packet
 void DataFlash_Class::Log_Write_Airspeed(AP_Airspeed &airspeed)
 {
@@ -1591,6 +1599,8 @@ void DataFlash_Class::Log_Write_Airspeed(AP_Airspeed &airspeed)
     }
 }
 
+=======
+>>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 // Write a Yaw PID packet

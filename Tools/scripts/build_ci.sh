@@ -101,11 +101,14 @@ for t in $CI_BUILD_TARGET; do
     fi
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     if [ $t == "revo-mini" ]; then
         # save some time by only building one target for revo-mini
         echo "Building revo-mini"
         $waf configure --board revo-mini
 =======
+=======
+>>>>>>> upstream/master
     if [ "$t" == "CubeOrange-bootloader" ]; then
         echo "Building CubeOrange bootloader"
         $waf configure --board CubeOrange --bootloader

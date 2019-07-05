@@ -145,12 +145,16 @@ struct Vector2
 
     // reflects this vector about n
 <<<<<<< HEAD
+<<<<<<< HEAD
     void    reflect(const Vector2<T> &n)
     {
         Vector2<T>        orig(*this);
         project(n);
         *this= *this*2 - orig;
     }
+=======
+    void reflect(const Vector2<T> &n);
+>>>>>>> upstream/master
 =======
     void reflect(const Vector2<T> &n);
 >>>>>>> upstream/master
@@ -164,6 +168,7 @@ struct Vector2
     // given a position p1 and a velocity v1 produce a vector
     // perpendicular to v1 maximising distance from p1
 <<<<<<< HEAD
+<<<<<<< HEAD
     static Vector2<T> perpendicular(const Vector2<T> &pos_delta, const Vector2<T> &v1)
     {
         Vector2<T> perpendicular1 = Vector2<T>(-v1[1], v1[0]);
@@ -175,6 +180,9 @@ struct Vector2
         }
         return perpendicular2;
     }
+=======
+    static Vector2<T> perpendicular(const Vector2<T> &pos_delta, const Vector2<T> &v1);
+>>>>>>> upstream/master
 =======
     static Vector2<T> perpendicular(const Vector2<T> &pos_delta, const Vector2<T> &v1);
 >>>>>>> upstream/master

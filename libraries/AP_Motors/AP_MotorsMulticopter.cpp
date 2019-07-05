@@ -479,8 +479,13 @@ void AP_MotorsMulticopter::output_logic()
 
             // make sure the motors are spooling in the correct direction
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (_spool_desired != DESIRED_SHUT_DOWN) {
                 _spool_mode = SPIN_WHEN_ARMED;
+=======
+            if (_spool_desired != DesiredSpoolState::SHUT_DOWN) {
+                _spool_state = SpoolState::GROUND_IDLE;
+>>>>>>> upstream/master
 =======
             if (_spool_desired != DesiredSpoolState::SHUT_DOWN) {
                 _spool_state = SpoolState::GROUND_IDLE;
@@ -494,9 +499,12 @@ void AP_MotorsMulticopter::output_logic()
             break;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         case SPIN_WHEN_ARMED: {
             // Motors should be stationary or at spin when armed.
 =======
+=======
+>>>>>>> upstream/master
         case SpoolState::GROUND_IDLE: {
             // Motors should be stationary or at ground idle.
 >>>>>>> upstream/master
@@ -527,7 +535,12 @@ void AP_MotorsMulticopter::output_logic()
                     _spool_state = SpoolState::SPOOLING_UP;
                 }
 <<<<<<< HEAD
+<<<<<<< HEAD
             } else {    // _spool_desired == SPIN_WHEN_ARMED
+=======
+                break;
+            case DesiredSpoolState::GROUND_IDLE:
+>>>>>>> upstream/master
 =======
                 break;
             case DesiredSpoolState::GROUND_IDLE:
@@ -620,7 +633,11 @@ void AP_MotorsMulticopter::output_logic()
                 _throttle_thrust_max = get_current_limit_max_throttle();
             } else if (is_zero(_throttle_thrust_max)) {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 _spool_mode = SPIN_WHEN_ARMED;
+=======
+                _spool_state = SpoolState::GROUND_IDLE;
+>>>>>>> upstream/master
 =======
                 _spool_state = SpoolState::GROUND_IDLE;
 >>>>>>> upstream/master

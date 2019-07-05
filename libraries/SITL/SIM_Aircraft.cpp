@@ -830,4 +830,7 @@ void Aircraft::add_twist_forces(Vector3f &rot_accel)
         sitl->twist.t = 0;
     }
 }
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master

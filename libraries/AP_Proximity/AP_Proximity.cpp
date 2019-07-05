@@ -25,6 +25,9 @@
 =======
 #include "AP_Proximity_MorseSITL.h"
 #include <AP_AHRS/AP_AHRS.h>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 
 extern const AP_HAL::HAL &hal;

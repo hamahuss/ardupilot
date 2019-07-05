@@ -40,6 +40,9 @@ uint32_t RC_Channel::configured_mask;
 #include <AP_ServoRelayEvents/AP_ServoRelayEvents.h>
 #include <AP_Arming/AP_Arming.h>
 #include <AP_GPS/AP_GPS.h>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 
 const AP_Param::GroupInfo RC_Channel::var_info[] = {
@@ -138,11 +141,16 @@ void
 RC_Channel::set_pwm(int16_t pwm)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (has_override()) {
         radio_in = override_value;
 =======
     if (has_override() && !rc().ignore_overrides()) {
         radio_in = override_value;
+=======
+    if (has_override() && !rc().ignore_overrides()) {
+        radio_in = override_value;
+>>>>>>> upstream/master
     } else if (!rc().ignore_receiver()) {
         radio_in = hal.rcin->read(ch_in);
 >>>>>>> upstream/master
@@ -352,15 +360,21 @@ void RC_Channel::set_override(const uint16_t v, const uint32_t timestamp_us)
     if (v == UINT16_MAX) {
         return;
     }
+<<<<<<< HEAD
     override_value = v;
 =======
     if (!rc().gcs_overrides_enabled()) {
         return;
     }
+=======
+>>>>>>> upstream/master
 
     last_override_time = timestamp_us != 0 ? timestamp_us : AP_HAL::millis();
     override_value = v;
     rc().new_override_received();
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 }
 

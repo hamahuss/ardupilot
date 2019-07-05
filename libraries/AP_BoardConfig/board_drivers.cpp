@@ -31,8 +31,11 @@ extern const AP_HAL::HAL& hal;
 void AP_BoardConfig::board_init_safety()
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (state.safety_enable.get() == 0) {
 =======
+=======
+>>>>>>> upstream/master
 #if HAL_HAVE_SAFETY_SWITCH
     bool force_safety_off = (state.safety_enable.get() == 0);
     if (!force_safety_off && hal.util->was_watchdog_safety_off()) {
@@ -40,6 +43,9 @@ void AP_BoardConfig::board_init_safety()
         force_safety_off = true;
     }
     if (force_safety_off) {
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
         hal.rcout->force_safety_off();
         hal.rcout->force_safety_no_wait();
@@ -232,6 +238,9 @@ static bool check_ms5611(const char* devname) {
 #define INV2REG_WHOAMI 0x00
 #define INV2_WHOAMI_ICM20948 0xEA
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 /*
   validation of the board type

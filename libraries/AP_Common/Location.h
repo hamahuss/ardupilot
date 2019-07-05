@@ -34,7 +34,11 @@ public:
     // returns false on failure to get altitude in the desired frame which
     // can only happen if the original frame or desired frame is above-terrain
 <<<<<<< HEAD
+<<<<<<< HEAD
     bool get_alt_cm(ALT_FRAME desired_frame, int32_t &ret_alt_cm) const;
+=======
+    bool get_alt_cm(AltFrame desired_frame, int32_t &ret_alt_cm) const WARN_IF_UNUSED;
+>>>>>>> upstream/master
 =======
     bool get_alt_cm(AltFrame desired_frame, int32_t &ret_alt_cm) const WARN_IF_UNUSED;
 >>>>>>> upstream/master
@@ -67,8 +71,11 @@ public:
     void offset(float ofs_north, float ofs_east);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     bool is_zero(void) { return (lat == 0 && lng == 0 && alt == 0 && options == 0); }
 =======
+=======
+>>>>>>> upstream/master
     // extrapolate latitude/longitude given bearing and distance
     void offset_bearing(float bearing, float distance);
 
@@ -79,9 +86,42 @@ public:
     float longitude_scale() const;
 
     bool is_zero(void) const WARN_IF_UNUSED;
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 
     void zero(void) { lat = lng = alt = 0; options = 0; }
+
+    // return bearing in centi-degrees from location to loc2
+    int32_t get_bearing_to(const struct Location &loc2) const;
+
+    // check if lat and lng match. Ignore altitude and options
+    bool same_latlon_as(const Location &loc2) const;
+
+    /*
+     * convert invalid waypoint with useful data. return true if location changed
+     */
+    bool sanitize(const struct Location &defaultLoc);
+
+    // return true when lat and lng are within range
+    bool check_latlng() const;
+
+    // see if location is past a line perpendicular to
+    // the line between point1 and point2 and passing through point2.
+    // If point1 is our previous waypoint and point2 is our target waypoint
+    // then this function returns true if we have flown past
+    // the target waypoint
+    bool past_interval_finish_line(const Location &point1, const Location &point2) const;
+
+    /*
+      return the proportion we are along the path from point1 to
+      point2, along a line parallel to point1<->point2.
+      This will be more than 1 if we have passed point2
+     */
+    float line_path_proportion(const Location &point1, const Location &point2) const;
+
+    bool initialised() const { return (lat !=0 || lng != 0); }
 
     // return bearing in centi-degrees from location to loc2
     int32_t get_bearing_to(const struct Location &loc2) const;

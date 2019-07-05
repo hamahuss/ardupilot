@@ -55,6 +55,9 @@ void MultiCopter::calculate_forces(const struct sitl_input &input, Vector3f &rot
 =======
     add_shove_forces(rot_accel, body_accel);
     add_twist_forces(rot_accel);
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 }
     

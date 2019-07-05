@@ -74,9 +74,13 @@ public:
     bool read();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     /// use spare CPU cycles to accumulate values from the compass if
     /// possible (this method should also be implemented in the backends)
     void accumulate();
+=======
+    bool enabled() const { return _enabled; }
+>>>>>>> upstream/master
 =======
     bool enabled() const { return _enabled; }
 >>>>>>> upstream/master

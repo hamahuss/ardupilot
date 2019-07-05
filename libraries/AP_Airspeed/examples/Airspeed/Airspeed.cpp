@@ -31,6 +31,10 @@ const AP_HAL::HAL& hal = AP_HAL::get_HAL();
 float temperature;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+// create airspeed object
+>>>>>>> upstream/master
 =======
 // create airspeed object
 >>>>>>> upstream/master

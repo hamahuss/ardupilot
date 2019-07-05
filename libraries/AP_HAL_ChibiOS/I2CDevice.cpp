@@ -275,13 +275,19 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
         bus.dma_allocate(bus.dma_handle);
         
 <<<<<<< HEAD
+<<<<<<< HEAD
         bus.i2c_active = true;
         osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_READY, "i2cStart state");
 =======
+=======
+>>>>>>> upstream/master
         osalSysLock();
         hal.util->persistent_data.i2c_count++;
         osalSysUnlock();
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
         if(send_len == 0) {
             ret = i2cMasterReceiveTimeout(I2CD[bus.busnum].i2c, _address, recv, recv_len, MS2ST(timeout_ms));

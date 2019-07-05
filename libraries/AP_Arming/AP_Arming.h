@@ -20,6 +20,9 @@ public:
 
     static AP_Arming *get_singleton();
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     enum ArmingChecks {
         ARMING_CHECK_NONE       = 0x0000,
@@ -59,6 +62,9 @@ public:
     Required arming_required();
     virtual bool arm(AP_Arming::Method method, bool do_arming_checks=true);
     virtual bool disarm();
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     bool is_armed();
 
@@ -72,7 +78,11 @@ public:
     // change to have occurred, and thus should not be done as pre-arm
     // checks.  Those go here:
 <<<<<<< HEAD
+<<<<<<< HEAD
     bool arm_checks(uint8_t method);
+=======
+    virtual bool arm_checks(AP_Arming::Method method);
+>>>>>>> upstream/master
 =======
     virtual bool arm_checks(AP_Arming::Method method);
 >>>>>>> upstream/master
@@ -147,6 +157,9 @@ protected:
 
     virtual bool proximity_checks(bool report) const;
 
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
     bool servo_checks(bool report) const;
     bool rc_checks_copter_sub(bool display_failure, const RC_Channel *channels[4], const bool check_min_max = true) const;
@@ -167,6 +180,10 @@ private:
     bool ins_accels_consistent(const AP_InertialSensor &ins);
     bool ins_gyros_consistent(const AP_InertialSensor &ins);
 
+};
+
+namespace AP {
+    AP_Arming &arming();
 };
 
 namespace AP {

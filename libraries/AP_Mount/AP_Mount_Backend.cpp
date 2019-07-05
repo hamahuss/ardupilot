@@ -120,6 +120,7 @@ void AP_Mount_Backend::update_targets_from_rc()
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // returns the angle (degrees*100) that the RC_Channel input is receiving
 int32_t AP_Mount_Backend::angle_input(RC_Channel* rc, int16_t angle_min, int16_t angle_max)
 {
@@ -127,6 +128,8 @@ int32_t AP_Mount_Backend::angle_input(RC_Channel* rc, int16_t angle_min, int16_t
       * (int32_t)(angle_max - angle_min) / (rc->get_radio_max() - rc->get_radio_min()) + (rc->get_reverse() ? angle_max : angle_min);
 }
 
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 // returns the angle (radians) that the RC_Channel input is receiving

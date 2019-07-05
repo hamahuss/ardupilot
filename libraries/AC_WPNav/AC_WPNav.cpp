@@ -97,6 +97,7 @@ AC_WPNav::AC_WPNav(const AP_InertialNav& inav, const AP_AHRS_View& ahrs, AC_PosC
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /// init_brake_target - initializes stop position from current position and velocity
 void AC_WPNav::init_brake_target(float accel_cmss)
 {
@@ -126,6 +127,8 @@ void AC_WPNav::update_brake(float ekfGndSpdLimit, float ekfNavVelGainScaler)
     _pos_control.update_xy_controller(ekfNavVelGainScaler);
 }
 
+=======
+>>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 ///

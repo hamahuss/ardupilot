@@ -18,9 +18,12 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Param/AP_Param.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <AP_Math/AP_Math.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 =======
+=======
+>>>>>>> upstream/master
 #include <GCS_MAVLink/GCS.h>
 >>>>>>> upstream/master
 
