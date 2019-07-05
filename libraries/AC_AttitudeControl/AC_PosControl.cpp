@@ -629,16 +629,10 @@ void AC_PosControl::run_z_controller()
     d = _pid_accel_z.get_d();
 
     float thr_out = (p+i+d)*0.001f +_motors.get_throttle_hover();
+    _ut = thr_out;
 
     // send throttle to attitude controller with angle boost
     _attitude_control.set_throttle_out(thr_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ);
-
-    AP::logger().Write("INPUT", "TimeUS,ut,tr,tp,ty", "Qffff",
-                                            AP_HAL::micros64(),
-                                            (double)thr_out,
-                                            (double)_attitude_control._tr,
-                                            (double)_attitude_control._tp,
-                                            (double)_attitude_control._ty);
 }
 
 ///
@@ -845,8 +839,12 @@ void AC_PosControl::write_log()
     const Vector3f &accel_target = get_accel_target();
     const Vector3f &position = _inav.get_position();
     const Vector3f &velocity = _inav.get_velocity();
-    float accel_x, accel_y;
+    float accel_x, accel_y, thrust, troll, tpitch, tyaw;
     lean_angles_to_accel(accel_x, accel_y);
+    thrust = _ut;
+    troll = _attitude_control._tr;
+    tpitch = _attitude_control._tp;
+    tyaw = _attitude_control._ty;
 
     DataFlash_Class::instance()->Log_Write("PSC", "TimeUS,TPX,TPY,PX,PY,TVX,TVY,VX,VY,TAX,TAY,AX,AY",
                                            "smmmmnnnnoooo", "FBBBBBBBBBBBB", "Qffffffffffff",
@@ -863,6 +861,13 @@ void AC_PosControl::write_log()
                                            (double)accel_target.y,
                                            (double)accel_x,
                                            (double)accel_y);
+
+    DataFlash_Class::instance()->Log_Write("IN", "TimeUS,ut,tr,tp,ty", "Qffff",
+                                            AP_HAL::micros64(),
+                                            (double)thrust,
+											(double)troll,
+											(double)tpitch,
+											(double)tyaw);
 }
 
 /// init_vel_controller_xyz - initialise the velocity controller - should be called once before the caller attempts to use the controller

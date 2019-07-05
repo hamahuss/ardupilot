@@ -416,4 +416,5 @@ protected:
     // ekf reset handling
     uint32_t    _ekf_xy_reset_ms;      // system time of last recorded ekf xy position reset
     uint32_t    _ekf_z_reset_ms;       // system time of last recorded ekf altitude reset
+    float _ut;
 };
