@@ -9,6 +9,18 @@
 
 class AP_Arming {
 public:
+<<<<<<< HEAD
+=======
+
+    AP_Arming();
+
+    /* Do not allow copies */
+    AP_Arming(const AP_Arming &other) = delete;
+    AP_Arming &operator=(const AP_Arming&) = delete;
+
+    static AP_Arming *get_singleton();
+
+>>>>>>> upstream/master
     enum ArmingChecks {
         ARMING_CHECK_NONE       = 0x0000,
         ARMING_CHECK_ALL        = 0x0001,
@@ -39,9 +51,15 @@ public:
     };
 
     // these functions should not be used by Copter which holds the armed state in the motors library
+<<<<<<< HEAD
     ArmingRequired arming_required();
     virtual bool arm(uint8_t method, bool do_arming_checks=true);
     bool disarm();
+=======
+    Required arming_required();
+    virtual bool arm(AP_Arming::Method method, bool do_arming_checks=true);
+    virtual bool disarm();
+>>>>>>> upstream/master
     bool is_armed();
 
     // get bitmask of enabled checks
@@ -53,7 +71,11 @@ public:
     // some arming checks have side-effects, or require some form of state
     // change to have occurred, and thus should not be done as pre-arm
     // checks.  Those go here:
+<<<<<<< HEAD
     bool arm_checks(uint8_t method);
+=======
+    virtual bool arm_checks(AP_Arming::Method method);
+>>>>>>> upstream/master
 
     // get expected magnetic field strength
     uint16_t compass_magfield_expected() const;
@@ -113,6 +135,19 @@ protected:
 
     bool manual_transmitter_checks(bool report);
 
+<<<<<<< HEAD
+=======
+    bool mission_checks(bool report);
+
+    bool fence_checks(bool report);
+
+    virtual bool system_checks(bool report);
+
+    bool can_checks(bool report);
+
+    virtual bool proximity_checks(bool report) const;
+
+>>>>>>> upstream/master
     bool servo_checks(bool report) const;
     bool rc_checks_copter_sub(bool display_failure, const RC_Channel *channels[4], const bool check_min_max = true) const;
 
@@ -123,9 +158,17 @@ protected:
     // handle the case where a check fails
     void check_failed(const enum AP_Arming::ArmingChecks check, bool report, const char *fmt, ...) const;
 
+    void Log_Write_Arm_Disarm();
+
 private:
+
+    static AP_Arming *_singleton;
 
     bool ins_accels_consistent(const AP_InertialSensor &ins);
     bool ins_gyros_consistent(const AP_InertialSensor &ins);
 
+};
+
+namespace AP {
+    AP_Arming &arming();
 };

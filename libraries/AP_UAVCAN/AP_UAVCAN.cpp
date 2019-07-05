@@ -33,7 +33,20 @@
 #include <uavcan/equipment/indication/SingleLightCommand.hpp>
 #include <uavcan/equipment/indication/RGB565.hpp>
 
+<<<<<<< HEAD
 #include <uavcan/equipment/power/BatteryInfo.hpp>
+=======
+#include <AP_Baro/AP_Baro_UAVCAN.h>
+#include <AP_RangeFinder/AP_RangeFinder_UAVCAN.h>
+#include <AP_GPS/AP_GPS_UAVCAN.h>
+#include <AP_BattMonitor/AP_BattMonitor_UAVCAN.h>
+#include <AP_Compass/AP_Compass_UAVCAN.h>
+#include <AP_Airspeed/AP_Airspeed_UAVCAN.h>
+#include <SRV_Channel/SRV_Channel.h>
+#include <AP_OpticalFlow/AP_OpticalFlow_HereFlow.h>
+
+#define LED_DELAY_US 50000
+>>>>>>> upstream/master
 
 extern const AP_HAL::HAL& hal;
 
@@ -497,6 +510,7 @@ bool AP_UAVCAN::try_init(void)
         return false;
     }
 
+<<<<<<< HEAD
     uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength> *magnetic;
     magnetic = new uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength>(*node);
     const int magnetic_start_res = magnetic->start(magnetic_cb_arr[_uavcan_i]);
@@ -504,6 +518,20 @@ bool AP_UAVCAN::try_init(void)
         debug_uavcan(1, "UAVCAN Compass subscriber start problem\n\r");
         return false;
     }
+=======
+    //Start Servers
+#ifdef HAS_UAVCAN_SERVERS
+    _servers.init(*_node);
+#endif
+    // Roundup all subscribers from supported drivers
+    AP_GPS_UAVCAN::subscribe_msgs(this);
+    AP_Compass_UAVCAN::subscribe_msgs(this);
+    AP_Baro_UAVCAN::subscribe_msgs(this);
+    AP_BattMonitor_UAVCAN::subscribe_msgs(this);
+    AP_Airspeed_UAVCAN::subscribe_msgs(this);
+    AP_OpticalFlow_HereFlow::subscribe_msgs(this);
+    AP_RangeFinder_UAVCAN::subscribe_msgs(this);
+>>>>>>> upstream/master
 
     uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength2> *magnetic2;
     magnetic2 = new uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength2>(*node);

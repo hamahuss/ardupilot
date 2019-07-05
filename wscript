@@ -97,6 +97,22 @@ submodules at specific revisions.
         default=None,
         help='set default parameters to embed in the firmware')
 
+<<<<<<< HEAD
+=======
+    g.add_option('--enable-math-check-indexes',
+                 action='store_true',
+                 default=False,
+                 help="Enable checking of math indexes")
+
+    g.add_option('--disable-scripting', action='store_true',
+                 default=False,
+                 help="Disable onboard scripting engine")
+
+    g.add_option('--scripting-checks', action='store_true',
+                 default=True,
+                 help="Enable runtime scripting sanity checks")
+
+>>>>>>> upstream/master
     g = opt.ap_groups['linux']
 
     linux_options = ('--prefix', '--destdir', '--bindir', '--libdir')
@@ -142,11 +158,145 @@ configuration in order to save typing.
                  default=False,
                  help="Enable SFML graphics library")
 
+<<<<<<< HEAD
+=======
+    g.add_option('--enable-sfml-audio', action='store_true',
+                 default=False,
+                 help="Enable SFML audio library")
+
+    g.add_option('--sitl-osd', action='store_true',
+                 default=False,
+                 help="Enable SITL OSD")
+
+    g.add_option('--sitl-rgbled', action='store_true',
+                 default=False,
+                 help="Enable SITL RGBLed")
+
+    g.add_option('--build-dates', action='store_true',
+                 default=False,
+                 help="Include build date in binaries.  Appears in AUTOPILOT_VERSION.os_sw_version")
+
+    g.add_option('--sitl-flash-storage',
+        action='store_true',
+        default=False,
+        help='Configure for building SITL with flash storage emulation.')
+    
+>>>>>>> upstream/master
     g.add_option('--static',
         action='store_true',
         default=False,
         help='Force a static build')
 
+<<<<<<< HEAD
+=======
+    g.add_option("--enable-gcov",
+        help=("Enable gcov code coverage analysis."
+             " WARNING: this option only has effect "
+             "with the configure command. "
+             "You should also add --lcov-report to your build command."),
+        action="store_true", default=False,
+        dest="enable_gcov")
+
+    g.add_option("--lcov-report",
+        help=("Generates a lcov code coverage report "
+             "(use this option at build time, not in configure)"),
+        action="store_true", default=False,
+        dest="lcov_report")
+
+
+
+# EXECUTE enough code via the autotest tool to see coverage results afterwards, but don't build/rebuild anything
+# our aim here is to try to execute as many code path/s as we have available to us, and we'll afterward report
+# on the percentage of code executed and not executed etc.
+def	run_coverage_tests(bld):
+
+    FNULL = open(os.devnull, 'w')
+
+    #tests = ['fly.ArduPlane']
+    #tests = ['fly.ArduCopter','fly.ArduPlane']
+    #tests = ['fly.ArduCopter','fly.ArduPlane', 'fly.QuadPlane', 'drive.APMrover2', 'dive.ArduSub']
+    tests = ['build.examples','build.unit_tests','run.examples','run.unit_tests',
+             'fly.ArduCopter','fly.ArduPlane', 'fly.QuadPlane', 'drive.APMrover2', 'dive.ArduSub', 
+             'test.AntennaTracker', 'fly.CopterAVC' ]
+
+    for test in tests:
+        print("LCOV/GCOV -> "+test+" started.... this will take quite some time...")
+        testcmd = '( ./Tools/autotest/autotest.py --speedup=5 --timeout=14400 --debug --no-configure '+test+' ) '
+        print("Coverage Tests Executing:"+testcmd+" > ./GCOV_"+test+".log")
+        FLOG = open("./GCOV_"+test+".log", 'w')
+        if subprocess.Popen(testcmd, shell=True , stdout=FLOG, stderr=FNULL).wait():
+	        print("LCOV/GCOV -> "+test+" see ./GCOV_"+test+".log for log of activity)")
+	        raise SystemExit(1)
+        print("LCOV/GCOV -> "+test+" succeeded")
+        FLOG.close()
+
+    #TODO add any other execution path/s we can to maximise the actually used code, can we run other tests or things?
+    # eg run.unit_tests, run.examples , test.AntennaTracker or other things?
+
+
+def lcov_report(bld):
+    """
+    Generates the coverage report
+    :param bld: temporal options context
+    :type bld: wscript.tmp
+    """
+    env = bld.env
+    REPORTS = "reports"
+
+    if not env.GCOV_ENABLED:
+        raise WafError("project not configured for code coverage;"
+                       " reconfigure with --enable-gcov")
+
+    run_coverage_tests(bld)
+    lcov_report_dir = os.path.join(REPORTS, "lcov-report")
+    try:
+        if not os.path.exists(REPORTS):
+            os.mkdir(REPORTS)
+
+        create_dir_command = "rm -rf " + lcov_report_dir
+        create_dir_command += " && mkdir " + lcov_report_dir
+
+        print (create_dir_command );
+        if subprocess.Popen(create_dir_command, shell=True).wait():
+            raise SystemExit(1)
+
+        info_file = os.path.join(lcov_report_dir, "lcov.info")
+
+        FLOG = open("GCOV_lcov.log", 'w')
+        FNULL = open(os.devnull, 'w')
+
+        lcov_command =\
+            "lcov --no-external --capture --directory . -o " + info_file
+        lcov_command +=\
+            " && lcov --remove " + info_file + " \".waf*\" -o " + info_file
+
+        print("LCOV/GCOV executing lcov -> ")
+        print ("\t"+lcov_command + " > ./GCOV_lcov.log")
+        if subprocess.Popen(lcov_command, shell=True, stdout=FLOG, stderr=FNULL).wait():
+            raise SystemExit(1)
+        FLOG.close()
+
+
+        FLOG = open("GCOV_genhtml.log", 'w')
+        genhtml_command = "genhtml " + info_file
+        genhtml_command += " -o " + lcov_report_dir
+        print("LCOV/GCOV building html report -> ")
+        print ("\t"+genhtml_command + " > ./GCOV_genhtml.log")
+        if subprocess.Popen(genhtml_command, shell=True, stdout=FLOG, stderr=FNULL).wait():
+            raise SystemExit(1)
+        FLOG.close()
+
+    except:
+        print (\
+            "LCOV/GCOV -> Problems running coverage. Try manually" );
+
+    finally:
+        print (\
+            "LCOV/GCOV -> Coverage successful. Open " + lcov_report_dir +\
+            "/index.html" );
+
+
+>>>>>>> upstream/master
 def _collect_autoconfig_files(cfg):
     for m in sys.modules.values():
         paths = []
@@ -227,6 +377,21 @@ def configure(cfg):
     else:
         cfg.end_msg('disabled', color='YELLOW')
 
+<<<<<<< HEAD
+=======
+    cfg.start_msg('Scripting')
+    if cfg.options.disable_scripting:
+        cfg.end_msg('disabled', color='YELLOW')
+    else:
+        cfg.end_msg('enabled')
+
+    cfg.start_msg('Scripting runtime checks')
+    if cfg.options.scripting_checks:
+        cfg.end_msg('enabled')
+    else:
+        cfg.end_msg('disabled', color='YELLOW')
+
+>>>>>>> upstream/master
     cfg.env.append_value('GIT_SUBMODULES', 'mavlink')
 
     cfg.env.prepend_value('INCLUDES', [
@@ -312,7 +477,7 @@ def _build_dynamic_sources(bld):
     if bld.get_board().with_uavcan or bld.env.HAL_WITH_UAVCAN==True:
         bld(
             features='uavcangen',
-            source=bld.srcnode.ant_glob('modules/uavcan/dsdl/uavcan/**/*.uavcan'),
+            source=bld.srcnode.ant_glob('modules/uavcan/dsdl/* libraries/AP_UAVCAN/dsdl/*', dir=True, src=False),
             output_dir='modules/uavcan/libuavcan/include/dsdlc_generated',
             name='uavcan',
             export_includes=[

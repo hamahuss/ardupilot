@@ -274,14 +274,22 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
         // if we are not using DMA then we may need to start the bus here
         bus.dma_allocate(bus.dma_handle);
         
+<<<<<<< HEAD
         bus.i2c_active = true;
         osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_READY, "i2cStart state");
+=======
+        osalSysLock();
+        hal.util->persistent_data.i2c_count++;
+        osalSysUnlock();
+
+>>>>>>> upstream/master
         if(send_len == 0) {
             ret = i2cMasterReceiveTimeout(I2CD[bus.busnum].i2c, _address, recv, recv_len, MS2ST(timeout_ms));
         } else {
             ret = i2cMasterTransmitTimeout(I2CD[bus.busnum].i2c, _address, send, send_len,
                                            recv, recv_len, MS2ST(timeout_ms));
         }
+<<<<<<< HEAD
            
         bus.i2c_active = false;
         if (ret != MSG_OK) {
@@ -293,6 +301,15 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
             osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_READY, "i2cStart state");
         } else {
             osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_READY, "i2cStart state");
+=======
+
+        i2cSoftStop(I2CD[bus.busnum].i2c);
+        osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_STOP, "i2cStart state");
+        
+        bus.dma_handle->unlock();
+        
+        if (ret == MSG_OK) {
+>>>>>>> upstream/master
             bus.bouncebuffer_finish(send, recv, recv_len);
             i2cReleaseBus(I2CD[bus.busnum].i2c);
             return true;

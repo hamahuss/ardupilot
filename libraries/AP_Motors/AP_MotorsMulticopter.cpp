@@ -248,8 +248,8 @@ void AP_MotorsMulticopter::output_boost_throttle(void)
 // sends minimum values out to the motors
 void AP_MotorsMulticopter::output_min()
 {
-    set_desired_spool_state(DESIRED_SHUT_DOWN);
-    _spool_mode = SHUT_DOWN;
+    set_desired_spool_state(DesiredSpoolState::SHUT_DOWN);
+    _spool_state = SpoolState::SHUT_DOWN;
     output();
 }
 
@@ -368,7 +368,31 @@ float AP_MotorsMulticopter::get_compensation_gain() const
     return ret;
 }
 
+<<<<<<< HEAD
 int16_t AP_MotorsMulticopter::calc_thrust_to_pwm(float thrust_in) const
+=======
+// convert actuator output (0~1) range to pwm range
+int16_t AP_MotorsMulticopter::output_to_pwm(float actuator)
+{
+    float pwm_output;
+    if (_spool_state == SpoolState::SHUT_DOWN) {
+        // in shutdown mode, use PWM 0 or minimum PWM
+        if (_disarm_disable_pwm && _disarm_safety_timer == 0 && !armed()) {
+            pwm_output = 0;
+        } else {
+            pwm_output = get_pwm_output_min();
+        }
+    } else {
+        // in all other spool modes, covert to desired PWM
+        pwm_output = get_pwm_output_min() + (get_pwm_output_max()-get_pwm_output_min()) * actuator;
+    }
+
+    return pwm_output;
+}
+
+// converts desired thrust to linearized actuator output in a range of 0~1
+float AP_MotorsMulticopter::thrust_to_actuator(float thrust_in)
+>>>>>>> upstream/master
 {
     thrust_in = constrain_float(thrust_in, 0.0f, 1.0f);
     return get_pwm_output_min() + (get_pwm_output_max()-get_pwm_output_min()) * (_spin_min + (_spin_max-_spin_min)*apply_thrust_curve_and_volt_scaling(thrust_in));
@@ -433,8 +457,8 @@ void AP_MotorsMulticopter::output_logic()
 
     // force desired and current spool mode if disarmed or not interlocked
     if (!_flags.armed || !_flags.interlock) {
-        _spool_desired = DESIRED_SHUT_DOWN;
-        _spool_mode = SHUT_DOWN;
+        _spool_desired = DesiredSpoolState::SHUT_DOWN;
+        _spool_state = SpoolState::SHUT_DOWN;
     }
 
     if (_spool_up_time < 0.05) {
@@ -442,8 +466,8 @@ void AP_MotorsMulticopter::output_logic()
         _spool_up_time.set(0.05);
     }
 
-    switch (_spool_mode) {
-        case SHUT_DOWN:
+    switch (_spool_state) {
+        case SpoolState::SHUT_DOWN:
             // Motors should be stationary.
             // Servos set to their trim values or in a test condition.
 
@@ -454,8 +478,13 @@ void AP_MotorsMulticopter::output_logic()
             limit.throttle_upper = true;
 
             // make sure the motors are spooling in the correct direction
+<<<<<<< HEAD
             if (_spool_desired != DESIRED_SHUT_DOWN) {
                 _spool_mode = SPIN_WHEN_ARMED;
+=======
+            if (_spool_desired != DesiredSpoolState::SHUT_DOWN) {
+                _spool_state = SpoolState::GROUND_IDLE;
+>>>>>>> upstream/master
                 break;
             }
 
@@ -464,8 +493,13 @@ void AP_MotorsMulticopter::output_logic()
             _throttle_thrust_max = 0.0f;
             break;
 
+<<<<<<< HEAD
         case SPIN_WHEN_ARMED: {
             // Motors should be stationary or at spin when armed.
+=======
+        case SpoolState::GROUND_IDLE: {
+            // Motors should be stationary or at ground idle.
+>>>>>>> upstream/master
             // Servos should be moving to correct the current attitude.
 
             // set limits flags
@@ -476,31 +510,39 @@ void AP_MotorsMulticopter::output_logic()
 
             // set and increment ramp variables
             float spool_step = 1.0f/(_spool_up_time*_loop_rate);
-            if (_spool_desired == DESIRED_SHUT_DOWN){
+            switch (_spool_desired) {
+            case DesiredSpoolState::SHUT_DOWN:
                 _spin_up_ratio -= spool_step;
                 // constrain ramp value and update mode
                 if (_spin_up_ratio <= 0.0f) {
                     _spin_up_ratio = 0.0f;
-                    _spool_mode = SHUT_DOWN;
+                    _spool_state = SpoolState::SHUT_DOWN;
                 }
-            } else if(_spool_desired == DESIRED_THROTTLE_UNLIMITED) {
+                break;
+            case DesiredSpoolState::THROTTLE_UNLIMITED:
                 _spin_up_ratio += spool_step;
                 // constrain ramp value and update mode
                 if (_spin_up_ratio >= 1.0f) {
                     _spin_up_ratio = 1.0f;
-                    _spool_mode = SPOOL_UP;
+                    _spool_state = SpoolState::SPOOLING_UP;
                 }
+<<<<<<< HEAD
             } else {    // _spool_desired == SPIN_WHEN_ARMED
+=======
+                break;
+            case DesiredSpoolState::GROUND_IDLE:
+>>>>>>> upstream/master
                 float spin_up_armed_ratio = 0.0f;
                 if (_spin_min > 0.0f) {
                     spin_up_armed_ratio = _spin_arm / _spin_min;
                 }
                 _spin_up_ratio += constrain_float(spin_up_armed_ratio-_spin_up_ratio, -spool_step, spool_step);
+                break;
             }
             _throttle_thrust_max = 0.0f;
             break;
         }
-        case SPOOL_UP:
+        case SpoolState::SPOOLING_UP:
             // Maximum throttle should move from minimum to maximum.
             // Servos should exhibit normal flight behavior.
 
@@ -511,8 +553,8 @@ void AP_MotorsMulticopter::output_logic()
             limit.throttle_upper = false;
 
             // make sure the motors are spooling in the correct direction
-            if (_spool_desired != DESIRED_THROTTLE_UNLIMITED ){
-                _spool_mode = SPOOL_DOWN;
+            if (_spool_desired != DesiredSpoolState::THROTTLE_UNLIMITED ){
+                _spool_state = SpoolState::SPOOLING_DOWN;
                 break;
             }
 
@@ -523,13 +565,13 @@ void AP_MotorsMulticopter::output_logic()
             // constrain ramp value and update mode
             if (_throttle_thrust_max >= MIN(get_throttle(), get_current_limit_max_throttle())) {
                 _throttle_thrust_max = get_current_limit_max_throttle();
-                _spool_mode = THROTTLE_UNLIMITED;
+                _spool_state = SpoolState::THROTTLE_UNLIMITED;
             } else if (_throttle_thrust_max < 0.0f) {
                 _throttle_thrust_max = 0.0f;
             }
             break;
 
-        case THROTTLE_UNLIMITED:
+        case SpoolState::THROTTLE_UNLIMITED:
             // Throttle should exhibit normal flight behavior.
             // Servos should exhibit normal flight behavior.
 
@@ -540,8 +582,8 @@ void AP_MotorsMulticopter::output_logic()
             limit.throttle_upper = false;
 
             // make sure the motors are spooling in the correct direction
-            if (_spool_desired != DESIRED_THROTTLE_UNLIMITED) {
-                _spool_mode = SPOOL_DOWN;
+            if (_spool_desired != DesiredSpoolState::THROTTLE_UNLIMITED) {
+                _spool_state = SpoolState::SPOOLING_DOWN;
                 break;
             }
 
@@ -550,7 +592,7 @@ void AP_MotorsMulticopter::output_logic()
             _throttle_thrust_max = get_current_limit_max_throttle();
             break;
 
-        case SPOOL_DOWN:
+        case SpoolState::SPOOLING_DOWN:
             // Maximum throttle should move from maximum to minimum.
             // Servos should exhibit normal flight behavior.
 
@@ -561,8 +603,8 @@ void AP_MotorsMulticopter::output_logic()
             limit.throttle_upper = false;
 
             // make sure the motors are spooling in the correct direction
-            if (_spool_desired == DESIRED_THROTTLE_UNLIMITED) {
-                _spool_mode = SPOOL_UP;
+            if (_spool_desired == DesiredSpoolState::THROTTLE_UNLIMITED) {
+                _spool_state = SpoolState::SPOOLING_UP;
                 break;
             }
 
@@ -577,7 +619,11 @@ void AP_MotorsMulticopter::output_logic()
             if (_throttle_thrust_max >= get_current_limit_max_throttle()) {
                 _throttle_thrust_max = get_current_limit_max_throttle();
             } else if (is_zero(_throttle_thrust_max)) {
+<<<<<<< HEAD
                 _spool_mode = SPIN_WHEN_ARMED;
+=======
+                _spool_state = SpoolState::GROUND_IDLE;
+>>>>>>> upstream/master
             }
             break;
     }

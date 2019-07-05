@@ -541,7 +541,14 @@ void Aircraft::update_dynamics(const Vector3f &rot_accel)
             // zero roll/pitch, but keep yaw
             float r, p, y;
             dcm.to_euler(&r, &p, &y);
-            dcm.from_euler(0.0f, 0.0f, y);
+            if (velocity_ef.length() < 5) {
+                // at high speeds don't constrain pitch, otherwise we
+                // can get stuck in takeoff
+                p = 0;
+            } else {
+                p = MAX(p, 0);
+            }
+            dcm.from_euler(0.0f, p, y);
             // only fwd movement
             Vector3f v_bf = dcm.transposed() * velocity_ef;
             v_bf.y = 0.0f;
@@ -737,4 +744,90 @@ void Aircraft::extrapolate_sensors(float delta_time)
     velocity_air_bf = dcm.transposed() * velocity_air_ef;
 }
 
+<<<<<<< HEAD
 
+=======
+void Aircraft::update_external_payload(const struct sitl_input &input)
+{
+    external_payload_mass = 0;
+
+    // update sprayer
+    if (sprayer && sprayer->is_enabled()) {
+        sprayer->update(input);
+        external_payload_mass += sprayer->payload_mass();
+    }
+
+    // update grippers
+    if (gripper && gripper->is_enabled()) {
+        gripper->set_alt(hagl());
+        gripper->update(input);
+        external_payload_mass += gripper->payload_mass();
+    }
+    if (gripper_epm && gripper_epm->is_enabled()) {
+        gripper_epm->update(input);
+        external_payload_mass += gripper_epm->payload_mass();
+    }
+
+    // update parachute
+    if (parachute && parachute->is_enabled()) {
+        parachute->update(input);
+        // TODO: add drag to vehicle, presumably proportional to velocity
+    }
+
+    if (precland && precland->is_enabled()) {
+        precland->update(get_location(), get_position());
+    }
+}
+
+void Aircraft::add_shove_forces(Vector3f &rot_accel, Vector3f &body_accel)
+{
+    const uint32_t now = AP_HAL::millis();
+    if (sitl == nullptr) {
+        return;
+    }
+    if (sitl->shove.t == 0) {
+        return;
+    }
+    if (sitl->shove.start_ms == 0) {
+        sitl->shove.start_ms = now;
+    }
+    if (now - sitl->shove.start_ms < uint32_t(sitl->shove.t)) {
+        // FIXME: can we get a vector operation here instead?
+        body_accel.x += sitl->shove.x;
+        body_accel.y += sitl->shove.y;
+        body_accel.z += sitl->shove.z;
+    } else {
+        sitl->shove.start_ms = 0;
+        sitl->shove.t = 0;
+    }
+}
+
+void Aircraft::add_twist_forces(Vector3f &rot_accel)
+{
+    if (sitl == nullptr) {
+        return;
+    }
+    if (sitl->gnd_behav != -1) {
+        ground_behavior = (GroundBehaviour)sitl->gnd_behav.get();
+    }
+    const uint32_t now = AP_HAL::millis();
+    if (sitl == nullptr) {
+        return;
+    }
+    if (sitl->twist.t == 0) {
+        return;
+    }
+    if (sitl->twist.start_ms == 0) {
+        sitl->twist.start_ms = now;
+    }
+    if (now - sitl->twist.start_ms < uint32_t(sitl->twist.t)) {
+        // FIXME: can we get a vector operation here instead?
+        rot_accel.x += sitl->twist.x;
+        rot_accel.y += sitl->twist.y;
+        rot_accel.z += sitl->twist.z;
+    } else {
+        sitl->twist.start_ms = 0;
+        sitl->twist.t = 0;
+    }
+}
+>>>>>>> upstream/master

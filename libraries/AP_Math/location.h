@@ -2,17 +2,8 @@
 
 #include <inttypes.h>
 
-#include <AP_Common/AP_Common.h>
-#include <AP_HAL/AP_HAL.h>
-
 #include "vector2.h"
 #include "vector3.h"
-
-// scaling factor from 1e-7 degrees to meters at equator
-// == 1.0e-7 * DEG_TO_RAD * RADIUS_OF_EARTH
-#define LOCATION_SCALING_FACTOR 0.011131884502145034f
-// inverse of LOCATION_SCALING_FACTOR
-#define LOCATION_SCALING_FACTOR_INV 89.83204953368922f
 
 /*
  * LOCATION
@@ -30,12 +21,10 @@ uint32_t     get_distance_cm(const struct Location &loc1, const struct Location 
 // return horizontal distance in centimeters between two positions
 float        get_horizontal_distance_cm(const Vector3f &origin, const Vector3f &destination);
 
-// return bearing in centi-degrees between two locations
-int32_t      get_bearing_cd(const struct Location &loc1, const struct Location &loc2);
-
 // return bearing in centi-degrees between two positions
 float        get_bearing_cd(const Vector3f &origin, const Vector3f &destination);
 
+<<<<<<< HEAD
 // see if location is past a line perpendicular to
 // the line between point1 and point2. If point1 is
 // our previous waypoint and point2 is our target waypoint
@@ -86,6 +75,8 @@ bool        location_sanitize(const struct Location &defaultLoc, struct Location
  */
 void        print_latlon(AP_HAL::BetterStream *s, int32_t lat_or_lon);
 
+=======
+>>>>>>> upstream/master
 // Converts from WGS84 geodetic coordinates (lat, lon, height)
 // into WGS84 Earth Centered, Earth Fixed (ECEF) coordinates
 // (X, Y, Z)
@@ -103,5 +94,3 @@ bool        check_lat(int32_t lat);
 bool        check_lng(int32_t lng);
 bool        check_latlng(float lat, float lng);
 bool        check_latlng(int32_t lat, int32_t lng);
-bool        check_latlng(Location loc);
-

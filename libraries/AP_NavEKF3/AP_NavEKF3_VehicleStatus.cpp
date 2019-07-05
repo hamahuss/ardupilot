@@ -7,6 +7,7 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <GCS_MAVLink/GCS.h>
+#include <AP_GPS/AP_GPS.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -51,7 +52,7 @@ bool NavEKF3_core::calcGpsGoodToAlign(void)
     float deltaTime = constrain_float(float(imuDataDelayed.time_ms - lastPreAlignGpsCheckTime_ms)*0.001f,0.01f,posFiltTimeConst);
     lastPreAlignGpsCheckTime_ms = imuDataDelayed.time_ms;
     // Sum distance moved
-    gpsDriftNE += location_diff(gpsloc_prev, gpsloc).length();
+    gpsDriftNE += gpsloc_prev.get_distance(gpsloc);
     gpsloc_prev = gpsloc;
     // Decay distance moved exponentially to zero
     gpsDriftNE *= (1.0f - deltaTime/posFiltTimeConst);
@@ -314,7 +315,7 @@ void NavEKF3_core::detectFlight()
         // trigger at 8 m/s airspeed
         if (_ahrs->airspeed_sensor_enabled()) {
             const AP_Airspeed *airspeed = _ahrs->get_airspeed();
-            if (airspeed->get_airspeed() * airspeed->get_EAS2TAS() > 10.0f) {
+            if (airspeed->get_airspeed() * AP::ahrs().get_EAS2TAS() > 10.0f) {
                 highAirSpd = true;
             }
         }

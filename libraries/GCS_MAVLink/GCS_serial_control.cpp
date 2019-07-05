@@ -20,7 +20,12 @@
 
 #include <AP_HAL/AP_HAL.h>
 #include "GCS.h"
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+#include <AP_Logger/AP_Logger.h>
+#include <AP_GPS/AP_GPS.h>
+>>>>>>> upstream/master
 
 extern const AP_HAL::HAL& hal;
 

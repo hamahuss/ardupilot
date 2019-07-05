@@ -25,9 +25,11 @@
 extern const AP_HAL::HAL& hal;
 
 #include <AP_Math/AP_Math.h>
+#include <AP_Logger/AP_Logger.h>
 
 #include "RC_Channel.h"
 
+<<<<<<< HEAD
 RC_Channel *RC_Channels::channels;
 bool RC_Channels::has_new_overrides;
 AP_Float *RC_Channels::override_timeout;
@@ -109,15 +111,20 @@ const AP_Param::GroupInfo RC_Channels::var_info[] = {
 };
 
 
+=======
+>>>>>>> upstream/master
 /*
   channels group object constructor
  */
 RC_Channels::RC_Channels(void)
 {
+<<<<<<< HEAD
     channels = obj_channels;
 
     override_timeout = &_override_timeout;
     
+=======
+>>>>>>> upstream/master
     // set defaults from the parameter table
     AP_Param::setup_object_defaults(this, var_info);
 
@@ -209,3 +216,89 @@ bool RC_Channels::receiver_bind(const int dsmMode)
 {
     return hal.rcin->rc_bind(dsmMode);
 }
+<<<<<<< HEAD
+=======
+
+
+// support for auxillary switches:
+// read_aux_switches - checks aux switch positions and invokes configured actions
+void RC_Channels::read_aux_all()
+{
+    if (!has_valid_input()) {
+        // exit immediately when no RC input
+        return;
+    }
+    bool need_log = false;
+
+    for (uint8_t i=0; i<NUM_RC_CHANNELS; i++) {
+        RC_Channel *c = channel(i);
+        if (c == nullptr) {
+            continue;
+        }
+        need_log |= c->read_aux();
+    }
+    if (need_log) {
+        // guarantee that we log when a switch changes
+        AP::logger().Write_RCIN();
+    }
+}
+
+void RC_Channels::init_aux_all()
+{
+    for (uint8_t i=0; i<NUM_RC_CHANNELS; i++) {
+        RC_Channel *c = channel(i);
+        if (c == nullptr) {
+            continue;
+        }
+        c->init_aux();
+    }
+    reset_mode_switch();
+}
+
+//
+// Support for mode switches
+//
+RC_Channel *RC_Channels::flight_mode_channel()
+{
+    const int8_t num = flight_mode_channel_number();
+    if (num <= 0) {
+        return nullptr;
+    }
+    if (num >= NUM_RC_CHANNELS) {
+        return nullptr;
+    }
+    return channel(num-1);
+}
+
+void RC_Channels::reset_mode_switch()
+{
+    RC_Channel *c = flight_mode_channel();
+    if (c == nullptr) {
+        return;
+    }
+    c->reset_mode_switch();
+}
+
+void RC_Channels::read_mode_switch()
+{
+    if (!has_valid_input()) {
+        // exit immediately when no RC input
+        return;
+    }
+    RC_Channel *c = flight_mode_channel();
+    if (c == nullptr) {
+        return;
+    }
+    c->read_mode_switch();
+}
+
+
+// singleton instance
+RC_Channels *RC_Channels::_singleton;
+
+
+RC_Channels &rc()
+{
+    return *RC_Channels::get_singleton();
+}
+>>>>>>> upstream/master

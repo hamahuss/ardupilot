@@ -72,7 +72,7 @@ void Storage::_storage_open(void)
     _flash_load();
 #elif defined(USE_POSIX)
     // allow for fallback to microSD based storage
-    sdcard_init();
+    sdcard_retry();
     
     log_fd = open(HAL_STORAGE_FILE, O_RDWR|O_CREAT);
     if (log_fd == -1) {
@@ -110,7 +110,7 @@ void Storage::_save_backup(void)
 {
 #ifdef USE_POSIX
     // allow for fallback to microSD based storage
-    sdcard_init();
+    sdcard_retry();
     int fd = open(HAL_STORAGE_BACKUP_FILE, O_WRONLY|O_CREAT|O_TRUNC);
     if (fd != -1) {
         write(fd, _buffer, CH_STORAGE_SIZE);
@@ -249,9 +249,20 @@ void Storage::_flash_write(uint16_t line)
 bool Storage::_flash_write_data(uint8_t sector, uint32_t offset, const uint8_t *data, uint16_t length)
 {
 #ifdef STORAGE_FLASH_PAGE
+<<<<<<< HEAD
     size_t base_address = stm32_flash_getpageaddr(_flash_page+sector);
     bool ret = stm32_flash_write(base_address+offset, data, length) == length;
     if (!ret && _flash_erase_ok()) {
+=======
+    size_t base_address = hal.flash->getpageaddr(_flash_page+sector);
+    for (uint8_t i=0; i<STORAGE_FLASH_RETRIES; i++) {
+        if (hal.flash->write(base_address+offset, data, length)) {
+            return true;
+        }
+        hal.scheduler->delay(1);
+    }
+    if (_flash_erase_ok()) {
+>>>>>>> upstream/master
         // we are getting flash write errors while disarmed. Try
         // re-writing all of flash
         uint32_t now = AP_HAL::millis();
@@ -273,7 +284,7 @@ bool Storage::_flash_write_data(uint8_t sector, uint32_t offset, const uint8_t *
  */
 bool Storage::_flash_read_data(uint8_t sector, uint32_t offset, uint8_t *data, uint16_t length)
 {
-    size_t base_address = stm32_flash_getpageaddr(_flash_page+sector);
+    size_t base_address = hal.flash->getpageaddr(_flash_page+sector);
     const uint8_t *b = ((const uint8_t *)base_address)+offset;
     memcpy(data, b, length);
     return true;
@@ -284,7 +295,17 @@ bool Storage::_flash_read_data(uint8_t sector, uint32_t offset, uint8_t *data, u
  */
 bool Storage::_flash_erase_sector(uint8_t sector)
 {
+<<<<<<< HEAD
     return stm32_flash_erasepage(_flash_page+sector);
+=======
+    for (uint8_t i=0; i<STORAGE_FLASH_RETRIES; i++) {
+        if (hal.flash->erasepage(_flash_page+sector)) {
+            return true;
+        }
+        hal.scheduler->delay(1);
+    }
+    return false;
+>>>>>>> upstream/master
 }
 
 /*

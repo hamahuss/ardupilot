@@ -213,6 +213,16 @@ private:
     bool corked;
 
     bool crc_is_ok;
+<<<<<<< HEAD
+=======
+    bool detected_io_reset;
+    bool initialised;
+    bool is_chibios_backend;
+
+    uint32_t protocol_fail_count;
+    uint32_t protocol_count;
+    uint32_t last_iocmu_timestamp_ms;
+>>>>>>> upstream/master
 
     // firmware upload
     const char *fw_name = "io_firmware.bin";
@@ -235,7 +245,9 @@ private:
     bool reboot();
 
     bool check_crc(void);
-    
+    void handle_repeated_failures();
+    void check_iomcu_reset();
+
     enum {
         PROTO_NOP               = 0x00,
         PROTO_OK                = 0x10,

@@ -27,7 +27,32 @@ extern const AP_HAL::HAL& hal;
 AP_RangeFinder_Backend::AP_RangeFinder_Backend(RangeFinder::RangeFinder_State &_state) :
         state(_state)
 {
+<<<<<<< HEAD
     _sem = hal.util->new_semaphore();    
+=======
+    _backend_type = (RangeFinder::RangeFinder_Type)params.type.get();
+}
+
+MAV_DISTANCE_SENSOR AP_RangeFinder_Backend::get_mav_distance_sensor_type() const {
+    if (params.type == RangeFinder::RangeFinder_TYPE_NONE) {
+        return MAV_DISTANCE_SENSOR_UNKNOWN;
+    }
+    return _get_mav_distance_sensor_type();
+}
+
+RangeFinder::RangeFinder_Status AP_RangeFinder_Backend::status() const {
+    if (params.type == RangeFinder::RangeFinder_TYPE_NONE) {
+        // turned off at runtime?
+        return RangeFinder::RangeFinder_NotConnected;
+    }
+    return state.status;
+}
+
+// true if sensor is returning data
+bool AP_RangeFinder_Backend::has_data() const {
+    return ((state.status != RangeFinder::RangeFinder_NotConnected) &&
+            (state.status != RangeFinder::RangeFinder_NoData));
+>>>>>>> upstream/master
 }
 
 // update status based on distance measurement
@@ -58,6 +83,7 @@ void AP_RangeFinder_Backend::set_status(RangeFinder::RangeFinder_Status _status)
     }
 }
 
+<<<<<<< HEAD
 /*
   set pre-arm checks to passed if the range finder has been exercised through a reasonable range of movement
       max distance sensed is at least 50cm > min distance sensed
@@ -83,3 +109,5 @@ void AP_RangeFinder_Backend::update_pre_arm_check()
         state.pre_arm_check = true;
     }
 }
+=======
+>>>>>>> upstream/master

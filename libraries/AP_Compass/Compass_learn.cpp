@@ -37,6 +37,7 @@ void CompassLearn::update(void)
             return;
         }
 
+<<<<<<< HEAD
         // setup the expected earth field at this location
         float declination_deg=0, inclination_deg=0, intensity_gauss=0;
         AP_Declination::get_mag_field_ef(loc.lat*1.0e-7, loc.lng*1.0e-7, intensity_gauss, declination_deg, inclination_deg);
@@ -50,6 +51,13 @@ void CompassLearn::update(void)
 
         sem = hal.util->new_semaphore();
 
+=======
+        // remember primary mag
+        primary_mag = compass.get_primary();
+
+        // setup the expected earth field in mGauss at this location
+        mag_ef = AP_Declination::get_earth_field_ga(loc) * 1000;
+>>>>>>> upstream/master
         have_earth_field = true;
 
         // form eliptical correction matrix and invert it. This is
@@ -68,8 +76,9 @@ void CompassLearn::update(void)
         }
 
         // set initial error to field intensity
+        float intensity = mag_ef.length();
         for (uint16_t i=0; i<num_sectors; i++) {
-            errors[i] = intensity_gauss*1000;
+            errors[i] = intensity;
         }
         
         hal.scheduler->register_io_process(FUNCTOR_BIND_MEMBER(&CompassLearn::io_timer, void));
@@ -176,7 +185,7 @@ void CompassLearn::process_sample(const struct sample &s)
             predicted_offsets[i] = offsets;
         } else {
             // lowpass the predicted offsets and the error
-            const float learn_rate = 0.92;
+            const float learn_rate = 0.92f;
             predicted_offsets[i] = predicted_offsets[i] * learn_rate + offsets * (1-learn_rate);
             errors[i] = errors[i] * learn_rate + delta * (1-learn_rate);
         }

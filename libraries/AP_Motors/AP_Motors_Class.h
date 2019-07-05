@@ -53,7 +53,15 @@ public:
         MOTOR_FRAME_TYPE_VTAIL = 4,
         MOTOR_FRAME_TYPE_ATAIL = 5,
         MOTOR_FRAME_TYPE_Y6B = 10,
+<<<<<<< HEAD
         MOTOR_FRAME_TYPE_Y6F = 11 // for FireFlyY6
+=======
+        MOTOR_FRAME_TYPE_Y6F = 11, // for FireFlyY6
+        MOTOR_FRAME_TYPE_BF_X = 12, // X frame, betaflight ordering
+        MOTOR_FRAME_TYPE_DJI_X = 13, // X frame, DJI ordering
+        MOTOR_FRAME_TYPE_CW_X = 14, // X frame, clockwise ordering
+        MOTOR_FRAME_TYPE_I = 15, // (sideways H) octo only
+>>>>>>> upstream/master
     };
 
     // Constructor
@@ -95,6 +103,7 @@ public:
     float               get_lateral() const { return _lateral_in; }
     virtual float       get_throttle_hover() const = 0;
 
+<<<<<<< HEAD
     // spool up states
     enum spool_up_down_desired {
         DESIRED_SHUT_DOWN = 0,              // all motors stop
@@ -106,6 +115,36 @@ public:
 
     enum spool_up_down_desired get_desired_spool_state(void) const { return _spool_desired; }
     
+=======
+    // motor failure handling
+    void                set_thrust_boost(bool enable) { _thrust_boost = enable; }
+    bool                get_thrust_boost() const { return _thrust_boost; }
+    virtual uint8_t     get_lost_motor() const { return 0; }
+
+    // desired spool states
+    enum class DesiredSpoolState : uint8_t {
+        SHUT_DOWN = 0,              // all motors should move to stop
+        GROUND_IDLE = 1,            // all motors should move to ground idle
+        THROTTLE_UNLIMITED = 2,     // motors should move to being a state where throttle is unconstrained (e.g. by start up procedure)
+    };
+
+    void set_desired_spool_state(enum DesiredSpoolState spool);
+
+    enum DesiredSpoolState get_desired_spool_state(void) const { return _spool_desired; }
+
+    // spool states
+    enum class SpoolState : uint8_t {
+        SHUT_DOWN = 0,                      // all motors stop
+        GROUND_IDLE = 1,                    // all motors at ground idle
+        SPOOLING_UP = 2,                       // increasing maximum throttle while stabilizing
+        THROTTLE_UNLIMITED = 3,             // throttle is no longer constrained by start up procedure
+        SPOOLING_DOWN = 4,                     // decreasing maximum throttle while stabilizing
+    };
+
+    // get_spool_state - get current spool state
+    enum SpoolState  get_spool_state(void) const { return _spool_state; }
+
+>>>>>>> upstream/master
     // set_density_ratio - sets air density as a proportion of sea level density
     void                set_air_density_ratio(float ratio) { _air_density_ratio = ratio; }
 
@@ -196,7 +235,12 @@ protected:
     float               _lateral_in;                // last lateral input from set_lateral caller
     float               _throttle_avg_max;          // last throttle input from set_throttle_avg_max
     LowPassFilterFloat  _throttle_filter;           // throttle input filter
+<<<<<<< HEAD
     spool_up_down_desired _spool_desired;           // desired spool state
+=======
+    DesiredSpoolState   _spool_desired;             // desired spool state
+    SpoolState          _spool_state;               // current spool mode
+>>>>>>> upstream/master
 
     // air pressure compensation variables
     float               _air_density_ratio;     // air density / sea level density - decreases in altitude

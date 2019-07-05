@@ -9,6 +9,14 @@
 
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
+<<<<<<< HEAD
+=======
+#include <AP_Common/AP_Common.h>
+#include <AP_Math/AP_Math.h>
+#include <AP_UAVCAN/AP_UAVCAN.h>
+
+#include <uavcan/equipment/power/BatteryInfo.hpp>
+>>>>>>> upstream/master
 
 extern const AP_HAL::HAL& hal;
 

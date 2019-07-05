@@ -4,7 +4,12 @@
 #include "AP_NavEKF2_core.h"
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <GCS_MAVLink/GCS.h>
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+#include <AP_Logger/AP_Logger.h>
+#include <AP_GPS/AP_GPS.h>
+>>>>>>> upstream/master
 #include <new>
 
 /*
@@ -36,6 +41,7 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
+#define FLOW_USE_DEFAULT        1
 
 #elif APM_BUILD_TYPE(APM_BUILD_APMrover2)
 // rover defaults
@@ -61,6 +67,7 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
+#define FLOW_USE_DEFAULT        1
 
 #elif APM_BUILD_TYPE(APM_BUILD_ArduPlane)
 // plane defaults
@@ -83,9 +90,10 @@
 #define MAG_CAL_DEFAULT         0
 #define GLITCH_RADIUS_DEFAULT   25
 #define FLOW_MEAS_DELAY         10
-#define FLOW_M_NSE_DEFAULT      0.25f
-#define FLOW_I_GATE_DEFAULT     300
+#define FLOW_M_NSE_DEFAULT      0.15f
+#define FLOW_I_GATE_DEFAULT     500
 #define CHECK_SCALER_DEFAULT    150
+#define FLOW_USE_DEFAULT        2
 
 #else
 // build type not specified, use copter defaults
@@ -111,6 +119,7 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
+#define FLOW_USE_DEFAULT        1
 
 #endif // APM_BUILD_DIRECTORY
 
@@ -494,7 +503,7 @@ const AP_Param::GroupInfo NavEKF2::var_info[] = {
 
     // @Param: TERR_GRAD
     // @DisplayName: Maximum terrain gradient
-    // @Description: Specifies the maximum gradient of the terrain below the vehicle when it is using range finder as a height reference
+    // @Description: Specifies the maximum gradient of the terrain below the vehicle assumed when it is fusing range finder or optical flow to estimate terrain height.
     // @Range: 0 0.2
     // @Increment: 0.01
     // @User: Advanced
@@ -552,6 +561,35 @@ const AP_Param::GroupInfo NavEKF2::var_info[] = {
     // @RebootRequired: True
     AP_GROUPINFO("OGN_HGT_MASK", 49, NavEKF2, _originHgtMode, 0),
 
+<<<<<<< HEAD
+=======
+    // @Param: EXTNAV_DELAY
+    // @DisplayName: external navigation system measurement delay (msec)
+    // @Description: This is the number of msec that the external navigation system measurements lag behind the inertial measurements.
+    // @Range: 0 127
+    // @Increment: 1
+    // @User: Advanced
+    // @Units: ms
+    // @RebootRequired: True
+    AP_GROUPINFO("EXTNAV_DELAY", 50, NavEKF2, _extnavDelay_ms, 10),
+
+    // @Param: FLOW_USE
+    // @DisplayName: Optical flow use bitmask
+    // @Description: Controls if the optical flow data is fused into the 24-state navigation estimator OR the 1-state terrain height estimator.
+    // @User: Advanced
+    // @Values: 0:None,1:Navigation,2:Terrain
+    // @RebootRequired: True
+    AP_GROUPINFO("FLOW_USE", 51, NavEKF2, _flowUse, FLOW_USE_DEFAULT),
+
+    // @Param: MAG_EF_LIM
+    // @DisplayName: EarthField error limit
+    // @Description: This limits the difference between the learned earth magnetic field and the earth field from the world magnetic model tables. A value of zero means to disable the use of the WMM tables.
+    // @User: Advanced
+    // @Range: 0 500
+    // @Units: mGauss
+    AP_GROUPINFO("MAG_EF_LIM", 52, NavEKF2, _mag_ef_limit, 50),
+    
+>>>>>>> upstream/master
     AP_GROUPEND
 };
 
@@ -730,7 +768,7 @@ void NavEKF2::UpdateFilter(void)
                 // If the primary core is still healthy,then switching is optional and will only be done if
                 // a core with a significantly lower error score can be found
                 float altErrorScore = core[coreIndex].errorScore();
-                if (altCoreAvailable && (!core[primary].healthy() || altErrorScore < lowestErrorScore)) {
+                if (altCoreAvailable && (!core[newPrimaryIndex].healthy() || altErrorScore < lowestErrorScore)) {
                     newPrimaryIndex = coreIndex;
                     lowestErrorScore = altErrorScore;
                 }
@@ -742,10 +780,64 @@ void NavEKF2::UpdateFilter(void)
             updateLaneSwitchPosResetData(newPrimaryIndex, primary);
             updateLaneSwitchPosDownResetData(newPrimaryIndex, primary);
             primary = newPrimaryIndex;
+            lastLaneSwitch_ms = AP_HAL::millis();
         }
     }
 
+    if (primary != 0 && core[0].healthy() && !hal.util->get_soft_armed()) {
+        // when on the ground and disarmed force the first lane. This
+        // avoids us ending with with a lottery for which IMU is used
+        // in each flight. Otherwise the alignment of the timing of
+        // the lane updates with the timing of GPS updates can lead to
+        // a lane other than the first one being used as primary for
+        // some flights. As different IMUs may have quite different
+        // noise characteristics this leads to inconsistent
+        // performance
+        primary = 0;
+    }
+
     check_log_write();
+}
+
+/*
+  check if switching lanes will reduce the normalised
+  innovations. This is called when the vehicle code is about to
+  trigger an EKF failsafe, and it would like to avoid that by
+  using a different EKF lane
+*/
+void NavEKF2::checkLaneSwitch(void)
+{
+    uint32_t now = AP_HAL::millis();
+    if (lastLaneSwitch_ms != 0 && now - lastLaneSwitch_ms < 5000) {
+        // don't switch twice in 5 seconds
+        return;
+    }
+    float primaryErrorScore = core[primary].errorScore();
+    float lowestErrorScore = primaryErrorScore;
+    uint8_t newPrimaryIndex = primary;
+    for (uint8_t coreIndex=0; coreIndex<num_cores; coreIndex++) {
+        if (coreIndex != primary) {
+            // an alternative core is available for selection only if healthy and if states have been updated on this time step
+            bool altCoreAvailable = core[coreIndex].healthy();
+            float altErrorScore = core[coreIndex].errorScore();
+            if (altCoreAvailable &&
+                altErrorScore < lowestErrorScore &&
+                altErrorScore < 0.9) {
+                newPrimaryIndex = coreIndex;
+                lowestErrorScore = altErrorScore;
+            }
+        }
+    }
+
+    // update the yaw and position reset data to capture changes due to the lane switch
+    if (newPrimaryIndex != primary) {
+        updateLaneSwitchYawResetData(newPrimaryIndex, primary);
+        updateLaneSwitchPosResetData(newPrimaryIndex, primary);
+        updateLaneSwitchPosDownResetData(newPrimaryIndex, primary);
+        primary = newPrimaryIndex;
+        lastLaneSwitch_ms = now;
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "NavEKF2: lane switch %u", primary);
+    }
 }
 
 // Check basic filter health metrics and return a consolidated health status
@@ -755,6 +847,19 @@ bool NavEKF2::healthy(void) const
         return false;
     }
     return core[primary].healthy();
+}
+
+bool NavEKF2::all_cores_healthy(void) const
+{
+    if (!core) {
+        return false;
+    }
+    for (uint8_t i = 0; i < num_cores; i++) {
+        if (!core[i].healthy()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // returns the index of the primary core
@@ -1336,7 +1441,13 @@ const char *NavEKF2::prearm_failure_reason(void) const
     if (!core) {
         return nullptr;
     }
-    return core[primary].prearm_failure_reason();
+    for (uint8_t i = 0; i < num_cores; i++) {
+        const char * failure = core[i].prearm_failure_reason();
+        if (failure != nullptr) {
+            return failure;
+        }
+    }
+    return nullptr;
 }
 
 // Returns the amount of vertical position change due to the last reset or core switch in metres

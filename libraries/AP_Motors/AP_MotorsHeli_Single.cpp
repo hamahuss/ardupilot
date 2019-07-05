@@ -169,7 +169,7 @@ bool AP_MotorsHeli_Single::init_outputs()
         }
     }
 
-    if (_tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_SERVO_EXTGYRO) {            
+    if (_tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_SERVO_EXTGYRO) {
         // External Gyro uses PWM output thus servo endpoints are forced
         SRV_Channels::set_output_min_max(SRV_Channels::get_motor_function(AP_MOTORS_HELI_SINGLE_EXTGYRO), 1000, 2000);
     }
@@ -241,20 +241,34 @@ void AP_MotorsHeli_Single::set_desired_rotor_speed(float desired_speed)
     _tail_rotor.set_desired_speed(_direct_drive_tailspeed*0.001f);
 }
 
+// set_rotor_rpm - used for governor with speed sensor
+void AP_MotorsHeli_Single::set_rpm(float rotor_rpm)
+{
+    _main_rotor.set_rotor_rpm(rotor_rpm);
+}
+
 // calculate_scalars - recalculates various scalers used.
 void AP_MotorsHeli_Single::calculate_armed_scalars()
 {
-    float thrcrv[5];
-    for (uint8_t i = 0; i < 5; i++) {
-        thrcrv[i]=_rsc_thrcrv[i]*0.001f;
-    }
+    // Set common RSC variables
     _main_rotor.set_ramp_time(_rsc_ramp_time);
     _main_rotor.set_runup_time(_rsc_runup_time);
     _main_rotor.set_critical_speed(_rsc_critical*0.001f);
     _main_rotor.set_idle_output(_rsc_idle_output*0.001f);
-    _main_rotor.set_throttle_curve(thrcrv, (uint16_t)_rsc_slewrate.get());
-}
+    _main_rotor.set_slewrate(_rsc_slewrate);
 
+    // Set rsc mode specific parameters
+    if (_rsc_mode == ROTOR_CONTROL_MODE_OPEN_LOOP_POWER_OUTPUT) {
+        _main_rotor.set_throttle_curve(_rsc_thrcrv.get_thrcrv());
+    } else if (_rsc_mode == ROTOR_CONTROL_MODE_CLOSED_LOOP_POWER_OUTPUT) {
+        _main_rotor.set_throttle_curve(_rsc_thrcrv.get_thrcrv());
+        _main_rotor.set_governor_disengage(_rsc_gov.get_disengage()*0.01f);
+        _main_rotor.set_governor_droop_response(_rsc_gov.get_droop_response()*0.01f);
+        _main_rotor.set_governor_reference(_rsc_gov.get_reference());
+        _main_rotor.set_governor_range(_rsc_gov.get_range());
+        _main_rotor.set_governor_thrcurve(_rsc_gov.get_thrcurve()*0.01f);
+    }
+}
 
 // calculate_scalars - recalculates various scalers used.
 void AP_MotorsHeli_Single::calculate_scalars()
@@ -274,6 +288,7 @@ void AP_MotorsHeli_Single::calculate_scalars()
 
     // send setpoints to main rotor controller and trigger recalculation of scalars
     _main_rotor.set_control_mode(static_cast<RotorControlMode>(_rsc_mode.get()));
+    enable_rsc_parameters();
     calculate_armed_scalars();
 
     // send setpoints to DDVP rotor controller and trigger recalculation of scalars
@@ -428,8 +443,8 @@ void AP_MotorsHeli_Single::move_actuators(float roll_out, float pitch_out, float
     }
 
     // ensure not below landed/landing collective
-    if (_heliflags.landing_collective && collective_out < (_land_collective_min*0.001f)) {
-        collective_out = (_land_collective_min*0.001f);
+    if (_heliflags.landing_collective && collective_out < _collective_mid_pct) {
+        collective_out = _collective_mid_pct;
         limit.throttle_lower = true;
     }
 
@@ -517,6 +532,45 @@ void AP_MotorsHeli_Single::move_yaw(float yaw_out)
             rc_write(AP_MOTORS_HELI_SINGLE_EXTGYRO, 1000 + _ext_gyro_gain_std);
         }
     }
+<<<<<<< HEAD
+=======
+
+    switch (_spool_state) {
+        case SpoolState::SHUT_DOWN:
+            // sends minimum values out to the motors
+            update_motor_control(ROTOR_CONTROL_STOP);
+            if (_tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_DIRECTDRIVE_FIXEDPITCH){
+                rc_write_angle(AP_MOTORS_MOT_4, -YAW_SERVO_MAX_ANGLE);
+            }
+            break;
+        case SpoolState::GROUND_IDLE:
+            // sends idle output to motors when armed. rotor could be static or turning (autorotation)
+            update_motor_control(ROTOR_CONTROL_IDLE);
+            if (_tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_DIRECTDRIVE_FIXEDPITCH){
+                rc_write_angle(AP_MOTORS_MOT_4, -YAW_SERVO_MAX_ANGLE);
+            }
+            break;
+        case SpoolState::SPOOLING_UP:
+        case SpoolState::THROTTLE_UNLIMITED:
+            // set motor output based on thrust requests
+            update_motor_control(ROTOR_CONTROL_ACTIVE);
+            if (_tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_DIRECTDRIVE_FIXEDPITCH){
+                // constrain output so that motor never fully stops
+                 _servo4_out = constrain_float(_servo4_out, -0.9f, 1.0f);
+                // output yaw servo to tail rsc
+                rc_write_angle(AP_MOTORS_MOT_4, _servo4_out * YAW_SERVO_MAX_ANGLE);
+            }
+            break;
+        case SpoolState::SPOOLING_DOWN:
+            // sends idle output to motors and wait for rotor to stop
+            update_motor_control(ROTOR_CONTROL_IDLE);
+            if (_tail_type == AP_MOTORS_HELI_SINGLE_TAILTYPE_DIRECTDRIVE_FIXEDPITCH){
+                rc_write_angle(AP_MOTORS_MOT_4, -YAW_SERVO_MAX_ANGLE);
+            }
+            break;
+
+    }
+>>>>>>> upstream/master
 }
 
 // servo_test - move servos through full range of movement

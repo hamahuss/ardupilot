@@ -22,7 +22,16 @@
 
 #include "SITL.h"
 #include <AP_Terrain/AP_Terrain.h>
+<<<<<<< HEAD
 
+=======
+#include "SIM_Sprayer.h"
+#include "SIM_Gripper_Servo.h"
+#include "SIM_Gripper_EPM.h"
+#include "SIM_Parachute.h"
+#include "SIM_Precland.h"
+#include <Filter/Filter.h>
+>>>>>>> upstream/master
 
 namespace SITL {
 
@@ -175,8 +184,13 @@ protected:
 
     // allow for AHRS_ORIENTATION
     AP_Int8 *ahrs_orientation;
+<<<<<<< HEAD
     
     enum {
+=======
+
+    enum GroundBehaviour {
+>>>>>>> upstream/master
         GROUND_BEHAVIOR_NONE = 0,
         GROUND_BEHAVIOR_NO_MOVEMENT,
         GROUND_BEHAVIOR_FWD_ONLY,
@@ -234,7 +248,17 @@ protected:
 
     // extrapolate sensors by a given delta time in seconds
     void extrapolate_sensors(float delta_time);
+<<<<<<< HEAD
     
+=======
+
+    // update external payload/sensor dynamic
+    void update_external_payload(const struct sitl_input &input);
+
+    void add_shove_forces(Vector3f &rot_accel, Vector3f &body_accel);
+    void add_twist_forces(Vector3f &rot_accel);
+
+>>>>>>> upstream/master
 private:
     uint64_t last_time_us = 0;
     uint32_t frame_counter = 0;

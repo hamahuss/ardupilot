@@ -6,18 +6,16 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
-#include <AP_GPS/AP_GPS.h>
 #include <AP_InertialSensor/AP_InertialSensor.h>
-#include <AP_RSSI/AP_RSSI.h>
-#include <AP_Baro/AP_Baro.h>
 #include <AP_AHRS/AP_AHRS.h>
-#include <AP_Vehicle/AP_Vehicle.h>
 #include <AP_Mission/AP_Mission.h>
-#include <AP_Airspeed/AP_Airspeed.h>
-#include <AP_BattMonitor/AP_BattMonitor.h>
 #include <AP_RPM/AP_RPM.h>
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
 #include <AP_RangeFinder/AP_RangeFinder.h>
 #include <DataFlash/LogStructure.h>
+=======
+#include <AP_Logger/LogStructure.h>
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
 #include <AP_Motors/AP_Motors.h>
 #include <AP_Rally/AP_Rally.h>
 #include <AP_Beacon/AP_Beacon.h>
@@ -92,12 +90,23 @@ public:
 
     void StopLogging();
 
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
     void Log_Write_Parameter(const char *name, float value);
     void Log_Write_GPS(uint8_t instance, uint64_t time_us=0);
     void Log_Write_RFND(const RangeFinder &rangefinder);
     void Log_Write_IMU();
     void Log_Write_IMUDT(uint64_t time_us, uint8_t imu_mask);
     bool Log_Write_ISBH(uint16_t seqno,
+=======
+    void Write_Parameter(const char *name, float value);
+    void Write_Event(Log_Event id);
+    void Write_Error(LogErrorSubsystem sub_system,
+                     LogErrorCode error_code);
+    void Write_GPS(uint8_t instance, uint64_t time_us=0);
+    void Write_IMU();
+    void Write_IMUDT(uint64_t time_us, uint8_t imu_mask);
+    bool Write_ISBH(uint16_t seqno,
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
                         AP_InertialSensor::IMU_SENSOR_TYPE sensor_type,
                         uint8_t instance,
                         uint16_t multiplier,
@@ -109,6 +118,7 @@ public:
                         const int16_t x[32],
                         const int16_t y[32],
                         const int16_t z[32]);
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
     void Log_Write_Vibration();
     void Log_Write_RCIN(void);
     void Log_Write_RCOUT(void);
@@ -117,9 +127,21 @@ public:
     void Log_Write_Power(void);
     void Log_Write_AHRS2(AP_AHRS &ahrs);
     void Log_Write_POS(AP_AHRS &ahrs);
+=======
+    void Write_Vibration();
+    void Write_RCIN(void);
+    void Write_RCOUT(void);
+    void Write_RSSI();
+    void Write_Rally();
+    void Write_Baro(uint64_t time_us=0);
+    void Write_Power(void);
+    void Write_AHRS2(AP_AHRS &ahrs);
+    void Write_POS(AP_AHRS &ahrs);
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
 #if AP_AHRS_NAVEKF_AVAILABLE
     void Log_Write_EKF(AP_AHRS_NavEKF &ahrs);
 #endif
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
     bool Log_Write_MavCmd(uint16_t cmd_total, const mavlink_mission_item_t& mav_cmd);
     void Log_Write_Radio(const mavlink_radio_t &packet);
     void Log_Write_Message(const char *message);
@@ -137,6 +159,23 @@ public:
 
     void Log_Write_EntireMission(const AP_Mission &mission);
     void Log_Write_Mission_Cmd(const AP_Mission &mission,
+=======
+    void Write_Radio(const mavlink_radio_t &packet);
+    void Write_Message(const char *message);
+    void Write_MessageF(const char *fmt, ...);
+    void Write_CameraInfo(enum LogMessages msg, const AP_AHRS &ahrs, const Location &current_loc, uint64_t timestamp_us=0);
+    void Write_Camera(const AP_AHRS &ahrs, const Location &current_loc, uint64_t timestamp_us=0);
+    void Write_Trigger(const AP_AHRS &ahrs, const Location &current_loc);
+    void Write_ESC(uint8_t id, uint64_t time_us, int32_t rpm, uint16_t voltage, uint16_t current, int16_t temperature, uint16_t current_tot);
+    void Write_Attitude(AP_AHRS &ahrs, const Vector3f &targets);
+    void Write_AttitudeView(AP_AHRS_View &ahrs, const Vector3f &targets);
+    void Write_Current();
+    void Write_Compass(uint64_t time_us=0);
+    void Write_Mode(uint8_t mode, uint8_t reason);
+
+    void Write_EntireMission();
+    void Write_Mission_Cmd(const AP_Mission &mission,
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
                                const AP_Mission::Mission_Command &cmd);
     void Log_Write_Origin(uint8_t origin_type, const Location &loc);
     void Log_Write_RPM(const AP_RPM &rpm_sensor);
@@ -144,6 +183,7 @@ public:
                         const AP_Motors &motors,
                         const AC_AttitudeControl &attitude_control,
                         const AC_PosControl &pos_control);
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
     void Log_Write_Rally(const AP_Rally &rally);
     void Log_Write_VisualOdom(float time_delta, const Vector3f &angle_delta, const Vector3f &position_delta, float confidence);
     void Log_Write_AOA_SSA(AP_AHRS &ahrs);
@@ -154,6 +194,23 @@ public:
     void Log_Write(const char *name, const char *labels, const char *fmt, ...);
     void Log_Write(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...);
     void Log_WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list);
+=======
+    void Write_RallyPoint(uint8_t total,
+                          uint8_t sequence,
+                          const RallyLocation &rally_point);
+    void Write_VisualOdom(float time_delta, const Vector3f &angle_delta, const Vector3f &position_delta, float confidence);
+    void Write_AOA_SSA(AP_AHRS &ahrs);
+    void Write_Beacon(AP_Beacon &beacon);
+    void Write_Proximity(AP_Proximity &proximity);
+    void Write_SRTL(bool active, uint16_t num_points, uint16_t max_points, uint8_t action, const Vector3f& point);
+    void Write_OA(uint8_t algorithm, const Location& final_dest, const Location& oa_dest);
+
+    void Write(const char *name, const char *labels, const char *fmt, ...);
+    void Write(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...);
+    void WriteCritical(const char *name, const char *labels, const char *fmt, ...);
+    void WriteCritical(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...);
+    void WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical=false);
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
 
     // This structure provides information on the internal member data of a PID for logging purposes
     struct PID_Info {
@@ -185,7 +242,12 @@ public:
     uint32_t num_dropped(void) const;
 
     // accesss to public parameters
+<<<<<<< HEAD:libraries/DataFlash/DataFlash.h
     bool log_while_disarmed(void) const { return _params.log_disarmed != 0; }
+=======
+    void set_force_log_disarmed(bool force_logging) { _force_log_disarmed = force_logging; }
+    bool log_while_disarmed(void) const;
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.h
     uint8_t log_replay(void) const { return _params.log_replay; }
     
     vehicle_startup_message_Log_Writer _vehicle_messages;
@@ -211,6 +273,10 @@ public:
     bool logging_present() const;
     bool logging_enabled() const;
     bool logging_failed() const;
+
+    // notify logging subsystem of an arming failure. This triggers
+    // logging for HAL_LOGGER_ARM_PERSIST seconds
+    void arming_failure() { _last_arming_failure_ms = AP_HAL::millis(); }
 
     void set_vehicle_armed(bool armed_state);
     bool vehicle_is_armed() const { return _armed; }
@@ -364,6 +430,9 @@ private:
     uint16_t _log_data_page;
 
     GCS_MAVLINK *_log_sending_link;
+
+    // last time arming failed, for backends
+    uint32_t _last_arming_failure_ms;
 
     bool should_handle_log_message();
     void handle_log_message(class GCS_MAVLINK &, mavlink_message_t *msg);

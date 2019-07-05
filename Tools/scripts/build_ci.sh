@@ -100,14 +100,29 @@ for t in $CI_BUILD_TARGET; do
         continue
     fi
 
+<<<<<<< HEAD
     if [ $t == "revo-mini" ]; then
         # save some time by only building one target for revo-mini
         echo "Building revo-mini"
         $waf configure --board revo-mini
+=======
+    if [ "$t" == "CubeOrange-bootloader" ]; then
+        echo "Building CubeOrange bootloader"
+        $waf configure --board CubeOrange --bootloader
+        $waf clean
+        $waf bootloader
+        continue
+    fi
+
+    if [ "$t" == "stm32f7" ]; then
+        echo "Building mRoX21-777/"
+        $waf configure --board mRoX21-777
+>>>>>>> upstream/master
         $waf clean
         $waf plane
         continue
     fi
+<<<<<<< HEAD
     
     # only do make-based builds for GCC, when target is PX4-v3 or build is launched by a scheduled job and target is a PX4 board or SITL
     if [[ "$cxx_compiler" != "clang++" && ($t == "px4-v3" || (-n ${CI_CRON_JOB+1} && ($t == "px4"* || $t == "sitl"))) ]]; then
@@ -127,6 +142,37 @@ for t in $CI_BUILD_TARGET; do
             echo -e "\033[32m'make' finished successfully (${diff_time}s)\033[0m"
             popd
         done
+=======
+
+    if [ "$t" == "stm32h7" ]; then
+        echo "Building Pixhawk6"
+        $waf configure --board Pixhawk6
+        $waf clean
+        $waf copter
+        continue
+    fi
+
+    if [ "$t" == "fmuv2-plane" ]; then
+        echo "Building fmuv2 plane"
+        $waf configure --board fmuv2
+        $waf clean
+        $waf plane
+        continue
+    fi
+    
+    if [ "$t" == "iofirmware" ]; then
+        echo "Building iofirmware"
+        $waf configure --board iomcu
+        $waf clean
+        $waf iofirmware
+        continue
+    fi
+
+    if [ "$t" == "configure-all" ]; then
+        echo "Checking configure of all boards"
+        ./Tools/scripts/configure_all.py
+        continue
+>>>>>>> upstream/master
     fi
 
     if [[ -n ${waf_supported_boards[$t]} && -z ${CI_CRON_JOB+1} ]]; then

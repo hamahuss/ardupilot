@@ -1553,7 +1553,6 @@ AP_Param *AP_Param::next_scalar(ParamToken *token, enum ap_var_type *ptype)
                                                                     ginfo, group_nesting, &idx);
         if (info && ginfo &&
             (ginfo->flags & AP_PARAM_FLAG_ENABLE) &&
-            !(ginfo->flags & AP_PARAM_FLAG_IGNORE_ENABLE) &&
             ((AP_Int8 *)ap)->get() == 0 &&
             _hide_disabled_groups) {
             /*
@@ -1882,15 +1881,17 @@ bool AP_Param::load_defaults_file(const char *filename, bool last_pass)
     }
     free(mutable_filename);
 
-    if (param_overrides != nullptr) {
-        free(param_overrides);
-    }
+    delete[] param_overrides;
     num_param_overrides = 0;
 
     param_overrides = new param_override[num_defaults];
     if (param_overrides == nullptr) {
         AP_HAL::panic("AP_Param: Failed to allocate overrides");
         return false;
+    }
+
+    if (num_defaults == 0) {
+        return true;
     }
 
     saveptr = nullptr;
@@ -1971,12 +1972,10 @@ bool AP_Param::count_embedded_param_defaults(uint16_t &count)
  */
 void AP_Param::load_embedded_param_defaults(bool last_pass)
 {
-    if (param_overrides != nullptr) {
-        free(param_overrides);
-        param_overrides = nullptr;
-    }
-    
+    delete[] param_overrides;
+    param_overrides = nullptr;
     num_param_overrides = 0;
+
     uint16_t num_defaults = 0;
     if (!count_embedded_param_defaults(num_defaults)) {
         return;
@@ -1987,12 +1986,12 @@ void AP_Param::load_embedded_param_defaults(bool last_pass)
         AP_HAL::panic("AP_Param: Failed to allocate overrides");
         return;
     }
-    
+
     const volatile char *ptr = param_defaults_data.data;
     uint16_t length = param_defaults_data.length;
     uint16_t idx = 0;
     
-    while (length) {
+    while (idx < num_defaults && length) {
         char line[100];
         char *pname;
         float value;

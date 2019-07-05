@@ -26,7 +26,6 @@
 #include <AP_Param/AP_Param.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <AP_NavEKF/AP_Nav_Common.h>
-#include <AP_Baro/AP_Baro.h>
 #include <AP_Airspeed/AP_Airspeed.h>
 #include <AP_Compass/AP_Compass.h>
 #include <AP_RangeFinder/AP_RangeFinder.h>
@@ -62,6 +61,8 @@ public:
     
     // Check basic filter health metrics and return a consolidated health status
     bool healthy(void) const;
+    // Ensure that all started cores are considered healthy
+    bool all_cores_healthy(void) const;
 
     // returns the index of the primary core
     // return -1 if no primary core selected
@@ -336,6 +337,14 @@ public:
     */
     void writeExtNavData(const Vector3f &sensOffset, const Vector3f &pos, const Quaternion &quat, float posErr, float angErr, uint32_t timeStamp_ms, uint32_t resetTime_ms);
 
+    /*
+      check if switching lanes will reduce the normalised
+      innovations. This is called when the vehicle code is about to
+      trigger an EKF failsafe, and it would like to avoid that by
+      using a different EKF lane
+     */
+    void checkLaneSwitch(void);
+
 private:
     uint8_t num_cores; // number of allocated cores
     uint8_t primary;   // current primary core
@@ -396,6 +405,17 @@ private:
     AP_Float _useRngSwSpd;          // Maximum horizontal ground speed to use range finder as the primary height source (m/s)
     AP_Int8 _magMask;               // Bitmask forcng specific EKF core instances to use simple heading magnetometer fusion.
     AP_Int8 _originHgtMode;         // Bitmask controlling post alignment correction and reporting of the EKF origin height.
+<<<<<<< HEAD
+=======
+    AP_Int8 _extnavDelay_ms;        // effective average delay of external nav system measurements relative to inertial measurements (msec)
+    AP_Int8 _flowUse;               // Controls if the optical flow data is fused into the main navigation estimator and/or the terrain estimator.
+    AP_Int16 _mag_ef_limit;         // limit on difference between WMM tables and learned earth field.
+
+// Possible values for _flowUse
+#define FLOW_USE_NONE    0
+#define FLOW_USE_NAV     1
+#define FLOW_USE_TERRAIN 2
+>>>>>>> upstream/master
 
     // Tuning parameters
     const float gpsNEVelVarAccScale = 0.05f;       // Scale factor applied to NE velocity measurement variance due to manoeuvre acceleration
@@ -422,7 +442,6 @@ private:
     const uint8_t flowIntervalMax_ms = 100;       // maximum allowable time between flow fusion events
     const uint16_t gndEffectTimeout_ms = 1000;     // time in msec that ground effect mode is active after being activated
     const float gndEffectBaroScaler = 4.0f;        // scaler applied to the barometer observation variance when ground effect mode is active
-    const uint8_t gndGradientSigma = 50;           // RMS terrain gradient percentage assumed by the terrain height estimation
     const uint8_t fusionTimeStep_ms = 10;          // The minimum time interval between covariance predictions and measurement fusions in msec
 
     struct {
@@ -460,6 +479,9 @@ private:
     bool runCoreSelection; // true when the primary core has stabilised and the core selection logic can be started
 
     bool inhibitGpsVertVelUse;  // true when GPS vertical velocity use is prohibited
+
+    // time of last lane switch
+    uint32_t lastLaneSwitch_ms;
 
     // update the yaw reset data to capture changes due to a lane switch
     // new_primary - index of the ekf instance that we are about to switch to as the primary

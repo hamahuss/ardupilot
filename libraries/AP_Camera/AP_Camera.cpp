@@ -3,6 +3,7 @@
 #include <AP_Math/AP_Math.h>
 #include <RC_Channel/RC_Channel.h>
 #include <AP_HAL/AP_HAL.h>
+<<<<<<< HEAD
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
 #include <drivers/drv_input_capture.h>
 #include <drivers/drv_pwm_output.h>
@@ -11,6 +12,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #endif
+=======
+#include <GCS_MAVLink/GCS_MAVLink.h>
+#include <GCS_MAVLink/GCS.h>
+#include <SRV_Channel/SRV_Channel.h>
+#include <AP_Logger/AP_Logger.h>
+#include <AP_GPS/AP_GPS.h>
+>>>>>>> upstream/master
 
 // ------------------------------
 #define CAM_DEBUG DISABLED

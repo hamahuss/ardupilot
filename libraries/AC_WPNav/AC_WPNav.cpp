@@ -19,7 +19,7 @@ const AP_Param::GroupInfo AC_WPNav::var_info[] = {
     // @DisplayName: Waypoint Radius
     // @Description: Defines the distance from a waypoint, that when crossed indicates the wp has been hit.
     // @Units: cm
-    // @Range: 10 1000
+    // @Range: 5 1000
     // @Increment: 1
     // @User: Standard
     AP_GROUPINFO("RADIUS",      1, AC_WPNav, _wp_radius_cm, WPNAV_WP_RADIUS),
@@ -96,6 +96,7 @@ AC_WPNav::AC_WPNav(const AP_InertialNav& inav, const AP_AHRS_View& ahrs, AC_PosC
 }
 
 
+<<<<<<< HEAD
 /// init_brake_target - initializes stop position from current position and velocity
 void AC_WPNav::init_brake_target(float accel_cmss)
 {
@@ -125,6 +126,8 @@ void AC_WPNav::update_brake(float ekfGndSpdLimit, float ekfNavVelGainScaler)
     _pos_control.update_xy_controller(ekfNavVelGainScaler);
 }
 
+=======
+>>>>>>> upstream/master
 ///
 /// waypoint navigation
 ///

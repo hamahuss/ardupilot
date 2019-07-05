@@ -5,7 +5,15 @@
 #include "UARTDriver.h"
 #include <sys/time.h>
 #include <fenv.h>
+<<<<<<< HEAD
 #include <pthread.h>
+=======
+#if defined (__clang__)
+#include <stdlib.h>
+#else
+#include <malloc.h>
+#endif
+>>>>>>> upstream/master
 
 using namespace HALSITL;
 

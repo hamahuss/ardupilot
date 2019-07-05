@@ -15,8 +15,34 @@
 
 #include "AP_Arming.h"
 #include <AP_Notify/AP_Notify.h>
+<<<<<<< HEAD
 #include <SRV_Channel/SRV_Channel.h>
 #include <GCS_MAVLink/GCS.h>
+=======
+#include <GCS_MAVLink/GCS.h>
+#include <GCS_MAVLink/GCS_MAVLink.h>
+#include <AP_Mission/AP_Mission.h>
+#include <AP_Proximity/AP_Proximity.h>
+#include <AP_Rally/AP_Rally.h>
+#include <SRV_Channel/SRV_Channel.h>
+#include <AC_Fence/AC_Fence.h>
+#include <AP_InternalError/AP_InternalError.h>
+#include <AP_GPS/AP_GPS.h>
+#include <AP_Baro/AP_Baro.h>
+
+#if HAL_WITH_UAVCAN
+  #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
+  #include <AP_Common/AP_Common.h>
+  #include <AP_Vehicle/AP_Vehicle.h>
+
+  // To be replaced with macro saying if KDECAN library is included
+  #if APM_BUILD_TYPE(APM_BUILD_ArduCopter) || APM_BUILD_TYPE(APM_BUILD_ArduPlane) || APM_BUILD_TYPE(APM_BUILD_ArduSub)
+    #include <AP_KDECAN/AP_KDECAN.h>
+  #endif
+#endif
+>>>>>>> upstream/master
+
+#include <AP_Logger/AP_Logger.h>
 
 #define AP_ARMING_COMPASS_MAGFIELD_EXPECTED 530
 #define AP_ARMING_COMPASS_MAGFIELD_MIN  185     // 0.35 * 530 milligauss
@@ -89,6 +115,17 @@ const AP_Param::GroupInfo AP_Arming::var_info[] = {
                                                                                            AP_PARAM_FRAME_COPTER |
                                                                                            AP_PARAM_FRAME_TRICOPTER |
                                                                                            AP_PARAM_FRAME_HELI),
+<<<<<<< HEAD
+=======
+
+    // @Param: MIS_ITEMS
+    // @DisplayName: Required mission items
+    // @Description: Bitmask of mission items that are required to be planned in order to arm the aircraft
+    // @Bitmask: 0:Land,1:VTOL Land,2:DO_LAND_START,3:Takeoff,4:VTOL Takeoff,5:Rallypoint
+    // @User: Advanced
+    AP_GROUPINFO("MIS_ITEMS",    7,     AP_Arming, _required_mission_items, 0),
+
+>>>>>>> upstream/master
     AP_GROUPEND
 };
 
@@ -101,6 +138,11 @@ AP_Arming::AP_Arming(const AP_AHRS &ahrs_ref, Compass &compass,
     _battery(battery),
     arming_method(NONE)
 {
+    if (_singleton) {
+        AP_HAL::panic("Too many AP_Arming instances");
+    }
+    _singleton = this;
+
     AP_Param::setup_object_defaults(this, var_info);
 }
 
@@ -123,9 +165,6 @@ bool AP_Arming::check_enabled(const enum AP_Arming::ArmingChecks check) const
 {
     if (checks_to_perform & ARMING_CHECK_ALL) {
         return true;
-    }
-    if (checks_to_perform & ARMING_CHECK_NONE) {
-        return false;
     }
     return (checks_to_perform & check);
 }
@@ -407,8 +446,13 @@ bool AP_Arming::gps_checks(bool report)
         // check AHRS and GPS are within 10m of each other
         Location gps_loc = gps.location();
         Location ahrs_loc;
+<<<<<<< HEAD
         if (ahrs.get_position(ahrs_loc)) {
             const float distance = location_diff(gps_loc, ahrs_loc).length();
+=======
+        if (AP::ahrs().get_position(ahrs_loc)) {
+            const float distance = gps_loc.get_distance(ahrs_loc);
+>>>>>>> upstream/master
             if (distance > AP_ARMING_AHRS_GPS_ERROR_MAX) {
                 if (report) {
                     gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: GPS and AHRS differ by %4.1fm", (double)distance);
@@ -544,6 +588,16 @@ bool AP_Arming::servo_checks(bool report) const
         }
     }
 
+<<<<<<< HEAD
+=======
+#if HAL_WITH_IO_MCU
+    if (!iomcu.healthy()) {
+        check_failed(ARMING_CHECK_NONE, report, "IOMCU is unhealthy");
+        check_passed = false;
+    }
+#endif
+
+>>>>>>> upstream/master
     return check_passed;
 }
 
@@ -557,6 +611,73 @@ bool AP_Arming::board_voltage_checks(bool report)
             return false;
         }
     }
+<<<<<<< HEAD
+=======
+    if (AP::internalerror().errors() != 0) {
+        check_failed(ARMING_CHECK_NONE, report, "Internal errors detected (0x%x)", AP::internalerror().errors());
+        return false;
+    }
+
+    return true;
+}
+
+
+// check nothing is too close to vehicle
+bool AP_Arming::proximity_checks(bool report) const
+{
+    const AP_Proximity *proximity = AP::proximity();
+    // return true immediately if no sensor present
+    if (proximity == nullptr) {
+        return true;
+    }
+    if (proximity->get_status() == AP_Proximity::Proximity_NotConnected) {
+        return true;
+    }
+
+    // return false if proximity sensor unhealthy
+    if (proximity->get_status() < AP_Proximity::Proximity_Good) {
+        check_failed(ARMING_CHECK_NONE, report, "check proximity sensor");
+        return false;
+    }
+
+    return true;
+}
+
+bool AP_Arming::can_checks(bool report)
+{
+#if HAL_WITH_UAVCAN
+    if (check_enabled(ARMING_CHECK_SYSTEM)) {
+        const char *fail_msg = nullptr;
+        uint8_t num_drivers = AP::can().get_num_drivers();
+
+        for (uint8_t i = 0; i < num_drivers; i++) {
+            switch (AP::can().get_protocol_type(i)) {
+                case AP_BoardConfig_CAN::Protocol_Type_KDECAN: {
+// To be replaced with macro saying if KDECAN library is included
+#if APM_BUILD_TYPE(APM_BUILD_ArduCopter) || APM_BUILD_TYPE(APM_BUILD_ArduPlane) || APM_BUILD_TYPE(APM_BUILD_ArduSub)
+                    AP_KDECAN *ap_kdecan = AP_KDECAN::get_kdecan(i);
+                    if (ap_kdecan != nullptr && !ap_kdecan->pre_arm_check(fail_msg)) {
+                        if (fail_msg == nullptr) {
+                            check_failed(ARMING_CHECK_SYSTEM, report, "KDECAN failed");
+                        } else {
+                            check_failed(ARMING_CHECK_SYSTEM, report, "%s", fail_msg);
+                        }
+
+                        return false;
+                    }
+                    break;
+#else
+                    UNUSED_RESULT(fail_msg); // prevent unused variable error
+#endif
+                }
+                case AP_BoardConfig_CAN::Protocol_Type_UAVCAN:
+                case AP_BoardConfig_CAN::Protocol_Type_None:
+                default:
+                    break;
+            }
+        }
+    }
+>>>>>>> upstream/master
 #endif
     return true;
 }
@@ -580,7 +701,14 @@ bool AP_Arming::pre_arm_checks(bool report)
         &  logging_checks(report)
         &  manual_transmitter_checks(report)
         &  servo_checks(report)
+<<<<<<< HEAD
         &  board_voltage_checks(report);
+=======
+        &  board_voltage_checks(report)
+        &  system_checks(report)
+        &  can_checks(report)
+        &  proximity_checks(report);
+>>>>>>> upstream/master
 }
 
 bool AP_Arming::arm_checks(uint8_t method)
@@ -610,14 +738,11 @@ bool AP_Arming::arm_checks(uint8_t method)
 //returns true if arming occurred successfully
 bool AP_Arming::arm(uint8_t method, const bool do_arming_checks)
 {
-#if APM_BUILD_TYPE(APM_BUILD_ArduCopter)
-    // Copter should never use this function
-    return false;
-#else
     if (armed) { //already armed
         return false;
     }
 
+<<<<<<< HEAD
     //are arming checks disabled?
     if (!do_arming_checks || checks_to_perform == ARMING_CHECK_NONE) {
         armed = true;
@@ -627,42 +752,56 @@ bool AP_Arming::arm(uint8_t method, const bool do_arming_checks)
     }
 
     if (pre_arm_checks(true) && arm_checks(method)) {
+=======
+    if (!do_arming_checks || (pre_arm_checks(true) && arm_checks(method))) {
+>>>>>>> upstream/master
         armed = true;
         arming_method = method;
 
+<<<<<<< HEAD
         gcs().send_text(MAV_SEVERITY_INFO, "Throttle armed");
 
         //TODO: Log motor arming to the dataflash
+=======
+        //TODO: Log motor arming
+>>>>>>> upstream/master
         //Can't do this from this class until there is a unified logging library
 
     } else {
+        AP::logger().arming_failure();
         armed = false;
         arming_method = NONE;
     }
 
     return armed;
-#endif
 }
 
 //returns true if disarming occurred successfully
 bool AP_Arming::disarm() 
 {
-#if APM_BUILD_TYPE(APM_BUILD_ArduCopter)
-    // Copter should never use this function
-    return false;
-#else
     if (!armed) { // already disarmed
         return false;
     }
     armed = false;
 
+<<<<<<< HEAD
     gcs().send_text(MAV_SEVERITY_INFO, "Throttle disarmed");
 
     //TODO: Log motor disarming to the dataflash
+=======
+#if HAL_HAVE_SAFETY_SWITCH
+    AP_BoardConfig *board_cfg = AP_BoardConfig::get_singleton();
+    if ((board_cfg != nullptr) &&
+        (board_cfg->get_safety_button_options() & AP_BoardConfig::BOARD_SAFETY_OPTION_SAFETY_ON_DISARM)) {
+        hal.rcout->force_safety_on();
+    }
+#endif // HAL_HAVE_SAFETY_SWITCH
+
+    //TODO: Log motor disarming to the logger
+>>>>>>> upstream/master
     //Can't do this from this class until there is a unified logging library.
 
     return true;
-#endif
 }
 
 AP_Arming::ArmingRequired AP_Arming::arming_required() 
@@ -719,3 +858,33 @@ bool AP_Arming::rc_checks_copter_sub(const bool display_failure, const RC_Channe
     }
     return ret;
 }
+
+void AP_Arming::Log_Write_Arm_Disarm()
+{
+    struct log_Arm_Disarm pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_ARM_DISARM_MSG),
+        time_us                 : AP_HAL::micros64(),
+        arm_state               : is_armed(),
+        arm_checks              : get_enabled_checks()
+    };
+    AP::logger().WriteCriticalBlock(&pkt, sizeof(pkt));
+}
+
+AP_Arming *AP_Arming::_singleton = nullptr;
+
+/*
+ * Get the AP_InertialSensor singleton
+ */
+AP_Arming *AP_Arming::get_singleton()
+{
+    return AP_Arming::_singleton;
+}
+
+namespace AP {
+
+AP_Arming &arming()
+{
+    return *AP_Arming::get_singleton();
+}
+
+};

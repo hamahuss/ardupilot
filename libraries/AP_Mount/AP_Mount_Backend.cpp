@@ -1,4 +1,5 @@
 #include "AP_Mount_Backend.h"
+#include <AP_AHRS/AP_AHRS.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -118,6 +119,7 @@ void AP_Mount_Backend::update_targets_from_rc()
     }
 }
 
+<<<<<<< HEAD
 // returns the angle (degrees*100) that the RC_Channel input is receiving
 int32_t AP_Mount_Backend::angle_input(RC_Channel* rc, int16_t angle_min, int16_t angle_max)
 {
@@ -125,10 +127,12 @@ int32_t AP_Mount_Backend::angle_input(RC_Channel* rc, int16_t angle_min, int16_t
       * (int32_t)(angle_max - angle_min) / (rc->get_radio_max() - rc->get_radio_min()) + (rc->get_reverse() ? angle_max : angle_min);
 }
 
+=======
+>>>>>>> upstream/master
 // returns the angle (radians) that the RC_Channel input is receiving
 float AP_Mount_Backend::angle_input_rad(RC_Channel* rc, int16_t angle_min, int16_t angle_max)
 {
-    return radians(angle_input(rc, angle_min, angle_max)*0.01f);
+    return radians(((rc->norm_input() + 1.0f) * 0.5f * (angle_max - angle_min) + angle_min)*0.01f);
 }
 
 // calc_angle_to_location - calculates the earth-frame roll, tilt and pan angles (and radians) to point at the given target

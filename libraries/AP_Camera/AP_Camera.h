@@ -7,12 +7,14 @@
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <GCS_MAVLink/GCS.h>
 #include <AP_Relay/AP_Relay.h>
-#include <AP_GPS/AP_GPS.h>
 #include <AP_AHRS/AP_AHRS.h>
+<<<<<<< HEAD
 #include <AP_Mission/AP_Mission.h>
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
 #include <drivers/drv_hrt.h>
 #endif
+=======
+>>>>>>> upstream/master
 
 #define AP_CAMERA_TRIGGER_TYPE_SERVO                0
 #define AP_CAMERA_TRIGGER_TYPE_RELAY                1

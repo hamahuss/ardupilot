@@ -127,8 +127,8 @@ void AC_Loiter::init_target()
     // update angle targets that will be passed to stabilize controller
     float roll_cd, pitch_cd;
     _pos_control.accel_to_lean_angles(_predicted_accel.x, _predicted_accel.y, roll_cd, pitch_cd);
-    _predicted_euler_angle.x = radians(roll_cd*0.01);
-    _predicted_euler_angle.y = radians(pitch_cd*0.01);
+    _predicted_euler_angle.x = radians(roll_cd*0.01f);
+    _predicted_euler_angle.y = radians(pitch_cd*0.01f);
     // set target position
     _pos_control.set_xy_target(curr_pos.x, curr_pos.y);
 
@@ -300,6 +300,7 @@ void AC_Loiter::calc_desired_velocity(float nav_dt, float ekfGndSpdLimit)
 
     // Limit the velocity to prevent fence violations
     // TODO: We need to also limit the _desired_accel
+    AC_Avoid *_avoid = AP::ac_avoid();
     if (_avoid != nullptr) {
         _avoid->adjust_velocity(_pos_control.get_pos_xy_p().kP(), _accel_cmss, desired_vel, nav_dt);
     }
