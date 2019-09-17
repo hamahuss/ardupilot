@@ -25,9 +25,6 @@
 #include <AP_Baro/AP_Baro.h>
 #include <AP_NMEA_Output/AP_NMEA_Output.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -268,13 +265,8 @@ Vector2f AP_AHRS::groundspeed_vector(void)
         const Vector2f wind2d(wind.x, wind.y);
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         const Vector2f airspeed_vector(cosf(yaw) * airspeed, sinf(yaw) * airspeed);
         gndVelADS = airspeed_vector - wind2d;
-=======
-        const Vector2f airspeed_vector(_cos_yaw * airspeed, _sin_yaw * airspeed);
-        gndVelADS = airspeed_vector + wind2d;
->>>>>>> upstream/master
 =======
         const Vector2f airspeed_vector(_cos_yaw * airspeed, _sin_yaw * airspeed);
         gndVelADS = airspeed_vector + wind2d;

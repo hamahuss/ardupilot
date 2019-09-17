@@ -28,9 +28,6 @@
 #include <AP_GPS/AP_GPS.h>
 #include <AP_Baro/AP_Baro.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

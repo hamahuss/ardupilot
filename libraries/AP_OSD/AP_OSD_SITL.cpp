@@ -143,7 +143,6 @@ void AP_OSD_SITL::update_thread(void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     while (w->isOpen()) {
         sf::Event event;
         while (w->pollEvent(event)) {
@@ -176,8 +175,6 @@ void AP_OSD_SITL::update_thread(void)
 =======
 =======
 >>>>>>> upstream/master
-=======
->>>>>>> upstream/master
     while (true) {
         {
             WITH_SEMAPHORE(AP::notify().sf_window_mutex);
@@ -187,9 +184,6 @@ void AP_OSD_SITL::update_thread(void)
                     w->close();
                 }
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -199,7 +193,6 @@ void AP_OSD_SITL::update_thread(void)
             }
             if (counter != last_counter) {
                 last_counter = counter;
-<<<<<<< HEAD
 
                 uint8_t buffer2[video_lines][video_cols];
                 {
@@ -208,16 +201,6 @@ void AP_OSD_SITL::update_thread(void)
                 }
                 w->clear();
 
-=======
-
-                uint8_t buffer2[video_lines][video_cols];
-                {
-                    WITH_SEMAPHORE(mutex);
-                    memcpy(buffer2, buffer, sizeof(buffer2));
-                }
-                w->clear();
-
->>>>>>> upstream/master
                 for (uint8_t y=0; y<video_lines; y++) {
                     for (uint8_t x=0; x<video_cols; x++) {
                         uint16_t px = x * (char_width+char_spacing) * char_scale;

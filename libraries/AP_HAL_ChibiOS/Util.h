@@ -96,13 +96,7 @@ private:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     bool flash_bootloader() override;
-=======
-    // stm32F4 and F7 have 20 total RTC backup registers. We use the first one for boot type
-    // flags, so 19 available for persistent data
-    static_assert(sizeof(persistent_data) <= 19*4, "watchdog persistent data too large");
->>>>>>> upstream/master
 =======
     // stm32F4 and F7 have 20 total RTC backup registers. We use the first one for boot type
     // flags, so 19 available for persistent data

@@ -26,10 +26,7 @@
 #include <AP_SerialManager/AP_SerialManager.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 =======

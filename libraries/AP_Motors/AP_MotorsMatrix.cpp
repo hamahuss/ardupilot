@@ -76,14 +76,11 @@ void AP_MotorsMatrix::output_to_motors()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     switch (_spool_mode) {
         case SHUT_DOWN: {
             // sends minimum values out to the motors
             // set motor output based on thrust requests
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     switch (_spool_state) {
@@ -103,11 +100,7 @@ void AP_MotorsMatrix::output_to_motors()
         }
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         case SPIN_WHEN_ARMED:
-=======
-        case SpoolState::GROUND_IDLE:
->>>>>>> upstream/master
 =======
         case SpoolState::GROUND_IDLE:
 >>>>>>> upstream/master

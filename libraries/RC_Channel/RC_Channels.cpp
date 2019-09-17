@@ -31,7 +31,6 @@ extern const AP_HAL::HAL& hal;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 RC_Channel *RC_Channels::channels;
 bool RC_Channels::has_new_overrides;
 AP_Float *RC_Channels::override_timeout;
@@ -117,8 +116,6 @@ const AP_Param::GroupInfo RC_Channels::var_info[] = {
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
-=======
->>>>>>> upstream/master
 /*
   channels group object constructor
  */
@@ -126,13 +123,10 @@ RC_Channels::RC_Channels(void)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     channels = obj_channels;
 
     override_timeout = &_override_timeout;
     
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 =======

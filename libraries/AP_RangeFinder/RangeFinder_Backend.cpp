@@ -29,11 +29,8 @@ AP_RangeFinder_Backend::AP_RangeFinder_Backend(RangeFinder::RangeFinder_State &_
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     _sem = hal.util->new_semaphore();    
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     _backend_type = (RangeFinder::RangeFinder_Type)params.type.get();
@@ -91,7 +88,6 @@ void AP_RangeFinder_Backend::set_status(RangeFinder::RangeFinder_Status _status)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 /*
   set pre-arm checks to passed if the range finder has been exercised through a reasonable range of movement
       max distance sensed is at least 50cm > min distance sensed
@@ -117,8 +113,6 @@ void AP_RangeFinder_Backend::update_pre_arm_check()
         state.pre_arm_check = true;
     }
 }
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 =======

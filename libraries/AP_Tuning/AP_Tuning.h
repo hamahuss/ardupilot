@@ -3,12 +3,8 @@
 #include <AP_Common/AP_Common.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include <AP_HAL/AP_HAL.h>
 #include <DataFlash/DataFlash.h>
-=======
-#include <AP_Param/AP_Param.h>
->>>>>>> upstream/master
 =======
 #include <AP_Param/AP_Param.h>
 >>>>>>> upstream/master

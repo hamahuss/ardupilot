@@ -239,14 +239,8 @@ void AP_InertialSensor_Invensense::start()
     case Invensense_ICM20602:
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         temp_zero = 25;
         temp_sensitivity = 1.0/326.8; 
-=======
-    case Invensense_ICM20601:
-        temp_zero = 25.0f;
-        temp_sensitivity = 1.0f/326.8f;
->>>>>>> upstream/master
 =======
     case Invensense_ICM20601:
         temp_zero = 25.0f;

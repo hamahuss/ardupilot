@@ -170,9 +170,6 @@ is bob we will attempt to checkout bob-AVR'''
                     boards = line.split(",")
                     return board not in boards
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -197,11 +194,7 @@ is bob we will attempt to checkout bob-AVR'''
         if frame == "heli":
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
             if board in ["bebop", "aerofc-v1", "skyviper-v2450"]:
-=======
-            if board in ["bebop", "aerofc-v1", "skyviper-v2450", "CubeSolo", "CubeGreen-solo"]:
->>>>>>> upstream/master
 =======
             if board in ["bebop", "aerofc-v1", "skyviper-v2450", "CubeSolo", "CubeGreen-solo"]:
 >>>>>>> upstream/master
@@ -609,11 +602,7 @@ is bob we will attempt to checkout bob-AVR'''
         boards = []
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         boards.extend(["skyviper-v2450", "aerofc-v1", "bebop"])
-=======
-        boards.extend(["skyviper-v2450", "aerofc-v1", "bebop", "CubeSolo", "CubeGreen-solo"])
->>>>>>> upstream/master
 =======
         boards.extend(["skyviper-v2450", "aerofc-v1", "bebop", "CubeSolo", "CubeGreen-solo"])
 >>>>>>> upstream/master

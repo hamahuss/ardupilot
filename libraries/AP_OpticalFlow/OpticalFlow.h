@@ -56,9 +56,6 @@ public:
     };
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

@@ -249,9 +249,6 @@ static THD_FUNCTION(main_loop,arg)
 #endif
         schedulerInstance.watchdog_pat();
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

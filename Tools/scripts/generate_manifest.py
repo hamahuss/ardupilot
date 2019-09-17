@@ -8,10 +8,7 @@ import os
 import re
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 import fnmatch
@@ -55,9 +52,6 @@ brand_map = {
     'speedybeef4' : ('SpeedyBee F4', 'SpeedyBee'),
 }
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -130,15 +124,12 @@ class ManifestGenerator():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     def add_firmware_data_from_dir(self, dir, firmware_data, vehicletype, releasetype="dev"):
         '''accumulate additional information about firmwares from a directory'''
         platform_frame_regex = re.compile("(?P<board>PX4|navio|pxf)(-(?P<frame>.+))?")
         variant_firmware_regex = re.compile("[^-]+-(?P<variant>v\d+)[.px4]")
         for platformdir in os.listdir(dir):
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     def add_USB_IDs_PX4(self, firmware):
@@ -275,9 +266,6 @@ class ManifestGenerator():
             if platformdir.startswith("."):
                 continue
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -289,7 +277,6 @@ class ManifestGenerator():
                 print("No file %s" % git_version_txt, file=sys.stderr)
                 continue
             try:
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                 git_sha = self.git_sha_from_git_version(os.path.join(some_dir, "git-version.txt"))
@@ -339,24 +326,6 @@ class ManifestGenerator():
                 firmware_version = open(firmware_version_file).read()
                 firmware_version = firmware_version.strip()
 >>>>>>> upstream/master
-=======
-                git_sha = self.git_sha_from_git_version(git_version_txt)
-            except Exception as ex:
-                print("Failed to parse %s" % git_version_txt, ex, file=sys.stderr)
-                continue
-
-            # we require a firmware-version.txt. These files have been added to
-            # old builds that didn't have them
-            firmware_version_file = os.path.join(some_dir,
-                                                 "firmware-version.txt")
-            if not os.path.exists(firmware_version_file):
-                print("Missing %s" % firmware_version_file, file=sys.stderr)
-                continue
-
-            try:
-                firmware_version = open(firmware_version_file).read()
-                firmware_version = firmware_version.strip()
->>>>>>> upstream/master
                 (version_numbers, release_type) = firmware_version.split("-")
             except ValueError:
                 print("malformed firmware-version.txt at (%s)" % (firmware_version_file,), file=sys.stderr)
@@ -364,9 +333,6 @@ class ManifestGenerator():
             except Exception as ex:
                 print("bad file %s" % firmware_version_file, file=sys.stderr)
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -378,7 +344,6 @@ class ManifestGenerator():
             platform_frame_regex = re.compile("(?P<board>.+)(-(?P<frame>heli)$)")
             m = platform_frame_regex.match(platformdir)
             if m is not None:
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                 # the model type (quad/tri) is
@@ -396,12 +361,6 @@ class ManifestGenerator():
                 platform = m.group("board")  # e.g. navio
                 frame = "heli"
             else:
-=======
-                # This is a heli build
-                platform = m.group("board")  # e.g. navio
-                frame = "heli"
-            else:
->>>>>>> upstream/master
 =======
                 # This is a heli build
                 platform = m.group("board")  # e.g. navio
@@ -432,7 +391,6 @@ class ManifestGenerator():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
                 firmware_format = "".join(file.split(".")[-1:])
 
                 if not vehicletype in firmware_data:
@@ -453,8 +411,6 @@ class ManifestGenerator():
 =======
 =======
 >>>>>>> upstream/master
-=======
->>>>>>> upstream/master
                 filepath = os.path.join(some_dir, filename)
                 firmware_format = self.firmware_format_for_filepath(filepath)
                 if firmware_format not in [ "ELF", "abin", "apj", "hex", "px4" ]:
@@ -462,9 +418,6 @@ class ManifestGenerator():
 
                 firmware = Firmware()
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -498,7 +451,6 @@ class ManifestGenerator():
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     def xfirmwares_to_firmwares(self, xfirmwares):
         '''takes hash structure of firmwares, returns list of them'''
         if isinstance(xfirmwares, dict):
@@ -523,10 +475,6 @@ class ManifestGenerator():
                 firmware_data.append(firmware)
 
 >>>>>>> upstream/master
-=======
-                firmware_data.append(firmware)
-
->>>>>>> upstream/master
     def valid_release_type(self, tag):
         '''check for valid release type'''
         for r in RELEASE_TYPES:
@@ -534,9 +482,6 @@ class ManifestGenerator():
                 return True
         return False
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -560,9 +505,6 @@ class ManifestGenerator():
         # document root, there's a lot of other stuff accumulated...
         vehicletypes = FIRMWARE_TYPES
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -581,7 +523,6 @@ class ManifestGenerator():
                 # skip any non-directories (e.g. "files.html"):
                 if year_month_regex.match(firstlevel):
                     # this is a dated directory e.g. binaries/Copter/2016-02
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                     year_month_path = os.path.join(basedir, vehicletype, firstlevel)
@@ -605,8 +546,6 @@ class ManifestGenerator():
 =======
 =======
 >>>>>>> upstream/master
-=======
->>>>>>> upstream/master
                     # we do not include dated directories in the manifest ATM:
                     continue
 
@@ -626,9 +565,6 @@ class ManifestGenerator():
                                                 vehicletype,
                                                 releasetype=tag)
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -644,11 +580,7 @@ class ManifestGenerator():
                 "mav-autopilot": "ARDUPILOTMEGA",
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 #                "vehicletype": firmware["vehicletype"],
-=======
-                "vehicletype": firmware["vehicletype"],
->>>>>>> upstream/master
 =======
                 "vehicletype": firmware["vehicletype"],
 >>>>>>> upstream/master
@@ -666,12 +598,9 @@ class ManifestGenerator():
             if firmware["firmware-version"]:
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
                 (major,minor,patch,release_type) = self.parse_fw_version(firmware["firmware-version"])
                 some_json["mav-firmware-version"] = ".".join([major,minor,patch])
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
                 try:
@@ -712,10 +641,7 @@ def usage():
     return '''Usage:
 generate-manifest.py basedir'''
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 
 >>>>>>> upstream/master
 

@@ -339,11 +339,7 @@ void RGBLed::handle_led_control(mavlink_message_t *msg)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (!pNotify->_rgb_led_override) {
-=======
-    if (rgb_source() != mavlink) {
->>>>>>> upstream/master
 =======
     if (rgb_source() != mavlink) {
 >>>>>>> upstream/master

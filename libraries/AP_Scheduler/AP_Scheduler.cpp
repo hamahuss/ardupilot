@@ -308,9 +308,6 @@ void AP_Scheduler::Log_Write_Performance()
         spi_count        : pd.spi_count,
         i2c_count        : pd.i2c_count,
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

@@ -15,9 +15,6 @@
 #include <AP_AHRS/AP_AHRS_DCM.h>
 #include <GCS_MAVLink/GCS_Dummy.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

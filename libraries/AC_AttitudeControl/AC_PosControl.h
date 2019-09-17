@@ -259,13 +259,8 @@ public:
     ///     throttle targets will be sent directly to the motors
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     void update_vel_controller_xy(float ekfNavVelGainScaler);
     
-=======
-    void update_vel_controller_xy();
-
->>>>>>> upstream/master
 =======
     void update_vel_controller_xy();
 

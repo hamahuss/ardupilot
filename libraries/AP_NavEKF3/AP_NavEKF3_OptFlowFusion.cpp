@@ -83,9 +83,6 @@ The filter can fuse motion compensated optiocal flow rates and range finder meas
 The filter can fuse motion compensated optical flow rates and range finder measurements
 Equations generated using https://github.com/PX4/ecl/tree/master/EKF/matlab/scripts/Terrain%20Estimator
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

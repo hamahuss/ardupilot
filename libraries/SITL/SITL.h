@@ -231,9 +231,6 @@ public:
     AP_Int8 gnd_behav;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

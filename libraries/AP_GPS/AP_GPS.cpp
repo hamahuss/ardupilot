@@ -1591,11 +1591,7 @@ AP_GPS &gps()
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     return AP_GPS::gps();
-=======
-    return *AP_GPS::get_singleton();
->>>>>>> upstream/master
 =======
     return *AP_GPS::get_singleton();
 >>>>>>> upstream/master

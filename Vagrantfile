@@ -108,12 +108,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
   # 18.04 LTS , bleeding edge.
   config.vm.define "bionic64", autostart: false do |bionic64|
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
   # 18.04 LTS

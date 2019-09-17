@@ -20,7 +20,6 @@
 #include <AP_GPS/AP_GPS.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
 #include <AP_InertialSensor/AP_InertialSensor.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
@@ -35,9 +34,6 @@
 #include <StorageManager/StorageManager.h>
 #include <AP_Terrain/AP_Terrain.h>
 #include <AP_Math/AP_Math.h>
-=======
-#include <GCS_MAVLink/GCS_Dummy.h>
->>>>>>> upstream/master
 =======
 #include <GCS_MAVLink/GCS_Dummy.h>
 >>>>>>> upstream/master

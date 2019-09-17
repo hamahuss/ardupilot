@@ -316,12 +316,9 @@ bool AP_FlashStorage::write_all(void)
     for (uint16_t ofs=0; ofs<storage_size; ofs += max_write) {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         if (!all_zero(ofs, max_write)) {
             if (!write(ofs, max_write)) {
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
         // local variable needed to overcome problem with MIN() macro and -O0

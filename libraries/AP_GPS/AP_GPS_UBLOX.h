@@ -81,9 +81,6 @@
 #define CONFIG_RATE_TIMEGPS  (1<<15)
 #define CONFIG_LAST          (1<<16) // this must always be the last bit
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

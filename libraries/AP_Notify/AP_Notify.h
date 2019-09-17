@@ -164,10 +164,6 @@ public:
     HAL_Semaphore sf_window_mutex;
 #endif
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-    HAL_Semaphore sf_window_mutex;
-#endif
-
 private:
 
     static AP_Notify *_instance;

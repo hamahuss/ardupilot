@@ -75,11 +75,8 @@ AP_GPS_UBLOX::_request_next_config(void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
    Debug("Unconfigured messages: %d Current message: %d\n", _unconfigured_messages, _next_message);
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     if (_unconfigured_messages == CONFIG_RATE_SOL && havePvtMsg) {
@@ -90,15 +87,10 @@ AP_GPS_UBLOX::_request_next_config(void)
         _unconfigured_messages &= ~CONFIG_RATE_SOL;
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
 
     Debug("Unconfigured messages: 0x%x Current message: %u\n", (unsigned)_unconfigured_messages, (unsigned)_next_message);
 >>>>>>> upstream/master
-
-    Debug("Unconfigured messages: 0x%x Current message: %u\n", (unsigned)_unconfigured_messages, (unsigned)_next_message);
->>>>>>> upstream/master
-=======
 
     Debug("Unconfigured messages: 0x%x Current message: %u\n", (unsigned)_unconfigured_messages, (unsigned)_next_message);
 >>>>>>> upstream/master

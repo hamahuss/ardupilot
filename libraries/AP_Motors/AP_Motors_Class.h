@@ -62,9 +62,6 @@ public:
         MOTOR_FRAME_TYPE_CW_X = 14, // X frame, clockwise ordering
         MOTOR_FRAME_TYPE_I = 15, // (sideways H) octo only
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -243,12 +240,7 @@ protected:
     LowPassFilterFloat  _throttle_filter;           // throttle input filter
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     spool_up_down_desired _spool_desired;           // desired spool state
-=======
-    DesiredSpoolState   _spool_desired;             // desired spool state
-    SpoolState          _spool_state;               // current spool mode
->>>>>>> upstream/master
 =======
     DesiredSpoolState   _spool_desired;             // desired spool state
     SpoolState          _spool_state;               // current spool mode

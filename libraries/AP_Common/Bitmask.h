@@ -27,9 +27,6 @@
 
 template<uint16_t num_bits>
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -48,10 +45,7 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     Bitmask(const Bitmask &other) = delete;

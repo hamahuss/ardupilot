@@ -416,9 +416,6 @@ private:
 #define FLOW_USE_NAV     1
 #define FLOW_USE_TERRAIN 2
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

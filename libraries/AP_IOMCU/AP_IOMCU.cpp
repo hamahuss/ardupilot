@@ -21,9 +21,6 @@
 #include <AP_RCProtocol/AP_RCProtocol.h>
 #include <AP_InternalError/AP_InternalError.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -96,7 +93,6 @@ enum ioevents {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 // setup page registers
 #define PAGE_REG_SETUP_FEATURES	0
 #define P_SETUP_FEATURES_SBUS1_OUT	1
@@ -137,11 +133,6 @@ enum ioevents {
 // an error
 #define IOMCU_MAX_REPEATED_FAILURES 20
 >>>>>>> upstream/master
-=======
-// max number of consecutve protocol failures we accept before raising
-// an error
-#define IOMCU_MAX_REPEATED_FAILURES 20
->>>>>>> upstream/master
 
 AP_IOMCU::AP_IOMCU(AP_HAL::UARTDriver &_uart) :
     uart(_uart)
@@ -159,16 +150,11 @@ void AP_IOMCU::init(void)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     // check IO firmware CRC
     hal.scheduler->delay(2000);
     
     AP_BoardConfig *boardconfig = AP_BoardConfig::get_instance();
     if (!boardconfig || boardconfig->io_enabled() == 1) {
-=======
-    AP_BoardConfig *boardconfig = AP_BoardConfig::get_singleton();
-    if ((!boardconfig || boardconfig->io_enabled() == 1) && !hal.util->was_watchdog_reset()) {
->>>>>>> upstream/master
 =======
     AP_BoardConfig *boardconfig = AP_BoardConfig::get_singleton();
     if ((!boardconfig || boardconfig->io_enabled() == 1) && !hal.util->was_watchdog_reset()) {
@@ -478,10 +464,7 @@ bool AP_IOMCU::read_registers(uint8_t page, uint8_t offset, uint8_t count, uint1
     memcpy(regs, pkt.regs, count*2);
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     if (protocol_fail_count > IOMCU_MAX_REPEATED_FAILURES) {
@@ -490,9 +473,6 @@ bool AP_IOMCU::read_registers(uint8_t page, uint8_t offset, uint8_t count, uint1
     protocol_fail_count = 0;
     protocol_count++;
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -550,10 +530,7 @@ bool AP_IOMCU::write_registers(uint8_t page, uint8_t offset, uint8_t count, cons
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     if (protocol_fail_count > IOMCU_MAX_REPEATED_FAILURES) {
@@ -562,9 +539,6 @@ bool AP_IOMCU::write_registers(uint8_t page, uint8_t offset, uint8_t count, cons
     protocol_fail_count = 0;
     protocol_count++;
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -838,12 +812,9 @@ bool AP_IOMCU::healthy(void)
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     // for now just check CRC
     return crc_is_ok;
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     return crc_is_ok && protocol_fail_count == 0 && !detected_io_reset;
@@ -943,49 +914,6 @@ const char *AP_IOMCU::get_rc_protocol(void)
     }
     return AP_RCProtocol::protocol_name_from_protocol((AP_RCProtocol::rcprotocol_t)rc_input.data);
 >>>>>>> upstream/master
-}
-
-/*
-  we have had a series of repeated protocol failures to the
-  IOMCU. This may indicate that the IOMCU has been reset (possibly due
-  to a watchdog).
- */
-void AP_IOMCU::handle_repeated_failures(void)
-{
-    if (protocol_count < 100) {
-        // we're just starting up, ignore initial failures caused by
-        // initial sync with IOMCU
-        return;
-    }
-    AP::internalerror().error(AP_InternalError::error_t::iomcu_fail);
-}
-
-/*
-  check for IOMCU reset (possibly due to a watchdog).
- */
-void AP_IOMCU::check_iomcu_reset(void)
-{
-    if (last_iocmu_timestamp_ms == 0) {
-        // initialisation
-        last_iocmu_timestamp_ms = reg_status.timestamp_ms;
-        return;
-    }
-    uint32_t dt_ms = reg_status.timestamp_ms - last_iocmu_timestamp_ms;
-    last_iocmu_timestamp_ms = reg_status.timestamp_ms;
-    if (dt_ms < 500) {
-        // all OK
-        return;
-    }
-    detected_io_reset = true;
-    AP::internalerror().error(AP_InternalError::error_t::iomcu_reset);
-    hal.console->printf("IOMCU reset\n");
-    // we need to ensure the mixer data and the rates are sent over to
-    // the IOMCU
-    if (mixing.enabled) {
-        trigger_event(IOEVENT_MIXING);
-    }
-    trigger_event(IOEVENT_SET_RATES);
-    trigger_event(IOEVENT_SET_DEFAULT_RATE);
 }
 
 /*

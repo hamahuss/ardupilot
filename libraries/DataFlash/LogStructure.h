@@ -73,11 +73,8 @@ const struct UnitStructure log_Units[] = {
     { 'w', "Ohm" },           // Ohm
 <<<<<<< HEAD:libraries/DataFlash/LogStructure.h
 <<<<<<< HEAD:libraries/DataFlash/LogStructure.h
-<<<<<<< HEAD:libraries/DataFlash/LogStructure.h
     { 'z', "Hz" }             // Hertz
 =======
-=======
->>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
 //    { 'W', "Watt" },        // Watt
@@ -1074,9 +1071,6 @@ struct PACKED log_Performance {
     uint32_t spi_count;
     uint32_t i2c_count;
 <<<<<<< HEAD:libraries/DataFlash/LogStructure.h
-<<<<<<< HEAD:libraries/DataFlash/LogStructure.h
->>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
-=======
 >>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
@@ -1220,9 +1214,6 @@ struct PACKED log_Arm_Disarm {
 #define ARSP_FMT "QffcffBBfB"
 #define ARSP_UNITS "snPOPP----"
 #define ARSP_MULTS "F00B00----"
-<<<<<<< HEAD:libraries/DataFlash/LogStructure.h
->>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
-=======
 >>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
 
 // messages for all boards
@@ -1290,13 +1281,10 @@ struct PACKED log_Arm_Disarm {
     { LOG_RFND_MSG, sizeof(log_RFND), \
 <<<<<<< HEAD:libraries/DataFlash/LogStructure.h
 <<<<<<< HEAD:libraries/DataFlash/LogStructure.h
-<<<<<<< HEAD:libraries/DataFlash/LogStructure.h
       "RFND", "QCBBCBB", "TimeUS,Dist1,Stat1,Orient1,Dist2,Stat2,Orient2", "sm--m--", "FB--B--" }, \
     { LOG_DF_MAV_STATS, sizeof(log_DF_MAV_Stats), \
       "DMS", "IIIIIBBBBBBBBBB",         "TimeMS,N,Dp,RT,RS,Er,Fa,Fmn,Fmx,Pa,Pmn,Pmx,Sa,Smn,Smx", "s--------------", "C--------------" }, \
 =======
-=======
->>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
       "RFND", "QBCBB", "TimeUS,Instance,Dist,Stat,Orient", "s#m--", "F-B--" }, \
@@ -1310,11 +1298,7 @@ struct PACKED log_Arm_Disarm {
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance),                     \
 <<<<<<< HEAD:libraries/DataFlash/LogStructure.h
 <<<<<<< HEAD:libraries/DataFlash/LogStructure.h
-<<<<<<< HEAD:libraries/DataFlash/LogStructure.h
       "PM",  "QHHIIH", "TimeUS,NLon,NLoop,MaxT,Mem,Load", "s---b%", "F---0A" }, \
-=======
-      "PM",  "QHHIIHIIII", "TimeUS,NLon,NLoop,MaxT,Mem,Load,IntErr,IntErrCnt,SPICnt,I2CCnt", "s---b%----", "F---0A----" }, \
->>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
 =======
       "PM",  "QHHIIHIIII", "TimeUS,NLon,NLoop,MaxT,Mem,Load,IntErr,IntErrCnt,SPICnt,I2CCnt", "s---b%----", "F---0A----" }, \
 >>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
@@ -1504,9 +1488,6 @@ struct PACKED log_Arm_Disarm {
     { LOG_ERROR_MSG, sizeof(log_Error), \
       "ERR",   "QBB",         "TimeUS,Subsys,ECode", "s--", "F--" }
 <<<<<<< HEAD:libraries/DataFlash/LogStructure.h
-<<<<<<< HEAD:libraries/DataFlash/LogStructure.h
->>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
-=======
 >>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h
 =======
 >>>>>>> upstream/master:libraries/AP_Logger/LogStructure.h

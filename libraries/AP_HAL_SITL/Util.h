@@ -54,9 +54,6 @@ public:
     bool was_watchdog_reset() const override { return getenv("SITL_WATCHDOG_RESET") != nullptr; }
     
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

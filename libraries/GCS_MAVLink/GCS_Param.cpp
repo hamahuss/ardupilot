@@ -327,7 +327,6 @@ void GCS::send_parameter_value(const char *param_name, ap_var_type param_type, f
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     const uint8_t mavlink_active = GCS_MAVLINK::active_channel_mask();
     for (uint8_t i=0; i<MAVLINK_COMM_NUM_BUFFERS; i++) {
         if ((1U<<i) & mavlink_active) {
@@ -370,8 +369,6 @@ void GCS_MAVLINK::send_queued_parameters(void)
     if (stream_trigger(STREAM_PARAMS)) {
         send_message(MSG_NEXT_PARAM);
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     mavlink_param_value_t packet;

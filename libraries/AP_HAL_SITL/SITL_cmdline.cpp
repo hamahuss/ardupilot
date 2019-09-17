@@ -32,9 +32,6 @@
 #include <signal.h>
 #include <stdio.h>
 
-#include <signal.h>
-#include <stdio.h>
-
 extern const AP_HAL::HAL& hal;
 
 using namespace HALSITL;

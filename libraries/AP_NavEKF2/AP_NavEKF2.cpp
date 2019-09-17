@@ -10,9 +10,6 @@
 #include <AP_Logger/AP_Logger.h>
 #include <AP_GPS/AP_GPS.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -596,9 +593,6 @@ const AP_Param::GroupInfo NavEKF2::var_info[] = {
     AP_GROUPINFO("MAG_EF_LIM", 52, NavEKF2, _mag_ef_limit, 50),
     
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

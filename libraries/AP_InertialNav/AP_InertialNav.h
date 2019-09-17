@@ -3,12 +3,9 @@
 #include <AP_AHRS/AP_AHRS.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include <AP_InertialSensor/AP_InertialSensor.h>          // ArduPilot Mega IMU Library
 #include <AP_Baro/AP_Baro.h>                    // ArduPilot Mega Barometer Library
 #include <AP_Buffer/AP_Buffer.h>                  // FIFO buffer library
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 =======

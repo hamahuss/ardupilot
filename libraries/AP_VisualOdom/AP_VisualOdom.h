@@ -19,12 +19,9 @@
 #include <AP_Param/AP_Param.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include <AP_Math/AP_Math.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #include <GCS_MAVLink/GCS.h>

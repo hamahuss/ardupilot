@@ -112,9 +112,6 @@
 #endif
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -256,10 +253,7 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #ifdef HAL_GPIO_PWM_VOLT_PIN
@@ -279,9 +273,6 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
     AP_GROUPINFO("OPTIONS", 19, AP_BoardConfig, _options, HAL_BRD_OPTIONS_DEFAULT),
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

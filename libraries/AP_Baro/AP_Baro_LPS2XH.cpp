@@ -260,9 +260,6 @@ void AP_Baro_LPS2XH::_update_temperature(void)
     if (_lps2xh_type == BARO_LPS22H) {
         _temperature = Temp_Reg_s16 * 0.01;
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -279,15 +276,12 @@ void AP_Baro_LPS2XH::_update_pressure(void)
     int32_t Pressure_Reg_s32 = ((uint32_t)pressure[2]<<16)|((uint32_t)pressure[1]<<8)|(uint32_t)pressure[0];
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     int32_t Pressure_mb = Pressure_Reg_s32 * (100.0 / 4096); // scale for pa
     if (_sem->take_nonblocking()) {
         _pressure=Pressure_mb;
         _sem->give();
     }
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     int32_t Pressure_mb = Pressure_Reg_s32 * (100.0f / 4096); // scale for pa

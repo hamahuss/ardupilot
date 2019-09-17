@@ -215,10 +215,7 @@ private:
     bool crc_is_ok;
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     bool detected_io_reset;
@@ -229,9 +226,6 @@ private:
     uint32_t protocol_count;
     uint32_t last_iocmu_timestamp_ms;
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

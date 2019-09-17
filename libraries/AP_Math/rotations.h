@@ -68,10 +68,7 @@ enum Rotation : uint8_t {
     ROTATION_ROLL_90_PITCH_315   = 40,
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     ROTATION_PITCH_7             = 41,

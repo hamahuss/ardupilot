@@ -251,13 +251,10 @@ bool Storage::_flash_write_data(uint8_t sector, uint32_t offset, const uint8_t *
 #ifdef STORAGE_FLASH_PAGE
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     size_t base_address = stm32_flash_getpageaddr(_flash_page+sector);
     bool ret = stm32_flash_write(base_address+offset, data, length) == length;
     if (!ret && _flash_erase_ok()) {
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     size_t base_address = hal.flash->getpageaddr(_flash_page+sector);

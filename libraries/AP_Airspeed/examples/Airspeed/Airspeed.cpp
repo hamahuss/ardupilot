@@ -32,10 +32,6 @@ float temperature;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
-// create airspeed object
->>>>>>> upstream/master
 =======
 // create airspeed object
 >>>>>>> upstream/master

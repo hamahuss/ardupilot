@@ -170,9 +170,6 @@ const AP_Param::GroupInfo SITL::var_info2[] = {
     AP_GROUPINFO("GND_BEHAV",   41, SITL,  gnd_behav, -1),
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

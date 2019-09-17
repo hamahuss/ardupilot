@@ -28,9 +28,6 @@
 #include <AP_RangeFinder/AP_RangeFinder.h>
 #include <AP_Common/AP_FWVersion.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -46,7 +43,6 @@ AP_Frsky_Telem::AP_Frsky_Telem(void) :
 {
 }
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 //constructor
 AP_Frsky_Telem::AP_Frsky_Telem(AP_AHRS &ahrs, const AP_BattMonitor &battery, const RangeFinder &rng) :
@@ -56,21 +52,15 @@ AP_Frsky_Telem::AP_Frsky_Telem(AP_AHRS &ahrs, const AP_BattMonitor &battery, con
     {}
 =======
 >>>>>>> upstream/master
-=======
->>>>>>> upstream/master
 
 /*
  * init - perform required initialisation
  */
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 void AP_Frsky_Telem::init(const AP_SerialManager &serial_manager,
                           const uint8_t mav_type,
                           const uint32_t *ap_valuep)
-=======
-bool AP_Frsky_Telem::init()
->>>>>>> upstream/master
 =======
 bool AP_Frsky_Telem::init()
 >>>>>>> upstream/master

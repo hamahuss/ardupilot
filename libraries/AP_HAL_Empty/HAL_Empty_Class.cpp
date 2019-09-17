@@ -43,13 +43,8 @@ HAL_Empty::HAL_Empty() :
         &utilInstance,
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         &opticalFlowDriver),
     _member(new EmptyPrivateMember(123))
-=======
-        &opticalFlowDriver,
-        &flashDriver)
->>>>>>> upstream/master
 =======
         &opticalFlowDriver,
         &flashDriver)

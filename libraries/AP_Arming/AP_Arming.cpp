@@ -46,8 +46,6 @@
 
 #include <AP_Logger/AP_Logger.h>
 
-#include <AP_Logger/AP_Logger.h>
-
 #define AP_ARMING_COMPASS_MAGFIELD_EXPECTED 530
 #define AP_ARMING_COMPASS_MAGFIELD_MIN  185     // 0.35 * 530 milligauss
 #define AP_ARMING_COMPASS_MAGFIELD_MAX  875     // 1.65 * 530 milligauss
@@ -130,9 +128,6 @@ const AP_Param::GroupInfo AP_Arming::var_info[] = {
     AP_GROUPINFO("MIS_ITEMS",    7,     AP_Arming, _required_mission_items, 0),
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -458,13 +453,8 @@ bool AP_Arming::gps_checks(bool report)
         Location ahrs_loc;
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
         if (ahrs.get_position(ahrs_loc)) {
             const float distance = location_diff(gps_loc, ahrs_loc).length();
-=======
-        if (AP::ahrs().get_position(ahrs_loc)) {
-            const float distance = gps_loc.get_distance(ahrs_loc);
->>>>>>> upstream/master
 =======
         if (AP::ahrs().get_position(ahrs_loc)) {
             const float distance = gps_loc.get_distance(ahrs_loc);
@@ -618,9 +608,6 @@ bool AP_Arming::servo_checks(bool report) const
 #endif
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -660,29 +647,6 @@ bool AP_Arming::proximity_checks(bool report) const
         return true;
     }
 <<<<<<< HEAD
-=======
-    if (AP::internalerror().errors() != 0) {
-        check_failed(ARMING_CHECK_NONE, report, "Internal errors detected (0x%x)", AP::internalerror().errors());
-        return false;
-    }
-
-    return true;
-}
-
-
-// check nothing is too close to vehicle
-bool AP_Arming::proximity_checks(bool report) const
-{
-    const AP_Proximity *proximity = AP::proximity();
-    // return true immediately if no sensor present
-    if (proximity == nullptr) {
-        return true;
-    }
-    if (proximity->get_status() == AP_Proximity::Proximity_NotConnected) {
-        return true;
-    }
-<<<<<<< HEAD
->>>>>>> upstream/master
 =======
     if (AP::internalerror().errors() != 0) {
         check_failed(ARMING_CHECK_NONE, report, "Internal errors detected (0x%x)", AP::internalerror().errors());
@@ -781,9 +745,6 @@ bool AP_Arming::pre_arm_checks(bool report)
         &  can_checks(report)
         &  proximity_checks(report);
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -822,7 +783,6 @@ bool AP_Arming::arm(uint8_t method, const bool do_arming_checks)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     //are arming checks disabled?
     if (!do_arming_checks || checks_to_perform == ARMING_CHECK_NONE) {
         armed = true;
@@ -838,21 +798,15 @@ bool AP_Arming::arm(uint8_t method, const bool do_arming_checks)
 =======
     if (!do_arming_checks || (pre_arm_checks(true) && arm_checks(method))) {
 >>>>>>> upstream/master
-=======
-    if (!do_arming_checks || (pre_arm_checks(true) && arm_checks(method))) {
->>>>>>> upstream/master
         armed = true;
         arming_method = method;
 
-<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         gcs().send_text(MAV_SEVERITY_INFO, "Throttle armed");
 
         //TODO: Log motor arming to the dataflash
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
         //TODO: Log motor arming
@@ -878,13 +832,10 @@ bool AP_Arming::disarm()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     gcs().send_text(MAV_SEVERITY_INFO, "Throttle disarmed");
 
     //TODO: Log motor disarming to the dataflash
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #if HAL_HAVE_SAFETY_SWITCH

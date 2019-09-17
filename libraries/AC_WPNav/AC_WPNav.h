@@ -56,7 +56,6 @@ public:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     ///
     /// brake controller
     ///
@@ -65,10 +64,6 @@ public:
     ///
     /// update_brake - run the brake controller - should be called at 400hz
     void update_brake(float ekfGndSpdLimit, float ekfNavVelGainScaler);
-=======
-    // return true if range finder may be used for terrain following
-    bool rangefinder_used() const { return _rangefinder_use && _rangefinder_healthy; }
->>>>>>> upstream/master
 =======
     // return true if range finder may be used for terrain following
     bool rangefinder_used() const { return _rangefinder_use && _rangefinder_healthy; }
@@ -290,9 +285,6 @@ protected:
 =======
     AP_Terrain              *_terrain;
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

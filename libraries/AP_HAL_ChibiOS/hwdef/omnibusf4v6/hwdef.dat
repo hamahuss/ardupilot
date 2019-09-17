@@ -119,9 +119,6 @@ define HAL_LOGGING_DATAFLASH
 # one IMU
 IMU Invensense SPI:mpu6000 ROTATION_YAW_90
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 # one baro
 BARO BMP280 SPI:bmp280

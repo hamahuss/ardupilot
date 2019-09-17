@@ -439,14 +439,10 @@ void AP_Airspeed::Log_Airspeed()
         if (!enabled(i)) {
             continue;
 <<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> upstream/master
         }
         float temperature;
         if (!get_temperature(i, temperature)) {
             temperature = 0;
-<<<<<<< HEAD
 >>>>>>> upstream/master
         }
 =======
@@ -454,9 +450,6 @@ void AP_Airspeed::Log_Airspeed()
         float temperature;
         if (!get_temperature(i, temperature)) {
             temperature = 0;
-        }
->>>>>>> upstream/master
-=======
         }
 >>>>>>> upstream/master
         struct log_AIRSPEED pkt = {
@@ -519,10 +512,7 @@ AP_Airspeed *AP_Airspeed::_singleton;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 namespace AP {
@@ -534,9 +524,6 @@ AP_Airspeed *airspeed()
 
 };
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

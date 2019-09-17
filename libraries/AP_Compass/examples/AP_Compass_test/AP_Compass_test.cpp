@@ -47,14 +47,11 @@ static void setup()
     board_config.init();
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
     if (!compass.init()) {
         AP_HAL::panic("compass initialisation failed!");
     }
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     vehicle.ahrs.init();
@@ -81,12 +78,8 @@ static void loop()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     compass.accumulate();
 
-=======
-    // run read() at 10Hz
->>>>>>> upstream/master
 =======
     // run read() at 10Hz
 >>>>>>> upstream/master

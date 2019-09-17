@@ -32,11 +32,8 @@ void AP_BoardConfig::board_init_safety()
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (state.safety_enable.get() == 0) {
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #if HAL_HAVE_SAFETY_SWITCH
@@ -47,9 +44,6 @@ void AP_BoardConfig::board_init_safety()
     }
     if (force_safety_off) {
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -245,9 +239,6 @@ static bool check_ms5611(const char* devname) {
 #define INV2_WHOAMI_ICM20948 0xEA
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master

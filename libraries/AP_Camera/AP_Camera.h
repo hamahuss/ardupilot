@@ -10,13 +10,10 @@
 #include <AP_AHRS/AP_AHRS.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include <AP_Mission/AP_Mission.h>
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
 #include <drivers/drv_hrt.h>
 #endif
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 =======

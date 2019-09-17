@@ -41,13 +41,10 @@ AP_Motors::AP_Motors(uint16_t loop_rate, uint16_t speed_hz) :
     _throttle_filter(),
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     _spool_desired(DESIRED_SHUT_DOWN),
     _air_density_ratio(1.0f),
     _motor_fast_mask(0)
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     _spool_desired(DesiredSpoolState::SHUT_DOWN),
@@ -86,10 +83,7 @@ void AP_Motors::armed(bool arm)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 void AP_Motors::set_desired_spool_state(DesiredSpoolState spool)

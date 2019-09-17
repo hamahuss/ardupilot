@@ -51,7 +51,6 @@ void AP_MotorsTailsitter::output_to_motors()
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     float throttle = _throttle;
     float throttle_left  = 0;
     float throttle_right = 0;
@@ -86,8 +85,6 @@ void AP_MotorsTailsitter::output_to_motors()
             limit.throttle_lower = false;
             limit.throttle_upper = false;
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 

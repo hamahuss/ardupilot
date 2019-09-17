@@ -76,13 +76,8 @@ static void test_one_offset(const struct Location &loc,
                         (unsigned)(AP_HAL::micros() - t1));
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     dist2 = get_distance(loc, loc2);
     bearing2 = get_bearing_cd(loc, loc2) * 0.01f;
-=======
-    dist2 = loc.get_distance(loc2);
-    bearing2 = loc.get_bearing_to(loc2) * 0.01f;
->>>>>>> upstream/master
 =======
     dist2 = loc.get_distance(loc2);
     bearing2 = loc.get_bearing_to(loc2) * 0.01f;

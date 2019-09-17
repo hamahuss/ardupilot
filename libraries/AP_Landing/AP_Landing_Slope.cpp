@@ -25,9 +25,6 @@
 #include <AP_LandingGear/AP_LandingGear.h>
 #include <AP_GPS/AP_GPS.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
@@ -114,12 +111,9 @@ bool AP_Landing::type_slope_verify_land(const Location &prev_WP_loc, Location &n
                                   (double)height, (double)sink_rate,
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
                                   (double)AP::gps().ground_speed(),
                                   (double)get_distance(current_loc, next_WP_loc));
 =======
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
                                   (double)gps.ground_speed(),
@@ -131,12 +125,8 @@ bool AP_Landing::type_slope_verify_land(const Location &prev_WP_loc, Location &n
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
 
         if (AP::gps().ground_speed() < 3) {
-=======
-        if (gps.ground_speed() < 3) {
->>>>>>> upstream/master
 =======
         if (gps.ground_speed() < 3) {
 >>>>>>> upstream/master
@@ -166,16 +156,10 @@ bool AP_Landing::type_slope_verify_land(const Location &prev_WP_loc, Location &n
     struct Location land_WP_loc = next_WP_loc;
 <<<<<<< HEAD
 <<<<<<< HEAD
-<<<<<<< HEAD
     int32_t land_bearing_cd = get_bearing_cd(prev_WP_loc, next_WP_loc);
     location_update(land_WP_loc,
                     land_bearing_cd*0.01f,
                     get_distance(prev_WP_loc, current_loc) + 200);
-=======
-
-    int32_t land_bearing_cd = prev_WP_loc.get_bearing_to(next_WP_loc);
-    land_WP_loc.offset_bearing(land_bearing_cd * 0.01f, prev_WP_loc.get_distance(current_loc) + 200);
->>>>>>> upstream/master
 =======
 
     int32_t land_bearing_cd = prev_WP_loc.get_bearing_to(next_WP_loc);

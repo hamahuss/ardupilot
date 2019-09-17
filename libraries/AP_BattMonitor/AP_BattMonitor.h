@@ -142,9 +142,6 @@ public:
 =======
     enum AP_BattMonitor_Params::BattMonitor_Type get_type() const { return get_type(AP_BATT_PRIMARY_INSTANCE); }
     enum AP_BattMonitor_Params::BattMonitor_Type get_type(uint8_t instance) const { return _params[instance].type(); }
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
     /// true when (voltage * current) > watt_max
@@ -177,9 +174,6 @@ public:
     bool reset_remaining(uint16_t battery_mask, float percentage);
 
 <<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
