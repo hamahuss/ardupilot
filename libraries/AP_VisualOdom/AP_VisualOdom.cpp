@@ -16,7 +16,6 @@
 #include "AP_VisualOdom.h"
 #include "AP_VisualOdom_Backend.h"
 #include "AP_VisualOdom_MAV.h"
-#include <AP_Logger/AP_Logger.h>
 
 extern const AP_HAL::HAL &hal;
 

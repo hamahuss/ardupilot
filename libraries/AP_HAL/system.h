@@ -17,6 +17,4 @@ uint32_t millis();
 uint64_t micros64();
 uint64_t millis64();
 
-void dump_stack_trace();
-
 } // namespace AP_HAL

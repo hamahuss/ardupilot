@@ -20,25 +20,13 @@
    FRSKY Telemetry library
 */
 #include "AP_Frsky_Telem.h"
-<<<<<<< HEAD
-=======
-
-#include <AP_AHRS/AP_AHRS.h>
-#include <AP_BattMonitor/AP_BattMonitor.h>
-#include <AP_RangeFinder/AP_RangeFinder.h>
-#include <AP_Common/AP_FWVersion.h>
->>>>>>> upstream/master
 #include <GCS_MAVLink/GCS.h>
-#include <AP_Common/Location.h>
-#include <AP_GPS/AP_GPS.h>
+
 #include <stdio.h>
 
 extern const AP_HAL::HAL& hal;
 
-AP_Frsky_Telem::AP_Frsky_Telem(void) :
-  _statustext_queue(FRSKY_TELEM_PAYLOAD_STATUS_CAPACITY)
-{
-}
+ObjectArray<mavlink_statustext_t> AP_Frsky_Telem::_statustext_queue(FRSKY_TELEM_PAYLOAD_STATUS_CAPACITY);
 
 //constructor
 AP_Frsky_Telem::AP_Frsky_Telem(AP_AHRS &ahrs, const AP_BattMonitor &battery, const RangeFinder &rng) :
@@ -50,13 +38,9 @@ AP_Frsky_Telem::AP_Frsky_Telem(AP_AHRS &ahrs, const AP_BattMonitor &battery, con
 /*
  * init - perform required initialisation
  */
-<<<<<<< HEAD
 void AP_Frsky_Telem::init(const AP_SerialManager &serial_manager,
                           const uint8_t mav_type,
                           const uint32_t *ap_valuep)
-=======
-bool AP_Frsky_Telem::init()
->>>>>>> upstream/master
 {
     // check for protocol configured for a serial port - only the first serial port with one of these protocols will then run (cannot have FrSky on multiple serial ports)
     if ((_port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_FrSky_D, 0))) {
@@ -89,11 +73,7 @@ bool AP_Frsky_Telem::init()
         hal.scheduler->register_io_process(FUNCTOR_BIND_MEMBER(&AP_Frsky_Telem::tick, void));
         // we don't want flow control for either protocol
         _port->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
-
-        return true;
     }
-
-    return false;
 }
 
 
@@ -734,7 +714,7 @@ uint32_t AP_Frsky_Telem::calc_home(void)
             // distance between vehicle and home_loc in meters
             home = prep_number(roundf(get_distance(home_loc, loc)), 3, 2);
             // angle from front of vehicle to the direction of home_loc in 3 degree increments (just in case, limit to 127 (0x7F) since the value is stored on 7 bits)
-            home |= (((uint8_t)roundf(loc.get_bearing_to(home_loc) * 0.00333f)) & HOME_BEARING_LIMIT)<<HOME_BEARING_OFFSET;
+            home |= (((uint8_t)roundf(get_bearing_cd(loc,home_loc) * 0.00333f)) & HOME_BEARING_LIMIT)<<HOME_BEARING_OFFSET;
         }
         // altitude between vehicle and home_loc
         _relative_home_altitude = loc.alt;

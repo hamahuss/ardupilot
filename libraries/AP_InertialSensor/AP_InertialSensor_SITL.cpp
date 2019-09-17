@@ -65,28 +65,10 @@ void AP_InertialSensor_SITL::generate_accel(uint8_t instance)
 
     // add accel bias and noise
     Vector3f accel_bias = instance==0?sitl->accel_bias.get():sitl->accel2_bias.get();
-<<<<<<< HEAD
     float xAccel = sitl->state.xAccel + accel_noise * rand_float() + accel_bias.x;
     float yAccel = sitl->state.yAccel + accel_noise * rand_float() + accel_bias.y;
     float zAccel = sitl->state.zAccel + accel_noise * rand_float() + accel_bias.z;
 
-=======
-    float xAccel = sitl->state.xAccel + accel_bias.x;
-    float yAccel = sitl->state.yAccel + accel_bias.y;
-    float zAccel = sitl->state.zAccel + accel_bias.z;
-    const Vector3f &vibe_freq = sitl->vibe_freq;
-    if (vibe_freq.is_zero()) {
-        xAccel += accel_noise * rand_float();
-        yAccel += accel_noise * rand_float();
-        zAccel += accel_noise * rand_float();
-    } else {
-        float t = AP_HAL::micros() * 1.0e-6f;
-        xAccel += sinf(t * 2 * M_PI * vibe_freq.x) * accel_noise;
-        yAccel += sinf(t * 2 * M_PI * vibe_freq.y) * accel_noise;
-        zAccel += sinf(t * 2 * M_PI * vibe_freq.z) * accel_noise;
-    }
-    
->>>>>>> upstream/master
     // correct for the acceleration due to the IMU position offset and angular acceleration
     // correct for the centripetal acceleration
     // only apply corrections to first accelerometer
@@ -137,31 +119,17 @@ void AP_InertialSensor_SITL::generate_gyro(uint8_t instance)
     float q = radians(sitl->state.pitchRate) + gyro_drift();
     float r = radians(sitl->state.yawRate) + gyro_drift();
 
-<<<<<<< HEAD
     p += gyro_noise * rand_float();
     q += gyro_noise * rand_float();
     r += gyro_noise * rand_float();
-=======
-    const Vector3f &vibe_freq = sitl->vibe_freq;
-    if (vibe_freq.is_zero()) {
-        p += gyro_noise * rand_float();
-        q += gyro_noise * rand_float();
-        r += gyro_noise * rand_float();
-    } else {
-        float t = AP_HAL::micros() * 1.0e-6f;
-        p += sinf(t * 2 * M_PI * vibe_freq.x) * gyro_noise;
-        q += sinf(t * 2 * M_PI * vibe_freq.y) * gyro_noise;
-        r += sinf(t * 2 * M_PI * vibe_freq.z) * gyro_noise;
-    }
->>>>>>> upstream/master
 
     Vector3f gyro = Vector3f(p, q, r);
 
     // add in gyro scaling
     Vector3f scale = sitl->gyro_scale;
-    gyro.x *= (1 + scale.x*0.01f);
-    gyro.y *= (1 + scale.y*0.01f);
-    gyro.z *= (1 + scale.z*0.01f);
+    gyro.x *= (1 + scale.x*0.01);
+    gyro.y *= (1 + scale.y*0.01);
+    gyro.z *= (1 + scale.z*0.01);
 
     _rotate_and_correct_gyro(gyro_instance[instance], gyro);
     
@@ -180,19 +148,15 @@ void AP_InertialSensor_SITL::timer_update(void)
 #endif
     for (uint8_t i=0; i<INS_SITL_INSTANCES; i++) {
         if (now >= next_accel_sample[i]) {
-            if (((1U<<i) & sitl->accel_fail_mask) == 0) {
-                generate_accel(i);
-                while (now >= next_accel_sample[i]) {
-                    next_accel_sample[i] += 1000000UL / accel_sample_hz[i];
-                }
+            generate_accel(i);
+            while (now >= next_accel_sample[i]) {
+                next_accel_sample[i] += 1000000UL / accel_sample_hz[i];
             }
         }
         if (now >= next_gyro_sample[i]) {
-            if (((1U<<i) & sitl->gyro_fail_mask) == 0) {
-                generate_gyro(i);
-                while (now >= next_gyro_sample[i]) {
-                    next_gyro_sample[i] += 1000000UL / gyro_sample_hz[i];
-                }
+            generate_gyro(i);
+            while (now >= next_gyro_sample[i]) {
+                next_gyro_sample[i] += 1000000UL / gyro_sample_hz[i];
             }
         }
     }

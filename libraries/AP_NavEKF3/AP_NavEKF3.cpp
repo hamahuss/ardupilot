@@ -4,12 +4,7 @@
 #include "AP_NavEKF3_core.h"
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <GCS_MAVLink/GCS.h>
-<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
-=======
-#include <AP_Logger/AP_Logger.h>
-#include <AP_GPS/AP_GPS.h>
->>>>>>> upstream/master
 #include <new>
 
 /*
@@ -40,7 +35,6 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
-#define FLOW_USE_DEFAULT        1
 
 #elif APM_BUILD_TYPE(APM_BUILD_APMrover2)
 // rover defaults
@@ -65,7 +59,6 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
-#define FLOW_USE_DEFAULT        1
 
 #elif APM_BUILD_TYPE(APM_BUILD_ArduPlane)
 // plane defaults
@@ -87,10 +80,9 @@
 #define MAG_CAL_DEFAULT         0
 #define GLITCH_RADIUS_DEFAULT   25
 #define FLOW_MEAS_DELAY         10
-#define FLOW_M_NSE_DEFAULT      0.15f
-#define FLOW_I_GATE_DEFAULT     500
+#define FLOW_M_NSE_DEFAULT      0.25f
+#define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
-#define FLOW_USE_DEFAULT        2
 
 #else
 // build type not specified, use copter defaults
@@ -115,7 +107,6 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
-#define FLOW_USE_DEFAULT        1
 
 #endif // APM_BUILD_DIRECTORY
 
@@ -585,14 +576,6 @@ const AP_Param::GroupInfo NavEKF3::var_info[] = {
     // @Units: m/s
     AP_GROUPINFO("WENC_VERR", 53, NavEKF3, _wencOdmVelErr, 0.1f),
 
-    // @Param: FLOW_USE
-    // @DisplayName: Optical flow use bitmask
-    // @Description: Controls if the optical flow data is fused into the 24-state navigation estimator OR the 1-state terrain height estimator.
-    // @User: Advanced
-    // @Values: 0:None,1:Navigation,2:Terrain
-    // @RebootRequired: True
-    AP_GROUPINFO("FLOW_USE", 54, NavEKF3, _flowUse, FLOW_USE_DEFAULT),
-
     AP_GROUPEND
 };
 
@@ -783,7 +766,7 @@ void NavEKF3::UpdateFilter(void)
                 // If the primary core is still healthy,then switching is optional and will only be done if
                 // a core with a significantly lower error score can be found
                 float altErrorScore = core[coreIndex].errorScore();
-                if (altCoreAvailable && (!core[newPrimaryIndex].healthy() || altErrorScore < lowestErrorScore)) {
+                if (altCoreAvailable && (!core[primary].healthy() || altErrorScore < lowestErrorScore)) {
                     newPrimaryIndex = coreIndex;
                     lowestErrorScore = altErrorScore;
                 }
@@ -795,62 +778,10 @@ void NavEKF3::UpdateFilter(void)
             updateLaneSwitchPosResetData(newPrimaryIndex, primary);
             updateLaneSwitchPosDownResetData(newPrimaryIndex, primary);
             primary = newPrimaryIndex;
-            lastLaneSwitch_ms = AP_HAL::millis();
         }
     }
 
-    if (primary != 0 && core[0].healthy() && !hal.util->get_soft_armed()) {
-        // when on the ground and disarmed force the first lane. This
-        // avoids us ending with with a lottery for which IMU is used
-        // in each flight. Otherwise the alignment of the timing of
-        // the lane updates with the timing of GPS updates can lead to
-        // a lane other than the first one being used as primary for
-        // some flights. As different IMUs may have quite different
-        // noise characteristics this leads to inconsistent
-        // performance
-        primary = 0;
-    }
-    
     check_log_write();
-}
-
-/*
-  check if switching lanes will reduce the normalised
-  innovations. This is called when the vehicle code is about to
-  trigger an EKF failsafe, and it would like to avoid that by
-  using a different EKF lane
-*/
-void NavEKF3::checkLaneSwitch(void)
-{
-    uint32_t now = AP_HAL::millis();
-    if (lastLaneSwitch_ms != 0 && now - lastLaneSwitch_ms < 5000) {
-        // don't switch twice in 5 seconds
-        return;
-    }
-    float primaryErrorScore = core[primary].errorScore();
-    float lowestErrorScore = primaryErrorScore;
-    uint8_t newPrimaryIndex = primary;
-    for (uint8_t coreIndex=0; coreIndex<num_cores; coreIndex++) {
-        if (coreIndex != primary) {
-            // an alternative core is available for selection only if healthy and if states have been updated on this time step
-            bool altCoreAvailable = core[coreIndex].healthy();
-            float altErrorScore = core[coreIndex].errorScore();
-            if (altCoreAvailable && altErrorScore < lowestErrorScore && altErrorScore < 0.9) {
-                newPrimaryIndex = coreIndex;
-                lowestErrorScore = altErrorScore;
-            }
-        }
-    }
-
-    // update the yaw and position reset data to capture changes due to the lane switch
-    if (newPrimaryIndex != primary) {
-        updateLaneSwitchYawResetData(newPrimaryIndex, primary);
-        updateLaneSwitchPosResetData(newPrimaryIndex, primary);
-        updateLaneSwitchPosDownResetData(newPrimaryIndex, primary);
-        primary = newPrimaryIndex;
-        lastLaneSwitch_ms = now;
-        gcs().send_text(MAV_SEVERITY_CRITICAL, "NavEKF3: lane switch %u", primary);
-    }
 }
 
 // Check basic filter health metrics and return a consolidated health status
@@ -860,19 +791,6 @@ bool NavEKF3::healthy(void) const
         return false;
     }
     return core[primary].healthy();
-}
-
-bool NavEKF3::all_cores_healthy(void) const
-{
-    if (!core) {
-        return false;
-    }
-    for (uint8_t i = 0; i < num_cores; i++) {
-        if (!core[i].healthy()) {
-            return false;
-        }
-    }
-    return true;
 }
 
 // returns the index of the primary core
@@ -1504,13 +1422,7 @@ const char *NavEKF3::prearm_failure_reason(void) const
     if (!core) {
         return nullptr;
     }
-    for (uint8_t i = 0; i < num_cores; i++) {
-        const char * failure = core[primary].prearm_failure_reason();
-        if (failure != nullptr) {
-            return failure;
-        }
-    }
-    return nullptr;
+    return core[primary].prearm_failure_reason();
 }
 
 // Returns the amount of vertical position change due to the last reset or core switch in metres

@@ -35,8 +35,6 @@
 
 extern const AP_HAL::HAL& hal;
 
-AP_Terrain *AP_Terrain::singleton;
-
 // table of user settable parameters
 const AP_Param::GroupInfo AP_Terrain::var_info[] = {
     // @Param: ENABLE
@@ -66,13 +64,6 @@ AP_Terrain::AP_Terrain(AP_AHRS &_ahrs, const AP_Mission &_mission, const AP_Rall
     fd(-1)
 {
     AP_Param::setup_object_defaults(this, var_info);
-
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-    if (singleton != nullptr) {
-        AP_HAL::panic("Terrain must be singleton");
-    }
-#endif
-    singleton = this;
 }
 
 /*
@@ -278,7 +269,7 @@ float AP_Terrain::lookahead(float bearing, float distance, float climb_ratio)
 
     // check for terrain at grid spacing intervals
     while (distance > 0) {
-        loc.offset_bearing(bearing, grid_spacing);
+        location_update(loc, bearing, grid_spacing);
         climb += climb_ratio * grid_spacing;
         distance -= grid_spacing;
         float height;

@@ -68,8 +68,8 @@ void AP_MotorsCoax::set_update_rate( uint16_t speed_hz )
 
 void AP_MotorsCoax::output_to_motors()
 {
-    switch (_spool_state) {
-        case SpoolState::SHUT_DOWN:
+    switch (_spool_mode) {
+        case SHUT_DOWN:
             // sends minimum values out to the motors
             rc_write_angle(AP_MOTORS_MOT_1, _roll_radio_passthrough * AP_MOTORS_COAX_SERVO_INPUT_RANGE);
             rc_write_angle(AP_MOTORS_MOT_2, _pitch_radio_passthrough * AP_MOTORS_COAX_SERVO_INPUT_RANGE);
@@ -78,11 +78,7 @@ void AP_MotorsCoax::output_to_motors()
             rc_write(AP_MOTORS_MOT_5, get_pwm_output_min());
             rc_write(AP_MOTORS_MOT_6, get_pwm_output_min());
             break;
-<<<<<<< HEAD
         case SPIN_WHEN_ARMED:
-=======
-        case SpoolState::GROUND_IDLE:
->>>>>>> upstream/master
             // sends output to motors when armed but not flying
             for (uint8_t i=0; i<NUM_ACTUATORS; i++) {
                 rc_write_angle(AP_MOTORS_MOT_1+i, _spin_up_ratio * _actuator_out[i] * AP_MOTORS_COAX_SERVO_INPUT_RANGE);
@@ -90,9 +86,9 @@ void AP_MotorsCoax::output_to_motors()
             rc_write(AP_MOTORS_MOT_5, calc_spin_up_to_pwm());
             rc_write(AP_MOTORS_MOT_6, calc_spin_up_to_pwm());
             break;
-        case SpoolState::SPOOLING_UP:
-        case SpoolState::THROTTLE_UNLIMITED:
-        case SpoolState::SPOOLING_DOWN:
+        case SPOOL_UP:
+        case THROTTLE_UNLIMITED:
+        case SPOOL_DOWN:
             // set motor output based on thrust requests
             for (uint8_t i=0; i<NUM_ACTUATORS; i++) {
                 rc_write_angle(AP_MOTORS_MOT_1+i, _actuator_out[i] * AP_MOTORS_COAX_SERVO_INPUT_RANGE);

@@ -28,9 +28,6 @@
 
 extern const AP_HAL::HAL& hal;
 
-// Tunes follow the syntax of the Microsoft GWBasic/QBasic PLAY
-//   statement, with some exceptions and extensions.
-// See http://firmware.ardupilot.org/Tools/ToneTester/
 const AP_ToneAlarm::Tone AP_ToneAlarm::_tones[] {
 #define AP_NOTIFY_TONE_QUIET_NEG_FEEDBACK 0
     { "MFT200L4<<<B#A#2", false },
@@ -129,7 +126,7 @@ void AP_ToneAlarm::play_tone(const uint8_t tone_index)
     _tone_playing = tone_index;
     _tone_beginning_ms = tnow_ms;
 
-    play_tune(tone_requested.str);
+    play_string(tone_requested.str);
 }
 
 void AP_ToneAlarm::_timer_task()
@@ -140,7 +137,7 @@ void AP_ToneAlarm::_timer_task()
     }
 }
 
-void AP_ToneAlarm::play_tune(const char *str)
+void AP_ToneAlarm::play_string(const char *str)
 {
     if (_sem && _sem->take(HAL_SEMAPHORE_BLOCK_FOREVER)) {
         _mml_player.stop();
@@ -154,7 +151,7 @@ void AP_ToneAlarm::play_tune(const char *str)
 void AP_ToneAlarm::stop_cont_tone()
 {
     if (_cont_tone_playing == _tone_playing) {
-        play_tune("");
+        play_string("");
         _tone_playing = -1;
     }
     _cont_tone_playing = -1;

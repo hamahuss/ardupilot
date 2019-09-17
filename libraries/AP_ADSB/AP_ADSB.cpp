@@ -27,13 +27,6 @@
 #include <limits.h>
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <GCS_MAVLink/GCS.h>
-<<<<<<< HEAD
-=======
-#include <AP_Logger/AP_Logger.h>
-#include <AP_GPS/AP_GPS.h>
-#include <AP_Baro/AP_Baro.h>
-
->>>>>>> upstream/master
 
 #define VEHICLE_TIMEOUT_MS              5000   // if no updates in this time, drop it from the list
 #define ADSB_VEHICLE_LIST_SIZE_DEFAULT  25

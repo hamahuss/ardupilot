@@ -19,17 +19,12 @@
 
 #include "AP_Compass_UAVCAN.h"
 
-<<<<<<< HEAD
 #if HAL_OS_POSIX_IO
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #endif
-=======
-#include <AP_BoardConfig/AP_BoardConfig_CAN.h>
-#include <AP_UAVCAN/AP_UAVCAN.h>
->>>>>>> upstream/master
 
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>

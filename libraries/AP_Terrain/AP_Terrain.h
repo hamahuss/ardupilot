@@ -16,11 +16,7 @@
 
 #include <AP_Common/AP_Common.h>
 #include <AP_HAL/AP_HAL.h>
-<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
-=======
-#include <AP_Common/Location.h>
->>>>>>> upstream/master
 
 #if (HAL_OS_POSIX_IO || HAL_OS_FATFS_IO) && defined(HAL_BOARD_TERRAIN_DIRECTORY)
 #define AP_TERRAIN_AVAILABLE 1
@@ -31,6 +27,7 @@
 #if AP_TERRAIN_AVAILABLE
 
 #include <AP_Param/AP_Param.h>
+#include <AP_AHRS/AP_AHRS.h>
 #include <AP_Mission/AP_Mission.h>
 #include <AP_Rally/AP_Rally.h>
 
@@ -84,8 +81,6 @@ public:
     /* Do not allow copies */
     AP_Terrain(const AP_Terrain &other) = delete;
     AP_Terrain &operator=(const AP_Terrain&) = delete;
-
-    static AP_Terrain *get_singleton(void) { return singleton; }
 
     enum TerrainStatus {
         TerrainStatusDisabled  = 0, // not enabled
@@ -424,7 +419,5 @@ private:
 
     // status
     enum TerrainStatus system_status = TerrainStatusDisabled;
-
-    static AP_Terrain *singleton;
 };
 #endif // AP_TERRAIN_AVAILABLE

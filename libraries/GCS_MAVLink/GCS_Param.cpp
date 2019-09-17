@@ -19,7 +19,6 @@
 
 #include "AP_Common/AP_FWVersion.h"
 #include "GCS.h"
-#include <AP_Logger/AP_Logger.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -325,7 +324,6 @@ bool GCS_MAVLINK::stream_trigger(enum streams stream_num)
  */
 void GCS::send_parameter_value(const char *param_name, ap_var_type param_type, float param_value)
 {
-<<<<<<< HEAD
     const uint8_t mavlink_active = GCS_MAVLINK::active_channel_mask();
     for (uint8_t i=0; i<MAVLINK_COMM_NUM_BUFFERS; i++) {
         if ((1U<<i) & mavlink_active) {
@@ -367,22 +365,6 @@ void GCS_MAVLINK::send_queued_parameters(void)
     }
     if (stream_trigger(STREAM_PARAMS)) {
         send_message(MSG_NEXT_PARAM);
-=======
-    mavlink_param_value_t packet;
-    strncpy(packet.param_id, param_name, ARRAY_SIZE(packet.param_id));
-    packet.param_value = param_value;
-    packet.param_type = mav_param_type(param_type);
-    packet.param_count = AP_Param::count_parameters();
-    packet.param_index = -1;
-
-    gcs().send_to_active_channels(MAVLINK_MSG_ID_PARAM_VALUE,
-                                  (const char *)&packet);
-
-    // also log to AP_Logger
-    AP_Logger *logger = AP_Logger::get_singleton();
-    if (logger != nullptr) {
-        logger->Write_Parameter(param_name, param_value);
->>>>>>> upstream/master
     }
 }
 

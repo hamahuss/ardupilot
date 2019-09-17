@@ -11,37 +11,7 @@ void loop();
 
 const AP_HAL::HAL& hal = AP_HAL::get_HAL();
 
-<<<<<<< HEAD
 #define NUM_CHANNELS 8
-=======
-class RC_Channel_Example : public RC_Channel
-{
-};
-
-class RC_Channels_Example : public RC_Channels
-{
-public:
-
-    RC_Channel_Example obj_channels[NUM_RC_CHANNELS];
-
-    RC_Channel_Example *channel(const uint8_t chan) override {
-        if (chan > NUM_RC_CHANNELS) {
-            return nullptr;
-        }
-        return &obj_channels[chan];
-    }
-
-protected:
-
-    int8_t flight_mode_channel_number() const override { return 5; }
-
-private:
-
-};
-
-#define RC_CHANNELS_SUBCLASS RC_Channels_Example
-#define RC_CHANNEL_SUBCLASS RC_Channel_Example
->>>>>>> upstream/master
 
 static RC_Channels rc_channels;
 static RC_Channel *rc;

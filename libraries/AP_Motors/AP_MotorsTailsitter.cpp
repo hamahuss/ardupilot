@@ -49,7 +49,6 @@ void AP_MotorsTailsitter::output_to_motors()
     if (!_flags.initialised_ok) {
         return;
     }
-<<<<<<< HEAD
     float throttle = _throttle;
     float throttle_left  = 0;
     float throttle_right = 0;
@@ -83,24 +82,6 @@ void AP_MotorsTailsitter::output_to_motors()
             limit.yaw = false;
             limit.throttle_lower = false;
             limit.throttle_upper = false;
-=======
-
-    switch (_spool_state) {
-        case SpoolState::SHUT_DOWN:
-            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleLeft, get_pwm_output_min());
-            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleRight, get_pwm_output_min());
-            break;
-        case SpoolState::GROUND_IDLE:
-            set_actuator_with_slew(_actuator[1], actuator_spin_up_to_ground_idle());
-            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleLeft, output_to_pwm(actuator_spin_up_to_ground_idle()));
-            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleRight, output_to_pwm(actuator_spin_up_to_ground_idle()));
-            break;
-        case SpoolState::SPOOLING_UP:
-        case SpoolState::THROTTLE_UNLIMITED:
-        case SpoolState::SPOOLING_DOWN:
-            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleLeft, output_to_pwm(thrust_to_actuator(_thrust_left)));
-            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleRight, output_to_pwm(thrust_to_actuator(_thrust_right)));
->>>>>>> upstream/master
             break;
         }
     }

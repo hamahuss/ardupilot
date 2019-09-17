@@ -6,7 +6,6 @@
 #include "AP_NavEKF3_core.h"
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Vehicle/AP_Vehicle.h>
-#include <AP_GPS/AP_GPS.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -59,7 +58,7 @@ void NavEKF3_core::getFlowDebug(float &varFlow, float &gndOffset, float &flowInn
     gndOffset = terrainState;
     flowInnovX = innovOptFlow[0];
     flowInnovY = innovOptFlow[1];
-    auxInnov = norm(auxFlowObsInnov.x,auxFlowObsInnov.y);
+    auxInnov = auxFlowObsInnov;
     HAGL = terrainState - stateStruct.position.z;
     rngInnov = innovRng;
     range = rangeDataDelayed.rng;
@@ -253,7 +252,7 @@ bool NavEKF3_core::getPosNE(Vector2f &posNE) const
             if ((AP::gps().status() >= AP_GPS::GPS_OK_FIX_2D)) {
                 // If the origin has been set and we have GPS, then return the GPS position relative to the origin
                 const struct Location &gpsloc = AP::gps().location();
-                const Vector2f tempPosNE = EKF_origin.get_distance_NE(gpsloc);
+                Vector2f tempPosNE = location_diff(EKF_origin, gpsloc);
                 posNE.x = tempPosNE.x;
                 posNE.y = tempPosNE.y;
                 return false;

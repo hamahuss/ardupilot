@@ -226,8 +226,9 @@ private:
     float _TASmax;
     float _TASmin;
 
-    // Current true airspeed demand
+    // Current and last true airspeed demand
     float _TAS_dem;
+    float _TAS_dem_last;
 
     // Equivalent airspeed demand
     float _EAS_dem;

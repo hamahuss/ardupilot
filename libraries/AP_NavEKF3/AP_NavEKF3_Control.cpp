@@ -7,7 +7,6 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <GCS_MAVLink/GCS.h>
-#include <AP_GPS/AP_GPS.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -212,7 +211,7 @@ void NavEKF3_core::setAidingMode()
             // GPS aiding is the preferred option unless excluded by the user
             if(readyToUseGPS() || readyToUseRangeBeacon()) {
                 PV_AidingMode = AID_ABSOLUTE;
-            } else if ((readyToUseOptFlow()  && (frontend->_flowUse == FLOW_USE_NAV)) || readyToUseBodyOdm()) {
+            } else if (readyToUseOptFlow() || readyToUseBodyOdm()) {
                 PV_AidingMode = AID_RELATIVE;
             }
             break;

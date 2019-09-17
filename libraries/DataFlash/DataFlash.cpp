@@ -23,24 +23,7 @@ extern const AP_HAL::HAL& hal;
 #define HAL_DATAFLASH_MAV_BUFSIZE  8
 #endif 
 
-<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 const AP_Param::GroupInfo DataFlash_Class::var_info[] = {
-=======
-// by default log for 15 seconds after disarming
-#ifndef HAL_LOGGER_ARM_PERSIST
-#define HAL_LOGGER_ARM_PERSIST 15
-#endif
-
-#ifndef HAL_LOGGING_BACKENDS_DEFAULT
-# ifdef HAL_LOGGING_DATAFLASH
-#  define HAL_LOGGING_BACKENDS_DEFAULT Backend_Type::BLOCK
-# else
-#  define HAL_LOGGING_BACKENDS_DEFAULT Backend_Type::FILESYSTEM
-# endif
-#endif
-
-const AP_Param::GroupInfo AP_Logger::var_info[] = {
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
     // @Param: _BACKEND_TYPE
     // @DisplayName: DataFlash Backend Storage type
     // @Description: 0 for None, 1 for File, 2 for dataflash mavlink, 3 for both file and dataflash
@@ -101,10 +84,6 @@ DataFlash_Class::DataFlash_Class(const AP_Int32 &log_bitmask)
 void DataFlash_Class::Init(const struct LogStructure *structures, uint8_t num_types)
 {
     gcs().send_text(MAV_SEVERITY_INFO, "Preparing log system");
-    if (hal.util->was_watchdog_armed()) {
-        gcs().send_text(MAV_SEVERITY_INFO, "Forcing logging for watchdog reset");
-        _params.log_disarmed.set(1);
-    }
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     validate_structures(structures, num_types);
     dump_structures(structures, num_types);
@@ -196,7 +175,7 @@ void DataFlash_Class::Init(const struct LogStructure *structures, uint8_t num_ty
 #define DEBUG_LOG_STRUCTURES 0
 
 extern const AP_HAL::HAL& hal;
-#define Debug(fmt, args ...)  do {::fprintf(stderr, "%s:%d: " fmt "\n", __FUNCTION__, __LINE__, ## args); } while(0)
+#define Debug(fmt, args ...)  do {hal.console->printf("%s:%d: " fmt "\n", __FUNCTION__, __LINE__, ## args); hal.scheduler->delay(1); } while(0)
 
 /// return the number of commas present in string
 static uint8_t count_commas(const char *string)
@@ -361,31 +340,6 @@ bool DataFlash_Class::validate_structure(const struct LogStructure *logstructure
             passed = false;
         }
     }
-<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
-=======
-
-    // ensure any float has a multiplier of zero
-    if (false && passed) {
-        for (uint8_t j=0; j<strlen(logstructure->multipliers); j++) {
-            const char fmt = logstructure->format[j];
-            if (fmt != 'f') {
-                continue;
-            }
-            const char logmultiplier = logstructure->multipliers[j];
-            if (logmultiplier == '0' ||
-                logmultiplier == '?' ||
-                logmultiplier == '-') {
-                continue;
-            }
-            Debug("  %s[%u] float with non-zero multiplier=%c",
-                  logstructure->name,
-                  j,
-                  logmultiplier);
-            passed = false;
-        }
-    }
-
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
     return passed;
 }
 
@@ -397,47 +351,6 @@ void DataFlash_Class::validate_structures(const struct LogStructure *logstructur
     for (uint16_t i=0; i<num_types; i++) {
         const struct LogStructure *logstructure = &logstructures[i];
         passed = validate_structure(logstructure, i) && passed;
-<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
-=======
-    }
-
-    // ensure units are unique:
-    for (uint16_t i=0; i<ARRAY_SIZE(log_Units); i++) {
-        const struct UnitStructure &a = log_Units[i];
-        for (uint16_t j=i+1; j<ARRAY_SIZE(log_Units); j++) {
-            const struct UnitStructure &b = log_Units[j];
-            if (a.ID == b.ID) {
-                Debug("duplicate unit id=%c (%s/%s)", a.ID, a.unit, b.unit);
-                passed = false;
-            }
-            if (streq(a.unit, b.unit)) {
-                Debug("duplicate unit=%s (%c/%c)", a.unit, a.ID, b.ID);
-                passed = false;
-            }
-        }
-    }
-
-    // ensure multipliers are unique:
-    for (uint16_t i=0; i<ARRAY_SIZE(log_Multipliers); i++) {
-        const struct MultiplierStructure &a = log_Multipliers[i];
-        for (uint16_t j=i+1; j<ARRAY_SIZE(log_Multipliers); j++) {
-            const struct MultiplierStructure &b = log_Multipliers[j];
-            if (a.ID == b.ID) {
-                Debug("duplicate multiplier id=%c (%f/%f)",
-                      a.ID, a.multiplier, b.multiplier);
-                passed = false;
-            }
-            if (is_equal(a.multiplier, b.multiplier)) {
-                if (a.ID == '?' && b.ID == '0') {
-                    // special case
-                    continue;
-                }
-                Debug("duplicate multiplier=%f (%c/%c)",
-                      a.multiplier, a.ID, b.ID);
-                passed = false;
-            }
-        }
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
     }
     if (!passed) {
         Debug("Log structures are invalid");
@@ -509,12 +422,10 @@ void DataFlash_Class::backend_starting_new_log(const DataFlash_Backend *backend)
 
 bool DataFlash_Class::should_log(const uint32_t mask) const
 {
-    bool armed = vehicle_is_armed();
-
     if (!(mask & _log_bitmask)) {
         return false;
     }
-    if (!armed && !log_while_disarmed()) {
+    if (!vehicle_is_armed() && !log_while_disarmed()) {
         return false;
     }
     if (in_log_download()) {
@@ -707,23 +618,7 @@ void DataFlash_Class::Log_Write_Mission_Cmd(const AP_Mission &mission,
     FOR_EACH_BACKEND(Log_Write_Mission_Cmd(mission, cmd));
 }
 
-<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 uint32_t DataFlash_Class::num_dropped() const
-=======
-void AP_Logger::Write_RallyPoint(uint8_t total,
-                                 uint8_t sequence,
-                                 const RallyLocation &rally_point)
-{
-    FOR_EACH_BACKEND(Write_RallyPoint(total, sequence, rally_point));
-}
-
-void AP_Logger::Write_Rally()
-{
-    FOR_EACH_BACKEND(Write_Rally());
-}
-
-uint32_t AP_Logger::num_dropped() const
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 {
     if (_next_backend == 0) {
         return 0;
@@ -759,29 +654,7 @@ void DataFlash_Class::Log_Write(const char *name, const char *labels, const char
     va_end(arg_list);
 }
 
-<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
 void DataFlash_Class::Log_WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list)
-=======
-void AP_Logger::WriteCritical(const char *name, const char *labels, const char *fmt, ...)
-{
-    va_list arg_list;
-
-    va_start(arg_list, fmt);
-    WriteV(name, labels, nullptr, nullptr, fmt, arg_list, true);
-    va_end(arg_list);
-}
-
-void AP_Logger::WriteCritical(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...)
-{
-    va_list arg_list;
-
-    va_start(arg_list, fmt);
-    WriteV(name, labels, units, mults, fmt, arg_list, true);
-    va_end(arg_list);
-}
-
-void AP_Logger::WriteV(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, va_list arg_list, bool is_critical)
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
 {
     struct log_write_fmt *f = msg_fmt_for_name(name, labels, units, mults, fmt);
     if (f == nullptr) {
@@ -800,11 +673,7 @@ void AP_Logger::WriteV(const char *name, const char *labels, const char *units, 
         }
         va_list arg_copy;
         va_copy(arg_copy, arg_list);
-<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
         backends[i]->Log_Write(f->msg_type, arg_copy);
-=======
-        backends[i]->Write(f->msg_type, arg_copy, is_critical);
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp
         va_end(arg_copy);
     }
 }
@@ -1113,68 +982,3 @@ bool DataFlash_Class::Log_Write_ISBD(const uint16_t isb_seqno,
 
     return backends[0]->WriteBlock(&pkt, sizeof(pkt));
 }
-<<<<<<< HEAD:libraries/DataFlash/DataFlash.cpp
-=======
-
-// Wrote an event packet
-void AP_Logger::Write_Event(Log_Event id)
-{
-    struct log_Event pkt = {
-        LOG_PACKET_HEADER_INIT(LOG_EVENT_MSG),
-        time_us  : AP_HAL::micros64(),
-        id       : id
-    };
-    WriteCriticalBlock(&pkt, sizeof(pkt));
-}
-
-// Write an error packet
-void AP_Logger::Write_Error(LogErrorSubsystem sub_system,
-                            LogErrorCode error_code)
-{
-  struct log_Error pkt = {
-      LOG_PACKET_HEADER_INIT(LOG_ERROR_MSG),
-      time_us       : AP_HAL::micros64(),
-      sub_system    : uint8_t(sub_system),
-      error_code    : uint8_t(error_code),
-  };
-  WriteCriticalBlock(&pkt, sizeof(pkt));
-}
-
-/*
-  return true if we should log while disarmed
- */
-bool AP_Logger::log_while_disarmed(void) const
-{
-    if (_force_log_disarmed) {
-        return true;
-    }
-    if (_params.log_disarmed != 0) {
-        return true;
-    }
-
-    uint32_t now = AP_HAL::millis();
-    uint32_t persist_ms = HAL_LOGGER_ARM_PERSIST*1000U;
-
-    // keep logging for HAL_LOGGER_ARM_PERSIST seconds after disarming
-    const uint32_t arm_change_ms = hal.util->get_last_armed_change();
-    if (!hal.util->get_soft_armed() && arm_change_ms != 0 && now - arm_change_ms < persist_ms) {
-        return true;
-    }
-
-    // keep logging for HAL_LOGGER_ARM_PERSIST seconds after an arming failure
-    if (_last_arming_failure_ms && now - _last_arming_failure_ms < persist_ms) {
-        return true;
-    }
-
-    return false;
-}
-
-namespace AP {
-
-AP_Logger &logger()
-{
-    return *AP_Logger::get_singleton();
-}
-
-};
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger.cpp

@@ -7,8 +7,8 @@
 #if ADVANCED_FAILSAFE == ENABLED
 
 // Constructor
-AP_AdvancedFailsafe_Copter::AP_AdvancedFailsafe_Copter(AP_Mission &_mission) :
-    AP_AdvancedFailsafe(_mission)
+AP_AdvancedFailsafe_Copter::AP_AdvancedFailsafe_Copter(AP_Mission &_mission, const AP_GPS &_gps) :
+    AP_AdvancedFailsafe(_mission, _gps)
 {}
 
 
@@ -21,11 +21,11 @@ void AP_AdvancedFailsafe_Copter::terminate_vehicle(void)
         copter.set_mode(LAND, MODE_REASON_TERMINATE);
     } else {
         // stop motors
-        copter.motors->set_desired_spool_state(AP_Motors::DesiredSpoolState::SHUT_DOWN);
+        copter.motors->set_desired_spool_state(AP_Motors::DESIRED_SHUT_DOWN);
         copter.motors->output();
 
         // disarm as well
-        copter.arming.disarm();
+        copter.init_disarm_motors();
     
         // and set all aux channels
         SRV_Channels::set_output_limit(SRV_Channel::k_heli_rsc, SRV_Channel::SRV_CHANNEL_LIMIT_TRIM);

@@ -102,12 +102,6 @@ public:
         SerialProtocol_ESCTelemetry = 16,
         SerialProtocol_Devo_Telem = 17,
         SerialProtocol_OpticalFlow = 18,
-<<<<<<< HEAD
-=======
-        SerialProtocol_Robotis = 19,
-        SerialProtocol_NMEAOutput = 20,
-        SerialProtocol_WindVane = 21,
->>>>>>> upstream/master
     };
 
     // get singleton instance

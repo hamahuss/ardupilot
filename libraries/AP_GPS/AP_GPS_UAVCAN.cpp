@@ -19,11 +19,7 @@
 #include "AP_GPS_UAVCAN.h"
 #include <stdint.h>
 
-<<<<<<< HEAD
 #if HAL_WITH_UAVCAN
-=======
-#include <AP_BoardConfig/AP_BoardConfig_CAN.h>
->>>>>>> upstream/master
 #include <AP_UAVCAN/AP_UAVCAN.h>
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>

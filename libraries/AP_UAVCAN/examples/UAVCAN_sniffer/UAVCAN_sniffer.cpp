@@ -40,9 +40,6 @@ void loop();
 const AP_HAL::HAL& hal = AP_HAL::get_HAL();
 
 #define UAVCAN_NODE_POOL_SIZE 8192
-#ifdef UAVCAN_NODE_POOL_BLOCK_SIZE
-#undef UAVCAN_NODE_POOL_BLOCK_SIZE
-#endif
 #define UAVCAN_NODE_POOL_BLOCK_SIZE 256
 
 #define debug_uavcan(level, fmt, args...) do { hal.console->printf(fmt, ##args); } while (0)

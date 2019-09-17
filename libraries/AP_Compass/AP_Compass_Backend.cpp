@@ -2,12 +2,7 @@
 
 #include "AP_Compass.h"
 #include "AP_Compass_Backend.h"
-<<<<<<< HEAD
 #include <stdio.h>
-=======
-
-#include <AP_BattMonitor/AP_BattMonitor.h>
->>>>>>> upstream/master
 
 extern const AP_HAL::HAL& hal;
 

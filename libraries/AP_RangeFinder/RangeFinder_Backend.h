@@ -33,13 +33,9 @@ public:
 
     virtual void handle_msg(mavlink_message_t *msg) { return; }
 
-<<<<<<< HEAD
     void update_pre_arm_check();
 
     enum Rotation orientation() const { return (Rotation)state.orientation.get(); }
-=======
-    enum Rotation orientation() const { return (Rotation)params.orientation.get(); }
->>>>>>> upstream/master
     uint16_t distance_cm() const { return state.distance_cm; }
     uint16_t voltage_mv() const { return state.voltage_mv; }
     int16_t max_distance_cm() const { return state.max_distance_cm; }
@@ -85,9 +81,6 @@ protected:
 
     // semaphore for access to shared frontend data
     AP_HAL::Semaphore *_sem;    
-
-    //Type Backend initialised with
-    RangeFinder::RangeFinder_Type _backend_type;
 
     virtual MAV_DISTANCE_SENSOR _get_mav_distance_sensor_type() const = 0;
 };

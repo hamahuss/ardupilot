@@ -5,15 +5,12 @@
 #include <AP_HAL/AP_HAL.h>
 #include <GCS_MAVLink/GCS.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
-#include <GCS_MAVLink/GCS_Dummy.h>
-#include <AP_Common/AP_FWVersion.h>
 
 void setup();
 void loop();
 
 const AP_HAL::HAL& hal = AP_HAL::get_HAL();
 
-<<<<<<< HEAD
 const AP_FWVersion AP_FWVersion::fwver
 {
     major: 3,
@@ -56,9 +53,6 @@ private:
 
 static const uint8_t num_gcs = MAVLINK_COMM_NUM_BUFFERS;
 static GCS_MAVLINK_routing gcs_link[MAVLINK_COMM_NUM_BUFFERS];
-=======
-GCS_Dummy _gcs;
->>>>>>> upstream/master
 
 extern mavlink_system_t mavlink_system;
 
@@ -71,7 +65,7 @@ static MAVLink_routing routing;
 void setup(void)
 {
     hal.console->printf("routing test startup...");
-    gcs().chan(0).init(hal.uartA, MAVLINK_COMM_0);
+    gcs_link[0].init(hal.uartA, MAVLINK_COMM_0);
 }
 
 void loop(void)

@@ -232,6 +232,7 @@ bool AC_Fence::check_fence_polygon()
     // check consistency of number of points
     if (_boundary_num_points != _total) {
         // Fence is currently not completely loaded.  Can't breach it?!
+        _boundary_loaded = false;
         load_polygon_from_eeprom();
         return false;
     }
@@ -446,22 +447,13 @@ void AC_Fence::manual_recovery_start()
 }
 
 /// returns pointer to array of polygon points and num_points is filled in with the total number
-Vector2f* AC_Fence::get_boundary_points(uint16_t& num_points) const
+Vector2f* AC_Fence::get_polygon_points(uint16_t& num_points) const
 {
     // return array minus the first point which holds the return location
-    if (_boundary == nullptr) {
+    num_points = (_boundary_num_points <= 1) ? 0 : _boundary_num_points - 1;
+    if ((_boundary == nullptr) || (num_points == 0)) {
         return nullptr;
     }
-    if (!_boundary_valid) {
-        return nullptr;
-    }
-    // minus one for return point, minus one for closing point
-    // (_boundary_valid is not true unless we have a closing point AND
-    // we have a minumum number of points)
-    if (_boundary_num_points < 2) {
-        return nullptr;
-    }
-    num_points = _boundary_num_points - 2;
     return &_boundary[1];
 }
 
@@ -507,7 +499,7 @@ void AC_Fence::handle_msg(GCS_MAVLINK &link, mavlink_message_t* msg)
             // attempt to retrieve from eeprom
             Vector2l point;
             if (_poly_loader.load_point_from_eeprom(packet.idx, point)) {
-                mavlink_msg_fence_point_send(link.get_chan(), msg->sysid, msg->compid, packet.idx, _total, point.x*1.0e-7f, point.y*1.0e-7f);
+                mavlink_msg_fence_point_send_buf(msg, link.get_chan(), msg->sysid, msg->compid, packet.idx, _total, point.x*1.0e-7f, point.y*1.0e-7f);
             } else {
                 link.send_text(MAV_SEVERITY_WARNING, "Bad fence point");
             }
@@ -521,8 +513,13 @@ void AC_Fence::handle_msg(GCS_MAVLINK &link, mavlink_message_t* msg)
 }
 
 /// load polygon points stored in eeprom into boundary array and perform validation
-bool AC_Fence::load_polygon_from_eeprom()
+bool AC_Fence::load_polygon_from_eeprom(bool force_reload)
 {
+    // exit immediately if already loaded
+    if (_boundary_loaded && !force_reload) {
+        return true;
+    }
+
     // check if we need to create array
     if (!_boundary_create_attempted) {
         _boundary = (Vector2f *)_poly_loader.create_point_array(sizeof(Vector2f));
@@ -553,10 +550,10 @@ bool AC_Fence::load_polygon_from_eeprom()
         // move into location structure and convert to offset from ekf origin
         temp_loc.lat = temp_latlon.x;
         temp_loc.lng = temp_latlon.y;
-        _boundary[index] = ekf_origin.get_distance_NE(temp_loc) * 100.0f;
+        _boundary[index] = location_diff(ekf_origin, temp_loc) * 100.0f;
     }
     _boundary_num_points = _total;
-    _boundary_update_ms = AP_HAL::millis();
+    _boundary_loaded = true;
 
     // update validity of polygon
     _boundary_valid = _poly_loader.boundary_valid(_boundary_num_points, _boundary, true);

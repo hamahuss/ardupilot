@@ -24,8 +24,6 @@
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <GCS_MAVLink/GCS.h>
 #include <AP_Module/AP_Module.h>
-#include <AP_GPS/AP_GPS.h>
-#include <AP_Baro/AP_Baro.h>
 
 #if AP_AHRS_NAVEKF_AVAILABLE
 
@@ -124,11 +122,6 @@ void AP_AHRS_NavEKF::update(bool skip_ins_update)
         // update optional alternative attitude view
         _view->update(skip_ins_update);
     }
-
-#if !HAL_MINIMIZE_FEATURES && AP_AHRS_NAVEKF_AVAILABLE
-    // update NMEA output
-    update_nmea_out();
-#endif
 }
 
 void AP_AHRS_NavEKF::update_DCM(bool skip_ins_update)
@@ -187,7 +180,7 @@ void AP_AHRS_NavEKF::update_EKF2(void)
 
             // calculate corrected gyro estimate for get_gyro()
             _gyro_estimate.zero();
-            if (primary_imu == -1 || !_ins.get_gyro_health(primary_imu)) {
+            if (primary_imu == -1) {
                 // the primary IMU is undefined so use an uncorrected default value from the INS library
                 _gyro_estimate = _ins.get_gyro();
             } else {
@@ -260,7 +253,7 @@ void AP_AHRS_NavEKF::update_EKF3(void)
 
             // calculate corrected gyro estimate for get_gyro()
             _gyro_estimate.zero();
-            if (primary_imu == -1 || !_ins.get_gyro_health(primary_imu)) {
+            if (primary_imu == -1) {
                 // the primary IMU is undefined so use an uncorrected default value from the INS library
                 _gyro_estimate = _ins.get_gyro();
             } else {
@@ -809,7 +802,7 @@ bool AP_AHRS_NavEKF::get_relative_position_NED_origin(Vector3f &vec) const
         }
         Location loc;
         get_position(loc);
-        const Vector2f diff2d = get_home().get_distance_NE(loc);
+        const Vector2f diff2d = location_diff(get_home(), loc);
         const struct SITL::sitl_fdm &fdm = _sitl->state;
         vec = Vector3f(diff2d.x, diff2d.y,
                        -(fdm.altitude - get_home().alt*0.01f));
@@ -830,7 +823,7 @@ bool AP_AHRS_NavEKF::get_relative_position_NED_home(Vector3f &vec) const
         return false;
     }
 
-    const Vector3f offset = originLLH.get_distance_NED(_home);
+    const Vector3f offset = location_3d_diff_NED(originLLH, _home);
 
     vec.x = originNED.x - offset.x;
     vec.y = originNED.y - offset.y;
@@ -861,7 +854,7 @@ bool AP_AHRS_NavEKF::get_relative_position_NE_origin(Vector2f &posNE) const
     case EKF_TYPE_SITL: {
         Location loc;
         get_position(loc);
-        posNE = get_home().get_distance_NE(loc);
+        posNE = location_diff(get_home(), loc);
         return true;
     }
 #endif
@@ -879,7 +872,7 @@ bool AP_AHRS_NavEKF::get_relative_position_NE_home(Vector2f &posNE) const
         return false;
     }
 
-    const Vector2f offset = originLLH.get_distance_NE(_home);
+    const Vector2f offset = location_diff(originLLH, _home);
 
     posNE.x = originNE.x - offset.x;
     posNE.y = originNE.y - offset.y;
@@ -1113,33 +1106,6 @@ bool AP_AHRS_NavEKF::healthy(void) const
     return AP_AHRS_DCM::healthy();
 }
 
-bool AP_AHRS_NavEKF::prearm_healthy(void) const
-{
-    bool prearm_health = false;
-    switch (ekf_type()) {
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-    case EKF_TYPE_SITL:
-#endif
-    case EKF_TYPE_NONE:
-        prearm_health = true;
-        break;
-
-    case EKF_TYPE2:
-    default:
-        if (_ekf2_started && EKF2.all_cores_healthy()) {
-            prearm_health = true;
-        }
-        break;
-
-    case EKF_TYPE3:
-        if (_ekf3_started && EKF3.all_cores_healthy()) {
-            prearm_health = true;
-        }
-        break;
-    }
-   return prearm_health && healthy();
-}
-
 void AP_AHRS_NavEKF::set_ekf_use(bool setting)
 {
     _ekf_type.set(setting?1:0);
@@ -1338,73 +1304,6 @@ const char *AP_AHRS_NavEKF::prearm_failure_reason(void) const
     return nullptr;
 }
 
-<<<<<<< HEAD
-=======
-// check all cores providing consistent attitudes for prearm checks
-bool AP_AHRS_NavEKF::attitudes_consistent(char *failure_msg, const uint8_t failure_msg_len) const
-{
-    // get primary attitude source's attitude as quaternion
-    Quaternion primary_quat;
-    get_quat_body_to_ned(primary_quat);
-    // only check yaw if compasses are being used
-    bool check_yaw = _compass && _compass->use_for_yaw();
-
-    // check primary vs ekf2
-    for (uint8_t i = 0; i < EKF2.activeCores(); i++) {
-        Quaternion ekf2_quat;
-        Vector3f angle_diff;
-        EKF2.getQuaternionBodyToNED(i, ekf2_quat);
-        primary_quat.angular_difference(ekf2_quat).to_axis_angle(angle_diff);
-        float diff = safe_sqrt(sq(angle_diff.x)+sq(angle_diff.y));
-        if (diff > ATTITUDE_CHECK_THRESH_ROLL_PITCH_RAD) {
-            hal.util->snprintf(failure_msg, failure_msg_len, "EKF2 Roll/Pitch inconsistent by %d deg", (int)degrees(diff));
-            return false;
-        }
-        diff = fabsf(angle_diff.z);
-        if (check_yaw && (diff > ATTITUDE_CHECK_THRESH_YAW_RAD)) {
-            hal.util->snprintf(failure_msg, failure_msg_len, "EKF2 Yaw inconsistent by %d deg", (int)degrees(diff));
-            return false;
-        }
-    }
-
-    // check primary vs ekf3
-    for (uint8_t i = 0; i < EKF3.activeCores(); i++) {
-        Quaternion ekf3_quat;
-        Vector3f angle_diff;
-        EKF3.getQuaternionBodyToNED(i, ekf3_quat);
-        primary_quat.angular_difference(ekf3_quat).to_axis_angle(angle_diff);
-        float diff = safe_sqrt(sq(angle_diff.x)+sq(angle_diff.y));
-        if (diff > ATTITUDE_CHECK_THRESH_ROLL_PITCH_RAD) {
-            hal.util->snprintf(failure_msg, failure_msg_len, "EKF3 Roll/Pitch inconsistent by %d deg", (int)degrees(diff));
-            return false;
-        }
-        diff = fabsf(angle_diff.z);
-        if (check_yaw && (diff > ATTITUDE_CHECK_THRESH_YAW_RAD)) {
-            hal.util->snprintf(failure_msg, failure_msg_len, "EKF3 Yaw inconsistent by %d deg", (int)degrees(diff));
-            return false;
-        }
-    }
-
-    // check primary vs dcm
-    Quaternion dcm_quat;
-    Vector3f angle_diff;
-    dcm_quat.from_rotation_matrix(get_DCM_rotation_body_to_ned());
-    primary_quat.angular_difference(dcm_quat).to_axis_angle(angle_diff);
-    float diff = safe_sqrt(sq(angle_diff.x)+sq(angle_diff.y));
-    if (diff > ATTITUDE_CHECK_THRESH_ROLL_PITCH_RAD) {
-        hal.util->snprintf(failure_msg, failure_msg_len, "DCM Roll/Pitch inconsistent by %d deg", (int)degrees(diff));
-        return false;
-    }
-    diff = fabsf(angle_diff.z);
-    if (check_yaw && (diff > ATTITUDE_CHECK_THRESH_YAW_RAD)) {
-        hal.util->snprintf(failure_msg, failure_msg_len, "DCM Yaw inconsistent by %d deg", (int)degrees(diff));
-        return false;
-    }
-
-    return true;
-}
-
->>>>>>> upstream/master
 // return the amount of yaw angle change due to the last yaw angle reset in radians
 // returns the time of the last yaw angle reset or 0 if no reset has ever occurred
 uint32_t AP_AHRS_NavEKF::getLastYawResetAngle(float &yawAng) const
@@ -1527,21 +1426,8 @@ void AP_AHRS_NavEKF::send_ekf_status_report(mavlink_channel_t chan) const
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     case EKF_TYPE_SITL:
-        {
-        // send status report with everything looking good
-        const uint16_t flags =
-        EKF_ATTITUDE | /* Set if EKF's attitude estimate is good. | */
-        EKF_VELOCITY_HORIZ | /* Set if EKF's horizontal velocity estimate is good. | */
-        EKF_VELOCITY_VERT | /* Set if EKF's vertical velocity estimate is good. | */
-        EKF_POS_HORIZ_REL | /* Set if EKF's horizontal position (relative) estimate is good. | */
-        EKF_POS_HORIZ_ABS | /* Set if EKF's horizontal position (absolute) estimate is good. | */
-        EKF_POS_VERT_ABS | /* Set if EKF's vertical position (absolute) estimate is good. | */
-        EKF_POS_VERT_AGL | /* Set if EKF's vertical position (above ground) estimate is good. | */
-        //EKF_CONST_POS_MODE | /* EKF is in constant position mode and does not know it's absolute or relative position. | */
-        EKF_PRED_POS_HORIZ_REL | /* Set if EKF's predicted horizontal position (relative) estimate is good. | */
-        EKF_PRED_POS_HORIZ_ABS; /* Set if EKF's predicted horizontal position (absolute) estimate is good. | */
-        mavlink_msg_ekf_status_report_send(chan, flags, 0, 0, 0, 0, 0, 0);
-        }
+        // send zero status report
+        mavlink_msg_ekf_status_report_send(chan, 0, 0, 0, 0, 0, 0, 0);
         break;
 #endif
         
@@ -1778,28 +1664,6 @@ uint8_t AP_AHRS_NavEKF::get_primary_gyro_index(void) const
         return get_primary_IMU_index();
     }
     return AP::ins().get_primary_gyro();
-}
-
-// see if EKF lane switching is possible to avoid EKF failsafe
-void AP_AHRS_NavEKF::check_lane_switch(void)
-{
-    switch (active_EKF_type()) {
-    case EKF_TYPE_NONE:
-        break;
-
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-    case EKF_TYPE_SITL:
-        break;
-#endif
-
-    case EKF_TYPE2:
-        EKF2.checkLaneSwitch();
-        break;
-
-    case EKF_TYPE3:
-        EKF3.checkLaneSwitch();
-        break;
-    }
 }
 
 

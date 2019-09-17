@@ -10,8 +10,7 @@
 #include <AP_Motors/AP_Motors.h>
 #include <AC_AttitudeControl/AC_AttitudeControl.h>
 #include <AC_AttitudeControl/AC_PosControl.h>
-#include <AP_RSSI/AP_RSSI.h>
-#include <AP_GPS/AP_GPS.h>
+#include <AP_RangeFinder/RangeFinder_Backend.h>
 
 #include "DataFlash.h"
 #include "DataFlash_File.h"
@@ -179,7 +178,6 @@ void DataFlash_Class::Log_Write_GPS(uint8_t i, uint64_t time_us)
 }
 
 
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 // Write an RFND (rangefinder) packet
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
 {
@@ -199,8 +197,6 @@ void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
     WriteBlock(&pkt, sizeof(pkt));
 }
 
-=======
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 // Write an RCIN packet
 void DataFlash_Class::Log_Write_RCIN(void)
 {
@@ -251,21 +247,12 @@ void DataFlash_Class::Log_Write_RCOUT(void)
 }
 
 // Write an RSSI packet
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 void DataFlash_Class::Log_Write_RSSI(AP_RSSI &rssi)
-=======
-void AP_Logger::Write_RSSI()
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 {
-    AP_RSSI *rssi = AP::rssi();
-    if (rssi == nullptr) {
-        return;
-    }
-
     struct log_RSSI pkt = {
         LOG_PACKET_HEADER_INIT(LOG_RSSI_MSG),
         time_us       : AP_HAL::micros64(),
-        RXRSSI        : rssi->read_receiver_rssi()
+        RXRSSI        : rssi.read_receiver_rssi()
     };
     WriteBlock(&pkt, sizeof(pkt));
 }
@@ -845,7 +832,7 @@ void DataFlash_Class::Log_Write_EKF2(AP_AHRS_NavEKF &ahrs)
     }
 
     // write range beacon fusion debug packet if the range value is non-zero
-    if (AP::beacon() != nullptr) {
+    if (ahrs.get_beacon() != nullptr) {
         uint8_t ID;
         float rng;
         float innovVar;
@@ -1562,7 +1549,6 @@ void DataFlash_Class::Log_Write_ESC(void)
 #endif // CONFIG_HAL_BOARD
 }
 
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 // Write a AIRSPEED packet
 void DataFlash_Class::Log_Write_Airspeed(AP_Airspeed &airspeed)
 {
@@ -1591,8 +1577,6 @@ void DataFlash_Class::Log_Write_Airspeed(AP_Airspeed &airspeed)
     }
 }
 
-=======
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 // Write a Yaw PID packet
 void DataFlash_Class::Log_Write_PID(uint8_t msg_type, const PID_Info &info)
 {
@@ -1791,18 +1775,4 @@ void DataFlash_Class::Log_Write_SRTL(bool active, uint16_t num_points, uint16_t 
         D               : breadcrumb.z
     };
     WriteBlock(&pkt_srtl, sizeof(pkt_srtl));
-}
-
-void AP_Logger::Write_OA(uint8_t algorithm, const Location& final_dest, const Location& oa_dest)
-{
-    struct log_OA pkt = {
-        LOG_PACKET_HEADER_INIT(LOG_OA_MSG),
-        time_us     : AP_HAL::micros64(),
-        algorithm   : algorithm,
-        final_lat   : final_dest.lat,
-        final_lng   : final_dest.lng,
-        oa_lat      : oa_dest.lat,
-        oa_lng      : oa_dest.lng,
-    };
-    WriteBlock(&pkt, sizeof(pkt));
 }

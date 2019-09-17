@@ -143,13 +143,7 @@ public:
     AP_Int16 pin_mask; // for GPIO emulation
     AP_Float speedup; // simulation speedup
     AP_Int8  odom_enable; // enable visual odomotry data
-<<<<<<< HEAD
     
-=======
-    AP_Int8  telem_baudlimit_enable; // enable baudrate limiting on links
-    AP_Float flow_noise; // optical flow measurement noise (rad/sec)
-
->>>>>>> upstream/master
     // wind control
     enum WindType {
         WIND_TYPE_SQRT = 0,
@@ -198,39 +192,6 @@ public:
     // differential pressure sensor tube order
     AP_Int8 arspd_signflip;
 
-<<<<<<< HEAD
-=======
-    // weight on wheels pin
-    AP_Int8 wow_pin;
-
-    // vibration frequencies in Hz on each axis
-    AP_Vector3f vibe_freq;
-
-    // gyro and accel fail masks
-    AP_Int8 gyro_fail_mask;
-    AP_Int8 accel_fail_mask;
-
-    struct {
-        AP_Float x;
-        AP_Float y;
-        AP_Float z;
-        AP_Int32 t;
-
-        uint32_t start_ms;
-    } shove;
-
-    struct {
-        AP_Float x;
-        AP_Float y;
-        AP_Float z;
-        AP_Int32 t;
-
-        uint32_t start_ms;
-    } twist;
-
-    AP_Int8 gnd_behav;
-
->>>>>>> upstream/master
     uint16_t irlock_port;
 
     void simstate_send(mavlink_channel_t chan);

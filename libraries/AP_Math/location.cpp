@@ -19,10 +19,10 @@
 /*
  *  this module deals with calculations involving struct Location
  */
+#include <AP_HAL/AP_HAL.h>
 #include <stdlib.h>
 #include "AP_Math.h"
 #include "location.h"
-<<<<<<< HEAD
 
 float longitude_scale(const struct Location &loc)
 {
@@ -45,8 +45,6 @@ uint32_t get_distance_cm(const struct Location &loc1, const struct Location &loc
 {
     return get_distance(loc1, loc2) * 100;
 }
-=======
->>>>>>> upstream/master
 
 // return horizontal distance between two positions in cm
 float get_horizontal_distance_cm(const Vector3f &origin, const Vector3f &destination)
@@ -54,7 +52,6 @@ float get_horizontal_distance_cm(const Vector3f &origin, const Vector3f &destina
     return norm(destination.x-origin.x,destination.y-origin.y);
 }
 
-<<<<<<< HEAD
 // return bearing in centi-degrees between two locations
 int32_t get_bearing_cd(const struct Location &loc1, const struct Location &loc2)
 {
@@ -65,8 +62,6 @@ int32_t get_bearing_cd(const struct Location &loc1, const struct Location &loc2)
     return bearing;
 }
 
-=======
->>>>>>> upstream/master
 // return bearing in centi-degrees between two positions
 float get_bearing_cd(const Vector3f &origin, const Vector3f &destination)
 {
@@ -77,7 +72,6 @@ float get_bearing_cd(const Vector3f &origin, const Vector3f &destination)
     return bearing;
 }
 
-<<<<<<< HEAD
 // see if location is past a line perpendicular to
 // the line between point1 and point2. If point1 is
 // our previous waypoint and point2 is our target waypoint
@@ -217,8 +211,6 @@ void print_latlon(AP_HAL::BetterStream *s, int32_t lat_or_lon)
     s->printf("%ld.%07ld",(long)dec_portion,(long)frac_portion);
 }
 
-=======
->>>>>>> upstream/master
 // return true when lat and lng are within range
 bool check_lat(float lat)
 {
@@ -244,4 +236,7 @@ bool check_latlng(int32_t lat, int32_t lng)
 {
     return check_lat(lat) && check_lng(lng);
 }
-
+bool check_latlng(Location loc)
+{
+    return check_lat(loc.lat) && check_lng(loc.lng);
+}

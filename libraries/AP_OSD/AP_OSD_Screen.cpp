@@ -28,14 +28,6 @@
 #include <AP_Math/AP_Math.h>
 #include <AP_RSSI/AP_RSSI.h>
 #include <AP_Notify/AP_Notify.h>
-<<<<<<< HEAD
-=======
-#include <AP_Stats/AP_Stats.h>
-#include <AP_Common/Location.h>
-#include <AP_BattMonitor/AP_BattMonitor.h>
-#include <AP_GPS/AP_GPS.h>
-#include <AP_Baro/AP_Baro.h>
->>>>>>> upstream/master
 
 #include <ctype.h>
 #include <GCS_MAVLink/GCS.h>
@@ -371,9 +363,7 @@ float AP_OSD_Screen::u_scale(enum unit_type unit, float value)
 void AP_OSD_Screen::draw_altitude(uint8_t x, uint8_t y)
 {
     float alt;
-    AP_AHRS &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
-    ahrs.get_relative_position_D_home(alt);
+    AP::ahrs().get_relative_position_D_home(alt);
     alt = -alt;
     backend->write(x, y, false, "%4d%c", (int)u_scale(ALTITUDE, alt), u_icon(ALTITUDE));
 }
@@ -497,7 +487,6 @@ void AP_OSD_Screen::draw_speed_vector(uint8_t x, uint8_t y,Vector2f v, int32_t y
 void AP_OSD_Screen::draw_gspeed(uint8_t x, uint8_t y)
 {
     AP_AHRS &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
     Vector2f v = ahrs.groundspeed_vector();
     backend->write(x, y, false, "%c", SYM_GSPD);
     draw_speed_vector(x + 1, y, v, ahrs.yaw_sensor);
@@ -507,7 +496,6 @@ void AP_OSD_Screen::draw_gspeed(uint8_t x, uint8_t y)
 void AP_OSD_Screen::draw_horizon(uint8_t x, uint8_t y)
 {
     AP_AHRS &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
     float roll = ahrs.roll;
     float pitch = -ahrs.pitch;
 
@@ -570,17 +558,11 @@ void AP_OSD_Screen::draw_distance(uint8_t x, uint8_t y, float distance)
 void AP_OSD_Screen::draw_home(uint8_t x, uint8_t y)
 {
     AP_AHRS &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
     Location loc;
     if (ahrs.get_position(loc) && ahrs.home_is_set()) {
         const Location &home_loc = ahrs.get_home();
-<<<<<<< HEAD
         float distance = get_distance(home_loc, loc);
         int32_t angle = wrap_360_cd(get_bearing_cd(loc, home_loc) - ahrs.yaw_sensor);
-=======
-        float distance = home_loc.get_distance(loc);
-        int32_t angle = wrap_360_cd(loc.get_bearing_to(home_loc) - ahrs.yaw_sensor);
->>>>>>> upstream/master
         int32_t interval = 36000 / SYM_ARROW_COUNT;
         if (distance < 2.0f) {
             //avoid fast rotating arrow at small distances
@@ -642,7 +624,6 @@ void AP_OSD_Screen::draw_compass(uint8_t x, uint8_t y)
 void AP_OSD_Screen::draw_wind(uint8_t x, uint8_t y)
 {
     AP_AHRS &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
     Vector3f v = ahrs.wind_estimate();
     if (check_option(AP_OSD::OPTION_INVERTED_WIND)) {
         v = -v;
@@ -654,9 +635,7 @@ void AP_OSD_Screen::draw_wind(uint8_t x, uint8_t y)
 void AP_OSD_Screen::draw_aspeed(uint8_t x, uint8_t y)
 {
     float aspd = 0.0f;
-    AP_AHRS &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
-    bool have_estimate = ahrs.airspeed_estimate(&aspd);
+    bool have_estimate = AP::ahrs().airspeed_estimate(&aspd);
     if (have_estimate) {
         backend->write(x, y, false, "%c%4d%c", SYM_ASPD, (int)u_scale(SPEED, aspd), u_icon(SPEED));
     } else {
@@ -668,14 +647,10 @@ void AP_OSD_Screen::draw_vspeed(uint8_t x, uint8_t y)
 {
     Vector3f v;
     float vspd;
-    AP_AHRS &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
-    if (ahrs.get_velocity_NED(v)) {
+    if (AP::ahrs().get_velocity_NED(v)) {
         vspd = -v.z;
     } else {
-        auto &baro = AP::baro();
-        WITH_SEMAPHORE(baro.get_semaphore());
-        vspd = baro.get_climb_rate();
+        vspd = AP::baro().get_climb_rate();
     }
     char sym;
     if (vspd > 3.0f) {
@@ -796,165 +771,6 @@ void AP_OSD_Screen::draw_pitch_angle(uint8_t x, uint8_t y)
     backend->write(x, y, false, "%c%3d%c", p, pitch, SYM_DEGR);
 }
 
-<<<<<<< HEAD
-=======
-void AP_OSD_Screen::draw_temp(uint8_t x, uint8_t y)
-{
-    AP_Baro &barometer = AP::baro();
-    float tmp = barometer.get_temperature();
-    backend->write(x, y, false, "%3d%c", (int)u_scale(TEMPERATURE, tmp), u_icon(TEMPERATURE));
-}
-
-
-void AP_OSD_Screen::draw_hdop(uint8_t x, uint8_t y)
-{
-    AP_GPS & gps = AP::gps();
-    float hdp = gps.get_hdop() / 100.0f;
-    backend->write(x, y, false, "%c%c%3.2f", SYM_HDOP_L, SYM_HDOP_R, (double)hdp);
-}
-
-void AP_OSD_Screen::draw_waypoint(uint8_t x, uint8_t y)
-{
-    AP_AHRS &ahrs = AP::ahrs();
-    int32_t angle = wrap_360_cd(osd->nav_info.wp_bearing - ahrs.yaw_sensor);
-    int32_t interval = 36000 / SYM_ARROW_COUNT;
-    if (osd->nav_info.wp_distance < 2.0f) {
-        //avoid fast rotating arrow at small distances
-        angle = 0;
-    }
-    char arrow = SYM_ARROW_START + ((angle + interval / 2) / interval) % SYM_ARROW_COUNT;
-    backend->write(x,y, false, "%c%2u%c",SYM_WPNO, osd->nav_info.wp_number, arrow);
-    draw_distance(x+4, y, osd->nav_info.wp_distance);
-}
-
-void AP_OSD_Screen::draw_xtrack_error(uint8_t x, uint8_t y)
-{
-    backend->write(x, y, false, "%c%4d", SYM_XERR, (int)osd->nav_info.wp_xtrack_error);
-}
-
-void AP_OSD_Screen::draw_stat(uint8_t x, uint8_t y)
-{
-    backend->write(x+2, y, false, "%c%c%c", 0x4d,0x41,0x58);
-    backend->write(x, y+1, false, "%c",SYM_GSPD);
-    backend->write(x+1, y+1, false, "%4d%c", (int)u_scale(SPEED, osd->max_speed_mps), u_icon(SPEED));
-    backend->write(x, y+2, false, "%5.1f%c", (double)osd->max_current_a, SYM_AMP);
-    backend->write(x, y+3, false, "%5d%c", (int)u_scale(ALTITUDE, osd->max_alt_m), u_icon(ALTITUDE));
-    backend->write(x, y+4, false, "%c", SYM_HOME);
-    draw_distance(x+1, y+4, osd->max_dist_m); 
-    backend->write(x, y+5, false, "%c", SYM_DIST);
-    draw_distance(x+1, y+5, osd->last_distance_m);  
-}
-
-void AP_OSD_Screen::draw_dist(uint8_t x, uint8_t y)
-{
-    backend->write(x, y, false, "%c", SYM_DIST);
-    draw_distance(x+1, y, osd->last_distance_m);   
-}
-
-void  AP_OSD_Screen::draw_flightime(uint8_t x, uint8_t y)
-{
-    AP_Stats *stats = AP::stats();
-    if (stats) {
-        uint32_t t = stats->get_flight_time_s();
-        backend->write(x, y, false, "%c%3u:%02u", SYM_FLY, t/60, t%60);
-    } 
-}
-
-void AP_OSD_Screen::draw_eff(uint8_t x, uint8_t y)
-{
-    AP_BattMonitor &battery = AP::battery();
-    AP_AHRS &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
-    Vector2f v = ahrs.groundspeed_vector();
-    float speed = u_scale(SPEED,v.length());
-    if (speed > 2.0){
-        backend->write(x, y, false, "%c%3d%c", SYM_EFF,int(1000*battery.current_amps()/speed),SYM_MAH);
-    } else {
-        backend->write(x, y, false, "%c---%c", SYM_EFF,SYM_MAH);
-    }
-}
-
-void AP_OSD_Screen::draw_climbeff(uint8_t x, uint8_t y)
-{
-    char unit_icon = u_icon(DISTANCE);
-    Vector3f v;
-    float vspd;
-    auto &ahrs = AP::ahrs();
-    WITH_SEMAPHORE(ahrs.get_semaphore());
-    if (ahrs.get_velocity_NED(v)) {
-        vspd = -v.z;
-    } else {
-        auto &baro = AP::baro();
-        WITH_SEMAPHORE(baro.get_semaphore());
-        vspd = baro.get_climb_rate();
-    }
-    if (vspd < 0.0) vspd = 0.0;
-    AP_BattMonitor &battery = AP::battery();
-    float amps = battery.current_amps();
-    if (amps > 0.0) {
-        backend->write(x, y, false,"%c%c%3.1f%c",SYM_PTCHUP,SYM_EFF,(double)(3.6f * u_scale(VSPEED,vspd)/amps),unit_icon);
-    } else {
-        backend->write(x, y, false,"%c%c---%c",SYM_PTCHUP,SYM_EFF,unit_icon);
-    } 
-}
-
-void AP_OSD_Screen::draw_btemp(uint8_t x, uint8_t y)
-{
-    AP_Baro &barometer = AP::baro();
-    float btmp = barometer.get_temperature(1);
-    backend->write(x, y, false, "%3d%c", (int)u_scale(TEMPERATURE, btmp), u_icon(TEMPERATURE));
-}
-
-void AP_OSD_Screen::draw_atemp(uint8_t x, uint8_t y)
-{
-    AP_Airspeed *airspeed = AP_Airspeed::get_singleton();
-    if (!airspeed) {
-        return;
-    }
-    float temperature = 0;
-    airspeed->get_temperature(temperature);
-    if (airspeed->healthy()) {
-        backend->write(x, y, false, "%3d%c", (int)u_scale(TEMPERATURE, temperature), u_icon(TEMPERATURE));
-    } else {
-        backend->write(x, y, false, "--%c", u_icon(TEMPERATURE));
-    }
-}
-
-void AP_OSD_Screen::draw_bat2_vlt(uint8_t x, uint8_t y)
-{
-    AP_BattMonitor &battery = AP::battery();
-    uint8_t pct2 = battery.capacity_remaining_pct(1);
-    uint8_t p2 = (100 - pct2) / 16.6;
-    float v2 = battery.voltage(1);
-    backend->write(x,y, v2 < osd->warn_bat2volt, "%c%2.1f%c", SYM_BATT_FULL + p2, (double)v2, SYM_VOLT);
-}
-
-void AP_OSD_Screen::draw_bat2used(uint8_t x, uint8_t y)
-{
-    AP_BattMonitor &battery = AP::battery();
-    float ah = battery.consumed_mah(1) / 1000;
-    if (battery.consumed_mah(1) <= 9999) {
-        backend->write(x,y, false, "%4d%c", (int)battery.consumed_mah(1), SYM_MAH);
-    } else {
-        backend->write(x,y, false, "%2.2f%c", (double)ah, SYM_AH);
-    }
-}
-
-void AP_OSD_Screen::draw_aspd2(uint8_t x, uint8_t y)
-{
-    AP_Airspeed *airspeed = AP_Airspeed::get_singleton();
-    if (!airspeed) {
-        return;
-    }
-    float asp2 = airspeed->get_airspeed(1);
-    if (airspeed != nullptr && airspeed->healthy(1)) {
-        backend->write(x, y, false, "%c%4d%c", SYM_ASPD, (int)u_scale(SPEED, asp2), u_icon(SPEED));
-    } else {
-        backend->write(x, y, false, "%c ---%c", SYM_ASPD, u_icon(SPEED));
-    }
-}
-
->>>>>>> upstream/master
 #define DRAW_SETTING(n) if (n.enabled) draw_ ## n(n.xpos, n.ypos)
 
 void AP_OSD_Screen::draw(void)
