@@ -73,14 +73,6 @@ public:
 
     /// set_is_flying - accessor to the is_flying flag
     void set_is_flying(const bool is_flying) { _is_flying = is_flying; }
-<<<<<<< HEAD
-=======
-
-    // set_sink_rate - set vehicle sink rate
-    void set_sink_rate(float sink_rate) { _sink_rate = sink_rate; }
-
-    static const struct AP_Param::GroupInfo        var_info[];
->>>>>>> upstream/master
 
     // set_sink_rate - set vehicle sink rate
     void set_sink_rate(float sink_rate) { _sink_rate = sink_rate; }
@@ -106,11 +98,4 @@ private:
     bool        _is_flying:1;            // true if the vehicle is flying
     float       _sink_rate;              // vehicle sink rate in m/s
     uint32_t    _sink_time;              // time that the vehicle exceeded critical sink rate
-<<<<<<< HEAD
-=======
-};
-
-namespace AP {
-    AP_Parachute *parachute();
->>>>>>> upstream/master
 };

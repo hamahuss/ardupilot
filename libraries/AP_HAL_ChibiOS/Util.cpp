@@ -214,14 +214,11 @@ bool Util::flash_bootloader()
     const uint8_t max_attempts = 10;
     for (uint8_t i=0; i<max_attempts; i++) {
 <<<<<<< HEAD
-<<<<<<< HEAD
         void *context = hal.scheduler->disable_interrupts_save();
         const int32_t written = stm32_flash_write(addr, fw, fw_size);
         hal.scheduler->restore_interrupts(context);
         if (written == -1 || written < fw_size) {
 =======
-=======
->>>>>>> upstream/master
         bool ok = hal.flash->write(addr, fw, fw_size);
         if (!ok) {
 >>>>>>> upstream/master

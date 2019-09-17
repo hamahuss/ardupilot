@@ -161,12 +161,9 @@ bool SPIDevice::do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len)
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     bus.bouncebuffer_setup(send, len, recv, len);
 
 =======
-=======
->>>>>>> upstream/master
     bool ret = true;
 
 #if defined(HAL_SPI_USE_POLLED)
@@ -180,9 +177,6 @@ bool SPIDevice::do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len)
     bus.bouncebuffer_setup(send, len, recv, len);
     osalSysLock();
     hal.util->persistent_data.spi_count++;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     if (send == nullptr) {
         spiStartReceiveI(spi_devices[device_desc.bus].driver, len, recv);
@@ -210,9 +204,6 @@ bool SPIDevice::do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len)
 =======
     bus.bouncebuffer_finish(send, recv, len);
 #endif
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     set_chip_select(old_cs_forced);
     return ret;

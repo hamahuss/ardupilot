@@ -142,7 +142,6 @@ void AP_OSD_SITL::update_thread(void)
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     while (w->isOpen()) {
         sf::Event event;
         while (w->pollEvent(event)) {
@@ -173,8 +172,6 @@ void AP_OSD_SITL::update_thread(void)
                 s.scale(sf::Vector2f(char_scale,char_scale));
                 w->draw(s);
 =======
-=======
->>>>>>> upstream/master
     while (true) {
         {
             WITH_SEMAPHORE(AP::notify().sf_window_mutex);
@@ -183,9 +180,6 @@ void AP_OSD_SITL::update_thread(void)
                 if (event.type == sf::Event::Closed) {
                     w->close();
                 }
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
             }
             if (!w->isOpen()) {

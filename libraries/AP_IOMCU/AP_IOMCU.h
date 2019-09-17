@@ -214,10 +214,7 @@ private:
 
     bool crc_is_ok;
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
     bool detected_io_reset;
     bool initialised;
     bool is_chibios_backend;
@@ -225,9 +222,6 @@ private:
     uint32_t protocol_fail_count;
     uint32_t protocol_count;
     uint32_t last_iocmu_timestamp_ms;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
     // firmware upload

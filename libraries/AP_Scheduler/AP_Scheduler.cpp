@@ -307,9 +307,6 @@ void AP_Scheduler::Log_Write_Performance()
         internal_error_count : AP::internalerror().count(),
         spi_count        : pd.spi_count,
         i2c_count        : pd.i2c_count,
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     };
     DataFlash_Class::instance()->WriteCriticalBlock(&pkt, sizeof(pkt));

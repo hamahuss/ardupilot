@@ -7,10 +7,7 @@ import json
 import os
 import re
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 import fnmatch
 import gen_stable
 import subprocess
@@ -51,9 +48,6 @@ brand_map = {
     'OmnibusNanoV6' : ('Omnibus Nano V6', 'Airbot'),
     'speedybeef4' : ('SpeedyBee F4', 'SpeedyBee'),
 }
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
 class Firmware():
@@ -123,15 +117,12 @@ class ManifestGenerator():
         return m.group("sha")
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     def add_firmware_data_from_dir(self, dir, firmware_data, vehicletype, releasetype="dev"):
         '''accumulate additional information about firmwares from a directory'''
         platform_frame_regex = re.compile("(?P<board>PX4|navio|pxf)(-(?P<frame>.+))?")
         variant_firmware_regex = re.compile("[^-]+-(?P<variant>v\d+)[.px4]")
         for platformdir in os.listdir(dir):
 =======
-=======
->>>>>>> upstream/master
     def add_USB_IDs_PX4(self, firmware):
         '''add USB IDs to a .px4 firmware'''
         url = firmware['url']
@@ -265,9 +256,6 @@ class ManifestGenerator():
         for platformdir in dlist:
             if platformdir.startswith("."):
                 continue
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
             some_dir = os.path.join(dir, platformdir)
             if not os.path.isdir(some_dir):
@@ -277,7 +265,6 @@ class ManifestGenerator():
                 print("No file %s" % git_version_txt, file=sys.stderr)
                 continue
             try:
-<<<<<<< HEAD
 <<<<<<< HEAD
                 git_sha = self.git_sha_from_git_version(os.path.join(some_dir, "git-version.txt"))
             except Exception as e:
@@ -308,33 +295,12 @@ class ManifestGenerator():
             try:
                 firmware_version = open(firmware_version_file).read()
                 firmware_version = firmware_version.strip()
-=======
-                git_sha = self.git_sha_from_git_version(git_version_txt)
-            except Exception as ex:
-                print("Failed to parse %s" % git_version_txt, ex, file=sys.stderr)
-                continue
-
-            # we require a firmware-version.txt. These files have been added to
-            # old builds that didn't have them
-            firmware_version_file = os.path.join(some_dir,
-                                                 "firmware-version.txt")
-            if not os.path.exists(firmware_version_file):
-                print("Missing %s" % firmware_version_file, file=sys.stderr)
-                continue
-
-            try:
-                firmware_version = open(firmware_version_file).read()
-                firmware_version = firmware_version.strip()
->>>>>>> upstream/master
                 (version_numbers, release_type) = firmware_version.split("-")
             except ValueError:
                 print("malformed firmware-version.txt at (%s)" % (firmware_version_file,), file=sys.stderr)
                 continue
             except Exception as ex:
                 print("bad file %s" % firmware_version_file, file=sys.stderr)
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
                 # this exception is swallowed.... the current archive
                 # is incomplete.
@@ -344,7 +310,6 @@ class ManifestGenerator():
             platform_frame_regex = re.compile("(?P<board>.+)(-(?P<frame>heli)$)")
             m = platform_frame_regex.match(platformdir)
             if m is not None:
-<<<<<<< HEAD
 <<<<<<< HEAD
                 # the model type (quad/tri) is
                 # encoded in the platform name
@@ -361,12 +326,6 @@ class ManifestGenerator():
                 platform = m.group("board")  # e.g. navio
                 frame = "heli"
             else:
-=======
-                # This is a heli build
-                platform = m.group("board")  # e.g. navio
-                frame = "heli"
-            else:
->>>>>>> upstream/master
                 # Non-heli build
                 frame = vehicletype  # e.g. Plane
                 platform = platformdir  # e.g. apm2
@@ -390,7 +349,6 @@ class ManifestGenerator():
                     file_platform = platform
 
 <<<<<<< HEAD
-<<<<<<< HEAD
                 firmware_format = "".join(file.split(".")[-1:])
 
                 if not vehicletype in firmware_data:
@@ -409,17 +367,12 @@ class ManifestGenerator():
 
                 firmware = firmware_data[vehicletype][file_platform][git_sha][firmware_format][releasetype][frame]
 =======
-=======
->>>>>>> upstream/master
                 filepath = os.path.join(some_dir, filename)
                 firmware_format = self.firmware_format_for_filepath(filepath)
                 if firmware_format not in [ "ELF", "abin", "apj", "hex", "px4" ]:
                     print("Unknown firmware format (%s)" % firmware_format)
 
                 firmware = Firmware()
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
                 # translate from supplied "release type" into both a
@@ -450,7 +403,6 @@ class ManifestGenerator():
                 firmware["firmware-version"] = firmware_version
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     def xfirmwares_to_firmwares(self, xfirmwares):
         '''takes hash structure of firmwares, returns list of them'''
         if isinstance(xfirmwares, dict):
@@ -471,19 +423,12 @@ class ManifestGenerator():
 =======
                 firmware_data.append(firmware)
 
-=======
-                firmware_data.append(firmware)
-
->>>>>>> upstream/master
     def valid_release_type(self, tag):
         '''check for valid release type'''
         for r in RELEASE_TYPES:
             if fnmatch.fnmatch(tag, r):
                 return True
         return False
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
     def parse_fw_version(self, version):
@@ -504,9 +449,6 @@ class ManifestGenerator():
         # used to listdir basedir here, but since this is also a web
         # document root, there's a lot of other stuff accumulated...
         vehicletypes = FIRMWARE_TYPES
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
         for vehicletype in vehicletypes:
             try:
@@ -523,7 +465,6 @@ class ManifestGenerator():
                 # skip any non-directories (e.g. "files.html"):
                 if year_month_regex.match(firstlevel):
                     # this is a dated directory e.g. binaries/Copter/2016-02
-<<<<<<< HEAD
 <<<<<<< HEAD
                     year_month_path = os.path.join(basedir, vehicletype, firstlevel)
                     for fulldate in os.listdir(year_month_path):
@@ -544,8 +485,6 @@ class ManifestGenerator():
 
         firmwares = self.xfirmwares_to_firmwares(xfirmwares)
 =======
-=======
->>>>>>> upstream/master
                     # we do not include dated directories in the manifest ATM:
                     continue
 
@@ -564,9 +503,6 @@ class ManifestGenerator():
                                                 firmwares,
                                                 vehicletype,
                                                 releasetype=tag)
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
         # convert from ardupilot-naming conventions to common JSON format:
@@ -579,11 +515,7 @@ class ManifestGenerator():
             some_json = dict({
                 "mav-autopilot": "ARDUPILOTMEGA",
 <<<<<<< HEAD
-<<<<<<< HEAD
 #                "vehicletype": firmware["vehicletype"],
-=======
-                "vehicletype": firmware["vehicletype"],
->>>>>>> upstream/master
 =======
                 "vehicletype": firmware["vehicletype"],
 >>>>>>> upstream/master
@@ -597,12 +529,9 @@ class ManifestGenerator():
             })
             if firmware["firmware-version"]:
 <<<<<<< HEAD
-<<<<<<< HEAD
                 (major,minor,patch,release_type) = self.parse_fw_version(firmware["firmware-version"])
                 some_json["mav-firmware-version"] = ".".join([major,minor,patch])
 =======
-=======
->>>>>>> upstream/master
                 try:
                     (major, minor, patch, release_type) = self.parse_fw_version(
                         firmware["firmware-version"])
@@ -640,10 +569,6 @@ class ManifestGenerator():
 def usage():
     return '''Usage:
 generate-manifest.py basedir'''
-<<<<<<< HEAD
-=======
-
->>>>>>> upstream/master
 
 if __name__ == "__main__":
     import argparse

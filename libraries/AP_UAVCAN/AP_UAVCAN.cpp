@@ -531,7 +531,6 @@ bool AP_UAVCAN::try_init(void)
     AP_Airspeed_UAVCAN::subscribe_msgs(this);
     AP_OpticalFlow_HereFlow::subscribe_msgs(this);
     AP_RangeFinder_UAVCAN::subscribe_msgs(this);
-<<<<<<< HEAD
 >>>>>>> upstream/master
 
     uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength2> *magnetic2;
@@ -541,8 +540,6 @@ bool AP_UAVCAN::try_init(void)
         debug_uavcan(1, "UAVCAN Compass for multiple mags subscriber start problem\n\r");
         return false;
     }
-=======
->>>>>>> upstream/master
 
     uavcan::Subscriber<uavcan::equipment::air_data::StaticPressure> *air_data_sp;
     air_data_sp = new uavcan::Subscriber<uavcan::equipment::air_data::StaticPressure>(*node);

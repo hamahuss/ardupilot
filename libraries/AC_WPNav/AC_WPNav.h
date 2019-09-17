@@ -55,7 +55,6 @@ public:
     void set_rangefinder_alt(bool use, bool healthy, float alt_cm) { _rangefinder_available = use; _rangefinder_healthy = healthy; _rangefinder_alt_cm = alt_cm; }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     ///
     /// brake controller
     ///
@@ -64,10 +63,6 @@ public:
     ///
     /// update_brake - run the brake controller - should be called at 400hz
     void update_brake(float ekfGndSpdLimit, float ekfNavVelGainScaler);
-=======
-    // return true if range finder may be used for terrain following
-    bool rangefinder_used() const { return _rangefinder_use && _rangefinder_healthy; }
->>>>>>> upstream/master
 =======
     // return true if range finder may be used for terrain following
     bool rangefinder_used() const { return _rangefinder_use && _rangefinder_healthy; }
@@ -284,9 +279,6 @@ protected:
     AC_Avoid                *_avoid = nullptr;
 =======
     AP_Terrain              *_terrain;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
     // parameters

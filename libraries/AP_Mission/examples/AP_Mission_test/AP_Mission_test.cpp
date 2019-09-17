@@ -14,9 +14,6 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_AHRS/AP_AHRS_DCM.h>
 #include <GCS_MAVLink/GCS_Dummy.h>
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
 const AP_HAL::HAL& hal = AP_HAL::get_HAL();

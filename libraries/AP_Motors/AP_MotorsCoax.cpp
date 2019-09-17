@@ -79,11 +79,7 @@ void AP_MotorsCoax::output_to_motors()
             rc_write(AP_MOTORS_MOT_6, get_pwm_output_min());
             break;
 <<<<<<< HEAD
-<<<<<<< HEAD
         case SPIN_WHEN_ARMED:
-=======
-        case SpoolState::GROUND_IDLE:
->>>>>>> upstream/master
 =======
         case SpoolState::GROUND_IDLE:
 >>>>>>> upstream/master

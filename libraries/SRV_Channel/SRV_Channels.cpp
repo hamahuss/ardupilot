@@ -43,12 +43,7 @@ uint16_t SRV_Channels::disabled_mask;
 bool SRV_Channels::disabled_passthrough;
 bool SRV_Channels::initialised;
 <<<<<<< HEAD
-<<<<<<< HEAD
 Bitmask SRV_Channels::function_mask{SRV_Channel::k_nr_aux_servo_functions};
-=======
-bool SRV_Channels::emergency_stop;
-Bitmask<SRV_Channel::k_nr_aux_servo_functions> SRV_Channels::function_mask;
->>>>>>> upstream/master
 =======
 bool SRV_Channels::emergency_stop;
 Bitmask<SRV_Channel::k_nr_aux_servo_functions> SRV_Channels::function_mask;

@@ -19,10 +19,7 @@
 #include "hwdef/common/spi_hook.h"
 #include <AP_BoardConfig/AP_BoardConfig.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include "Semaphores.h"
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 
@@ -102,11 +99,7 @@ bool sdcard_init()
     if (!device) {
         printf("No sdcard SPI device found\n");
 <<<<<<< HEAD
-<<<<<<< HEAD
         sem.give();
-=======
-        sdcard_running = false;
->>>>>>> upstream/master
 =======
         sdcard_running = false;
 >>>>>>> upstream/master
@@ -147,11 +140,7 @@ bool sdcard_init()
     }
 #endif
 <<<<<<< HEAD
-<<<<<<< HEAD
     sem.give();
-=======
-    sdcard_running = false;
->>>>>>> upstream/master
 =======
     sdcard_running = false;
 >>>>>>> upstream/master

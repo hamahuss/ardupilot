@@ -64,13 +64,8 @@ public:
     AP_GPS &operator=(const AP_GPS&) = delete;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     static AP_GPS &gps() {
         return *_singleton;
-=======
-    static AP_GPS *get_singleton() {
-        return _singleton;
->>>>>>> upstream/master
 =======
     static AP_GPS *get_singleton() {
         return _singleton;

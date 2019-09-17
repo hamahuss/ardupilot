@@ -529,10 +529,7 @@ bool AP_Mission::read_cmd_from_storage(uint16_t index, Mission_Command& cmd) con
         uint16_t pos_in_storage = 4 + (index * AP_MISSION_EEPROM_COMMAND_SIZE);
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
         PackedContent packed_content {};
 
 >>>>>>> upstream/master
@@ -566,10 +563,7 @@ bool AP_Mission::write_cmd_to_storage(uint16_t index, Mission_Command& cmd)
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
     PackedContent packed {};
     if (stored_in_location(cmd.id)) {
         // Location is not PACKED; field-wise copy it:
@@ -1849,9 +1843,6 @@ const char *AP_Mission::Mission_Command::type() const {
         return "LoitTurns";
     case MAV_CMD_NAV_LOITER_TO_ALT:
         return "LoitAltitude";
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     case MAV_CMD_NAV_SET_YAW_SPEED:
         return "SetYawSpd";
@@ -1922,9 +1913,6 @@ const char *AP_Mission::Mission_Command::type() const {
     case MAV_CMD_DO_PARACHUTE:
         return "Parachute";
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     default:
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL

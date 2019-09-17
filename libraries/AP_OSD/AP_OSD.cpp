@@ -30,9 +30,6 @@
 =======
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_BattMonitor/AP_BattMonitor.h>
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 #include <utility>
 
@@ -184,9 +181,6 @@ AP_OSD::AP_OSD()
     osd_type.set_default(HAL_OSD_TYPE_DEFAULT);
 #endif
     previous_pwm_screen = -1;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 }
 
@@ -277,51 +271,6 @@ void AP_OSD::update_current_screen()
         was_failsafe = false;
     }
     
-<<<<<<< HEAD
-=======
-    // maximum altitude
-    float alt;
-    AP::ahrs().get_relative_position_D_home(alt);
-    alt = -alt;
-    max_alt_m = fmaxf(max_alt_m, alt);
-    // maximum current
-    AP_BattMonitor &battery = AP::battery();
-    float amps = battery.current_amps();
-    max_current_a = fmaxf(max_current_a, amps);
-}
-
-
-//Thanks to minimosd authors for the multiple osd screen idea
-void AP_OSD::update_current_screen()
-{
-    // Switch on ARM/DISARM event
-    if (AP_Notify::flags.armed){
-        if (!was_armed && arm_scr > 0 && arm_scr <= AP_OSD_NUM_SCREENS && screen[arm_scr-1].enabled){
-            current_screen = arm_scr-1;
-        }
-        was_armed = true;
-    } else if (was_armed) {
-        if (disarm_scr > 0 && disarm_scr <= AP_OSD_NUM_SCREENS && screen[disarm_scr-1].enabled){
-            current_screen = disarm_scr-1;
-        } 
-        was_armed = false;
-    }
-    
-    // Switch on failsafe event
-    if (AP_Notify::flags.failsafe_radio || AP_Notify::flags.failsafe_battery) {
-        if (!was_failsafe && failsafe_scr > 0 && failsafe_scr <= AP_OSD_NUM_SCREENS && screen[failsafe_scr-1].enabled){
-            pre_fs_screen = current_screen;
-            current_screen = failsafe_scr-1;
-        }
-        was_failsafe = true;
-    } else if (was_failsafe) {
-        if (screen[pre_fs_screen].enabled){
-            current_screen = pre_fs_screen;
-        } 
-        was_failsafe = false;
-    }
-    
->>>>>>> upstream/master
     if (rc_channel == 0) {
         return;
     }

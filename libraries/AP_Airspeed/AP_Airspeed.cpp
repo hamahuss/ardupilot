@@ -438,20 +438,12 @@ void AP_Airspeed::Log_Airspeed()
     for (uint8_t i=0; i<AIRSPEED_MAX_SENSORS; i++) {
         if (!enabled(i)) {
             continue;
-<<<<<<< HEAD
         }
         float temperature;
         if (!get_temperature(i, temperature)) {
             temperature = 0;
 >>>>>>> upstream/master
         }
-=======
-        }
-        float temperature;
-        if (!get_temperature(i, temperature)) {
-            temperature = 0;
-        }
->>>>>>> upstream/master
         struct log_AIRSPEED pkt = {
             LOG_PACKET_HEADER_INIT(i==0?LOG_ARSP_MSG:LOG_ASP2_MSG),
             time_us       : now,
@@ -511,10 +503,7 @@ bool AP_Airspeed::all_healthy(void) const
 AP_Airspeed *AP_Airspeed::_singleton;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 namespace AP {
 
 AP_Airspeed *airspeed()
@@ -523,7 +512,4 @@ AP_Airspeed *airspeed()
 }
 
 };
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master

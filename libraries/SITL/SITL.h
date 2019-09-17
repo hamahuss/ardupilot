@@ -230,9 +230,6 @@ public:
 
     AP_Int8 gnd_behav;
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     uint16_t irlock_port;
 

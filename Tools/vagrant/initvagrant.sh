@@ -30,11 +30,7 @@ usermod -a -G dialout $VAGRANT_USER
 
 echo "calling pre-reqs script..."
 <<<<<<< HEAD
-<<<<<<< HEAD
 /vagrant/Tools/scripts/install-prereqs-ubuntu.sh -y
-=======
-sudo -H -u $VAGRANT_USER /vagrant/Tools/environment_install/install-prereqs-ubuntu.sh -y
->>>>>>> upstream/master
 =======
 sudo -H -u $VAGRANT_USER /vagrant/Tools/environment_install/install-prereqs-ubuntu.sh -y
 >>>>>>> upstream/master

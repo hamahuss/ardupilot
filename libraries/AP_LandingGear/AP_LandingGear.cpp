@@ -33,11 +33,8 @@ const AP_Param::GroupInfo AP_LandingGear::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("STARTUP", 2, AP_LandingGear, _startup_behaviour, (uint8_t)AP_LandingGear::LandingGear_Startup_WaitForPilotInput),
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 =======
-=======
->>>>>>> upstream/master
 
     // @Param: DEPLOY_PIN
     // @DisplayName: Chassis deployment feedback pin
@@ -87,9 +84,6 @@ const AP_Param::GroupInfo AP_LandingGear::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("RETRACT_ALT", 8, AP_LandingGear, _retract_alt, 0),
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     AP_GROUPEND
 };
@@ -113,9 +107,6 @@ void AP_LandingGear::init()
         log_wow_state(wow_state_current);
     }
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     switch ((enum LandingGearStartupBehaviour)_startup_behaviour.get()) {
         default:

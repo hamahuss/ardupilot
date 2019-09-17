@@ -31,9 +31,6 @@
 #include "SIM_Parachute.h"
 #include "SIM_Precland.h"
 #include <Filter/Filter.h>
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
 namespace SITL {
@@ -188,13 +185,8 @@ protected:
     // allow for AHRS_ORIENTATION
     AP_Int8 *ahrs_orientation;
 <<<<<<< HEAD
-<<<<<<< HEAD
     
     enum {
-=======
-
-    enum GroundBehaviour {
->>>>>>> upstream/master
 =======
 
     enum GroundBehaviour {

@@ -456,12 +456,9 @@ void AP_InertialSensor_Backend::update_gyro(uint8_t instance)
         _last_gyro_filter_hz[instance] = _gyro_filter_cutoff();
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
 
     _sem->give();
 =======
-=======
->>>>>>> upstream/master
     // possily update the notch filter parameters
     if (_last_notch_center_freq_hz[instance] != _gyro_notch_center_freq_hz() ||
         _last_notch_bandwidth_hz[instance] != _gyro_notch_bandwidth_hz() ||
@@ -471,9 +468,6 @@ void AP_InertialSensor_Backend::update_gyro(uint8_t instance)
         _last_notch_bandwidth_hz[instance] = _gyro_notch_bandwidth_hz();
         _last_notch_attenuation_dB[instance] = _gyro_notch_attenuation_dB();
     }
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 }
 

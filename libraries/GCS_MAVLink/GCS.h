@@ -12,7 +12,6 @@
 #include "MAVLink_routing.h"
 #include <AP_Avoidance/AP_Avoidance.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include <AP_Proximity/AP_Proximity.h>
 #include <AP_HAL/utility/RingBuffer.h>
 =======
@@ -23,10 +22,6 @@
 #include <AP_VisualOdom/AP_VisualOdom.h>
 #include <AP_Common/AP_FWVersion.h>
 =======
-=======
-#include <AP_Frsky_Telem/AP_Frsky_Telem.h>
-#include <AP_AdvancedFailsafe/AP_AdvancedFailsafe.h>
->>>>>>> upstream/master
 #include <AP_RTC/JitterCorrection.h>
 #include <AP_Common/Bitmask.h>
 #include <AP_Devo_Telem/AP_Devo_Telem.h>
@@ -68,12 +63,7 @@ enum ap_message : uint8_t {
     MSG_SYSTEM_TIME,
     MSG_SERVO_OUT,
 <<<<<<< HEAD
-<<<<<<< HEAD
     MSG_NEXT_WAYPOINT,
-=======
-    MSG_NEXT_MISSION_REQUEST_WAYPOINTS,
-    MSG_NEXT_MISSION_REQUEST_RALLY,
->>>>>>> upstream/master
 =======
     MSG_NEXT_MISSION_REQUEST_WAYPOINTS,
     MSG_NEXT_MISSION_REQUEST_RALLY,
@@ -309,15 +299,12 @@ public:
     void        setup_uart(uint8_t instance);
     void        send_message(enum ap_message id);
 <<<<<<< HEAD
-<<<<<<< HEAD
     void        send_text(MAV_SEVERITY severity, const char *fmt, ...);
     void        send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list);
     void        data_stream_send();
     void        queued_param_send();
     void        queued_waypoint_send();
 =======
-=======
->>>>>>> upstream/master
     void        send_text(MAV_SEVERITY severity, const char *fmt, ...) const;
     void        send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list) const;
     void        queued_param_send();
@@ -338,9 +325,6 @@ public:
 
     static const MAV_MISSION_TYPE supported_mission_types[2];
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     // packetReceived is called on any successful decode of a mavlink message
     virtual void packetReceived(const mavlink_status_t &status,
@@ -529,15 +513,10 @@ protected:
     virtual MAV_STATE system_status() const = 0;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     bool            waypoint_receiving; // currently receiving
     // the following two variables are only here because of Tracker
     uint16_t        waypoint_request_i; // request index
     uint16_t        waypoint_request_last; // last request index
-=======
-    virtual MAV_VTOL_STATE vtol_state() const { return MAV_VTOL_STATE_UNDEFINED; }
-    virtual MAV_LANDED_STATE landed_state() const { return MAV_LANDED_STATE_UNDEFINED; }
->>>>>>> upstream/master
 =======
     virtual MAV_VTOL_STATE vtol_state() const { return MAV_VTOL_STATE_UNDEFINED; }
     virtual MAV_LANDED_STATE landed_state() const { return MAV_LANDED_STATE_UNDEFINED; }
@@ -575,9 +554,6 @@ protected:
     void handle_mission_request(mavlink_message_t *msg);
     void handle_mission_request_int(mavlink_message_t *msg);
     void handle_mission_clear_all(const mavlink_message_t *msg);
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     virtual void handle_mission_set_current(AP_Mission &mission, mavlink_message_t *msg);
     void handle_mission_count(const mavlink_message_t *msg);
@@ -659,8 +635,6 @@ protected:
 
     void handle_optical_flow(const mavlink_message_t* msg);
 
-    void handle_optical_flow(const mavlink_message_t* msg);
-
     // vehicle-overridable message send function
     virtual bool try_send_message(enum ap_message id);
 
@@ -685,10 +659,7 @@ protected:
     static constexpr const float magic_force_disarm_value = 21196.0f;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
     virtual bool allow_disarm() const { return true; }
 
     void manual_override(RC_Channel *c, int16_t value_in, uint16_t offset, float scaler, const uint32_t tnow, bool reversed = false);
@@ -735,7 +706,6 @@ private:
     uint16_t                    packet_drops;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     // waypoints
     uint16_t        waypoint_dest_sysid; // where to send requests
     uint16_t        waypoint_dest_compid; // "
@@ -750,8 +720,6 @@ private:
     // number of extra ticks to add to slow things down for the radio
     uint8_t         stream_slowdown;
 =======
-=======
->>>>>>> upstream/master
     // number of extra ms to add to slow things down for the radio
     uint16_t         stream_slowdown_ms;
 >>>>>>> upstream/master
@@ -861,14 +829,11 @@ private:
     static MAVLink_routing routing;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     // pointer to static frsky_telem for queueing of text messages
     static AP_Frsky_Telem *frsky_telemetry_p;
  
     static const AP_SerialManager *serialmanager_p;
 
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     struct pending_param_request {
@@ -999,9 +964,6 @@ public:
 
     void send_to_active_channels(uint32_t msgid, const char *pkt);
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     void send_text(MAV_SEVERITY severity, const char *fmt, ...);
     void send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list);
@@ -1021,7 +983,6 @@ public:
                               float param_value);
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     // push send_message() messages and queued statustext messages etc:
     void retry_deferred();
     void data_stream_send();
@@ -1034,8 +995,6 @@ public:
     void set_out_of_time(bool val) {
         _out_of_time = val;
 =======
-=======
->>>>>>> upstream/master
     static MissionItemProtocol_Waypoints *_missionitemprotocol_waypoints;
     static MissionItemProtocol_Rally *_missionitemprotocol_rally;
     MissionItemProtocol *get_prot_for_mission_type(const MAV_MISSION_TYPE mission_type) const;
@@ -1051,7 +1010,6 @@ public:
     // control loop over communications
     virtual uint16_t min_loop_time_remaining_for_message_send_us() const {
         return 200;
-<<<<<<< HEAD
 >>>>>>> upstream/master
     }
     bool out_of_time() const;
@@ -1062,19 +1020,13 @@ public:
      */
     void set_dataflash(DataFlash_Class *dataflash) {
         dataflash_p = dataflash;
-=======
->>>>>>> upstream/master
     }
-    bool out_of_time() const;
 
     // pointer to static dataflash for logging of text messages
     DataFlash_Class *dataflash_p;
 =======
     // frsky backend
     AP_Frsky_Telem *frsky;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
 
@@ -1134,12 +1086,9 @@ private:
     ObjectArray<statustext_t> _statustext_queue{_status_capacity};
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     // true if we are running short on time in our main loop
     bool _out_of_time;
 =======
-=======
->>>>>>> upstream/master
     // true if we have already allocated protocol objects:
     bool initialised_missionitemprotocol_objects;
 

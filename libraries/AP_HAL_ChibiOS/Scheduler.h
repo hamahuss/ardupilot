@@ -78,9 +78,6 @@
 #ifndef MONITOR_THD_WA_SIZE
 #define MONITOR_THD_WA_SIZE 512
 #endif
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
 /* Scheduler implementation: */
@@ -101,12 +98,9 @@ public:
     void     reboot(bool hold_in_bootloader) override;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     bool     in_main_thread() const override;
     void     system_initialized();
 =======
-=======
->>>>>>> upstream/master
     bool     in_main_thread() const override { return get_main_thread() == chThdGetSelfX(); }
 
     void     system_initialized() override;
@@ -146,12 +140,6 @@ public:
     // pat the watchdog
     void watchdog_pat(void);
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
-    // pat the watchdog
-    void watchdog_pat(void);
-
 >>>>>>> upstream/master
 private:
     bool _initialized;
@@ -160,13 +148,7 @@ private:
     bool _called_boost;
     bool _priority_boosted;
 <<<<<<< HEAD
-<<<<<<< HEAD
     
-=======
-    uint32_t expect_delay_start;
-    uint32_t expect_delay_length;
-    uint32_t expect_delay_nesting;
->>>>>>> upstream/master
 =======
     uint32_t expect_delay_start;
     uint32_t expect_delay_length;
@@ -187,13 +169,10 @@ private:
     thread_t* _io_thread_ctx;
     thread_t* _storage_thread_ctx;
 <<<<<<< HEAD
-<<<<<<< HEAD
 #if HAL_WITH_UAVCAN
     thread_t* _uavcan_thread_ctx;
 #endif
 =======
-=======
->>>>>>> upstream/master
     thread_t* _monitor_thread_ctx;
 
 >>>>>>> upstream/master
@@ -207,13 +186,10 @@ private:
     static void _storage_thread(void *arg);
     static void _uart_thread(void *arg);
 <<<<<<< HEAD
-<<<<<<< HEAD
 #if HAL_WITH_UAVCAN
     static void _uavcan_thread(void *arg);
 #endif
 =======
-=======
->>>>>>> upstream/master
     static void _monitor_thread(void *arg);
 
 >>>>>>> upstream/master

@@ -29,9 +29,6 @@ const MAV_MISSION_TYPE GCS_MAVLINK::supported_mission_types[] = {
     MAV_MISSION_TYPE_RALLY,
 };
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 /*
   send a text message to all GCS
@@ -83,7 +80,6 @@ void GCS::send_named_float(const char *name, float value) const
 
     gcs().send_to_active_channels(MAVLINK_MSG_ID_NAMED_VALUE_FLOAT,
                                   (const char *)&packet);
-<<<<<<< HEAD
 }
 
 void GCS::send_home() const
@@ -94,8 +90,6 @@ void GCS::send_home() const
 void GCS::send_ekf_origin() const
 {
     FOR_EACH_ACTIVE_CHANNEL(send_ekf_origin());
-=======
->>>>>>> upstream/master
 }
 
 /*
@@ -118,12 +112,9 @@ bool GCS::install_alternative_protocol(mavlink_channel_t c, GCS_MAVLINK::protoco
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 
 #undef FOR_EACH_ACTIVE_CHANNEL
 =======
-=======
->>>>>>> upstream/master
 void GCS::update_sensor_status_flags()
 {
     control_sensors_present = 0;
@@ -226,7 +217,4 @@ bool GCS::out_of_time() const
 
     return true;
 }
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master

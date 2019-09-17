@@ -34,13 +34,10 @@ public:
     virtual void handle_msg(mavlink_message_t *msg) { return; }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     void update_pre_arm_check();
 
     enum Rotation orientation() const { return (Rotation)state.orientation.get(); }
 =======
-=======
->>>>>>> upstream/master
     enum Rotation orientation() const { return (Rotation)params.orientation.get(); }
 >>>>>>> upstream/master
     uint16_t distance_cm() const { return state.distance_cm; }
@@ -88,9 +85,6 @@ protected:
 
     // semaphore for access to shared frontend data
     AP_HAL::Semaphore *_sem;    
-
-    //Type Backend initialised with
-    RangeFinder::RangeFinder_Type _backend_type;
 
     //Type Backend initialised with
     RangeFinder::RangeFinder_Type _backend_type;

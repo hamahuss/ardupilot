@@ -258,13 +258,8 @@ public:
     ///     callers should use get_roll() and get_pitch() methods and sent to the attitude controller
     ///     throttle targets will be sent directly to the motors
 <<<<<<< HEAD
-<<<<<<< HEAD
     void update_vel_controller_xy(float ekfNavVelGainScaler);
     
-=======
-    void update_vel_controller_xy();
-
->>>>>>> upstream/master
 =======
     void update_vel_controller_xy();
 

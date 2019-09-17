@@ -114,11 +114,7 @@ for FrSky SPort Passthrough
 class AP_Frsky_Telem {
 public:
 <<<<<<< HEAD
-<<<<<<< HEAD
     AP_Frsky_Telem(AP_AHRS &ahrs, const AP_BattMonitor &battery, const RangeFinder &rng);
-=======
-    AP_Frsky_Telem();
->>>>>>> upstream/master
 =======
     AP_Frsky_Telem();
 >>>>>>> upstream/master
@@ -129,13 +125,9 @@ public:
 
     // init - perform required initialisation
 <<<<<<< HEAD
-<<<<<<< HEAD
     void init(const AP_SerialManager &serial_manager,
               const uint8_t mav_type,
               const uint32_t *ap_valuep = nullptr);
-=======
-    bool init();
->>>>>>> upstream/master
 =======
     bool init();
 >>>>>>> upstream/master
@@ -158,13 +150,10 @@ public:
     void update_sensor_status_flags(uint32_t error_mask) { _ap.sensor_status_flags = error_mask; }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     static ObjectArray<mavlink_statustext_t> _statustext_queue;
 
     void set_frame_string(const char *string) { _frame_string = string; }
 
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 private:

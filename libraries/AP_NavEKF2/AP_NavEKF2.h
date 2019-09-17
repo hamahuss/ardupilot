@@ -415,9 +415,6 @@ private:
 #define FLOW_USE_NONE    0
 #define FLOW_USE_NAV     1
 #define FLOW_USE_TERRAIN 2
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
     // Tuning parameters

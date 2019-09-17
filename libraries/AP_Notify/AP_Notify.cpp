@@ -322,9 +322,6 @@ void AP_Notify::add_backends(void)
 #ifdef WITH_SITL_RGBLED
     ADD_BACKEND(new SITL_SFML_LED());
 #endif
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 #endif // Noise makers
 

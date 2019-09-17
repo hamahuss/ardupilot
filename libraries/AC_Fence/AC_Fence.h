@@ -185,11 +185,4 @@ private:
     bool            _boundary_create_attempted = false; // true if we have attempted to create the boundary array
     bool            _boundary_valid = false;        // true if boundary forms a closed polygon
     uint32_t        _boundary_update_ms;            // system time of last update to the boundary
-<<<<<<< HEAD
-=======
-};
-
-namespace AP {
-    AC_Fence *fence();
->>>>>>> upstream/master
 };

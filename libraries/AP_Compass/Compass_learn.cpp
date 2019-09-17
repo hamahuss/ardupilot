@@ -38,7 +38,6 @@ void CompassLearn::update(void)
         }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
         // setup the expected earth field at this location
         float declination_deg=0, inclination_deg=0, intensity_gauss=0;
         AP_Declination::get_mag_field_ef(loc.lat*1.0e-7, loc.lng*1.0e-7, intensity_gauss, declination_deg, inclination_deg);
@@ -53,16 +52,11 @@ void CompassLearn::update(void)
         sem = hal.util->new_semaphore();
 
 =======
-=======
->>>>>>> upstream/master
         // remember primary mag
         primary_mag = compass.get_primary();
 
         // setup the expected earth field in mGauss at this location
         mag_ef = AP_Declination::get_earth_field_ga(loc) * 1000;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
         have_earth_field = true;
 

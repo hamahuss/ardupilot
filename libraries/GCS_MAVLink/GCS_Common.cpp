@@ -17,10 +17,7 @@
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_HAL/AP_HAL.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 #include <AP_Arming/AP_Arming.h>
 #include <AP_InternalError/AP_InternalError.h>
 #include <AP_Logger/AP_Logger.h>
@@ -33,10 +30,7 @@
 #include <AP_Gripper/AP_Gripper.h>
 #include <AP_BLHeli/AP_BLHeli.h>
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 #include <AP_RSSI/AP_RSSI.h>
 #include <AP_RTC/AP_RTC.h>
 #include <AP_Scheduler/AP_Scheduler.h>
@@ -46,9 +40,6 @@
 #include <AP_VisualOdom/AP_VisualOdom.h>
 #include <AP_OpticalFlow/OpticalFlow.h>
 #include <AP_Baro/AP_Baro.h>
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
 #include "GCS.h"
@@ -86,9 +77,6 @@
 #include <AP_BattMonitor/AP_BattMonitor.h>
 #include <AP_GPS/AP_GPS.h>
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 extern const AP_HAL::HAL& hal;
 
@@ -211,12 +199,8 @@ GCS_MAVLINK::setup_uart(uint8_t instance)
  * handling code
  */
 <<<<<<< HEAD
-<<<<<<< HEAD
 void
 GCS_MAVLINK::queued_waypoint_send()
-=======
-void MissionItemProtocol::queued_request_send()
->>>>>>> upstream/master
 =======
 void MissionItemProtocol::queued_request_send()
 >>>>>>> upstream/master
@@ -263,30 +247,7 @@ void MissionItemProtocol::update()
     if (tnow - timelast_request_ms > wp_recv_timeout_ms) {
         timelast_request_ms = tnow;
         link->send_message(next_item_ap_message_id());
-<<<<<<< HEAD
-=======
     }
-}
-
-void MissionItemProtocol::send_mission_ack(const mavlink_message_t &msg,
-                                           MAV_MISSION_RESULT result) const
-{
-    if (link == nullptr) {
-        AP::internalerror().error(AP_InternalError::error_t::gcs_bad_missionprotocol_link);
-        return;
->>>>>>> upstream/master
-    }
-    send_mission_ack(*link, msg, result);
-}
-void MissionItemProtocol::send_mission_ack(const GCS_MAVLINK &_link,
-                                           const mavlink_message_t &msg,
-                                           MAV_MISSION_RESULT result) const
-{
-    mavlink_msg_mission_ack_send(_link.get_chan(),
-                                 msg.sysid,
-                                 msg.compid,
-                                 result,
-                                 mission_type());
 }
 
 void MissionItemProtocol::send_mission_ack(const mavlink_message_t &msg,
@@ -586,7 +547,6 @@ void MissionItemProtocol::handle_mission_request_int(const GCS_MAVLINK &_link,
     ret_packet.mission_type = packet.mission_type;
 
     const MAV_MISSION_RESULT result_code = get_item(_link, msg, packet, ret_packet);
-<<<<<<< HEAD
 
     if (result_code != MAV_MISSION_ACCEPTED) {
         // send failure message
@@ -594,15 +554,6 @@ void MissionItemProtocol::handle_mission_request_int(const GCS_MAVLINK &_link,
         return;
     }
 
-=======
-
-    if (result_code != MAV_MISSION_ACCEPTED) {
-        // send failure message
-        send_mission_ack(_link, msg, result_code);
-        return;
-    }
-
->>>>>>> upstream/master
     // we already have a filled structure, use it in place of _send:
     _mav_finalize_message_chan_send(_link.get_chan(),
                                     MAVLINK_MSG_ID_MISSION_ITEM_INT,
@@ -772,7 +723,6 @@ void MissionItemProtocol::init_send_requests(GCS_MAVLINK &_link,
     dest_compid = msg.compid;     // record component id of GCS who wants to upload the mission
 
     link = &_link;
-<<<<<<< HEAD
 
     timelast_request_ms = AP_HAL::millis();
     link->send_message(next_item_ap_message_id());
@@ -812,47 +762,6 @@ void MissionItemProtocol::handle_mission_count(
     init_send_requests(_link, msg, 0, packet.count-1);
 }
 
-=======
-
-    timelast_request_ms = AP_HAL::millis();
-    link->send_message(next_item_ap_message_id());
-}
-
-void MissionItemProtocol::handle_mission_count(
-    GCS_MAVLINK &_link,
-    const mavlink_mission_count_t &packet,
-    const mavlink_message_t &msg)
-{
-    if (receiving) {
-        // someone is already uploading a mission.  If we are
-        // receiving from someone then we will allow them to restart -
-        // otherwise we deny.
-        if (msg.sysid != dest_sysid || msg.compid != dest_compid) {
-            // reject another upload until
-            send_mission_ack(_link, msg, MAV_MISSION_DENIED);
-            return;
-        }
-    }
-
-    if (packet.count > max_items()) {
-        send_mission_ack(_link, msg, MAV_MISSION_NO_SPACE);
-        return;
-    }
-
-    truncate(packet);
-
-    if (packet.count == 0) {
-        // no requests to send...
-        send_mission_ack(_link, msg, MAV_MISSION_ACCEPTED);
-        complete(_link);
-        return;
-    }
-
-    // start waypoint receiving
-    init_send_requests(_link, msg, 0, packet.count-1);
-}
-
->>>>>>> upstream/master
 void MissionItemProtocol_Waypoints::truncate(const mavlink_mission_count_t &packet)
 {
     // new mission arriving, truncate mission to be the same length
@@ -918,32 +827,9 @@ void GCS_MAVLINK::handle_mission_write_partial_list(const mavlink_message_t *msg
     MissionItemProtocol *use_prot = gcs().get_prot_for_mission_type((MAV_MISSION_TYPE)packet.mission_type);
     if (use_prot == nullptr) {
         send_mission_ack(*msg, (MAV_MISSION_TYPE)packet.mission_type, MAV_MISSION_UNSUPPORTED);
-<<<<<<< HEAD
         return;
     }
     use_prot->handle_mission_write_partial_list(*this, *msg, packet);
-=======
-        return;
-    }
-    use_prot->handle_mission_write_partial_list(*this, *msg, packet);
-}
-
-void MissionItemProtocol::handle_mission_write_partial_list(GCS_MAVLINK &_link,
-                                                            const mavlink_message_t &msg,
-                                                            const mavlink_mission_write_partial_list_t &packet)
-{
-
-    // start waypoint receiving
-    if ((unsigned)packet.start_index > item_count() ||
-        (unsigned)packet.end_index > item_count() ||
-        packet.end_index < packet.start_index) {
-        gcs().send_text(MAV_SEVERITY_WARNING,"Flight plan update rejected"); // FIXME: Remove this anytime after 2020-01-22
-        send_mission_ack(_link, msg, MAV_MISSION_ERROR);
-        return;
-    }
-
-    init_send_requests(_link, msg, packet.start_index, packet.end_index);
->>>>>>> upstream/master
 }
 
 void MissionItemProtocol::handle_mission_write_partial_list(GCS_MAVLINK &_link,
@@ -976,10 +862,7 @@ void GCS_MAVLINK::handle_gimbal_report(AP_Mount &mount, mavlink_message_t *msg) 
     mount.handle_gimbal_report(chan, msg);
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> upstream/master
 void GCS_MAVLINK::send_textv(MAV_SEVERITY severity, const char *fmt, va_list arg_list) const
 {
     char text[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1] {};
@@ -1201,7 +1084,6 @@ void MissionItemProtocol::handle_mission_item(const mavlink_message_t &msg, cons
         queued_request_send();
     } else {
 <<<<<<< HEAD
-<<<<<<< HEAD
         waypoint_timelast_request = AP_HAL::millis();
         // if we have enough space, then send the next WP immediately
         if (HAVE_PAYLOAD_SPACE(chan, MISSION_ITEM)) {
@@ -1209,9 +1091,6 @@ void MissionItemProtocol::handle_mission_item(const mavlink_message_t &msg, cons
         } else {
             send_message(MSG_NEXT_WAYPOINT);
         }
-=======
-        link->send_message(next_item_ap_message_id());
->>>>>>> upstream/master
 =======
         link->send_message(next_item_ap_message_id());
 >>>>>>> upstream/master
@@ -1590,9 +1469,6 @@ void GCS_MAVLINK::send_message(enum ap_message id)
     if (interval_ms != 0 &&
         interval_ms*800 < AP::scheduler().get_loop_period_us()) {
         interval_ms = AP::scheduler().get_loop_period_us()/800.0f;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     }
 
@@ -1863,9 +1739,6 @@ GCS_MAVLINK::update(uint32_t max_time_us)
         try_send_message_stats.statustext_last_sent_ms = now16_ms;
     }
 #endif
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
     hal.util->perf_end(_perf_update);    
@@ -2165,13 +2038,10 @@ void GCS::send_statustext(MAV_SEVERITY severity, uint8_t dest_bitmask, const cha
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     // add statustext message to FrSky lib queue
     if (frsky_telemetry_p != NULL) {
         frsky_telemetry_p->queue_message(severity, text);
 =======
-=======
->>>>>>> upstream/master
     if (frsky != nullptr) {
         frsky->queue_message(severity, text);
     }
@@ -3405,9 +3275,6 @@ void GCS_MAVLINK::handle_common_message(mavlink_message_t *msg)
     case MAVLINK_MSG_ID_OPTICAL_FLOW:
         handle_optical_flow(msg);
         break;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     }
 
@@ -3430,14 +3297,10 @@ void GCS_MAVLINK::handle_common_mission_message(mavlink_message_t *msg)
     case MAVLINK_MSG_ID_MISSION_ITEM:           // MAV ID: 39
     case MAVLINK_MSG_ID_MISSION_ITEM_INT:
 <<<<<<< HEAD
-<<<<<<< HEAD
     {
         if (handle_mission_item(msg, *_mission)) {
             DataFlash_Class::instance()->Log_Write_EntireMission(*_mission);
         }
-=======
-        handle_mission_item(msg);
->>>>>>> upstream/master
 =======
         handle_mission_item(msg);
 >>>>>>> upstream/master
@@ -3557,11 +3420,7 @@ MAV_RESULT GCS_MAVLINK::handle_command_preflight_set_sensor_offsets(const mavlin
         return MAV_RESULT_FAILED;
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
     compass->set_and_save_offsets(compassNumber, packet.param2, packet.param3, packet.param4);
-=======
-    compass.set_and_save_offsets(compassNumber, Vector3f(packet.param2, packet.param3, packet.param4));
->>>>>>> upstream/master
 =======
     compass.set_and_save_offsets(compassNumber, Vector3f(packet.param2, packet.param3, packet.param4));
 >>>>>>> upstream/master
@@ -3707,9 +3566,6 @@ MAV_RESULT GCS_MAVLINK::handle_command_battery_reset(const mavlink_command_long_
     return MAV_RESULT_FAILED;
 }
 
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 MAV_RESULT GCS_MAVLINK::handle_command_mag_cal(const mavlink_command_long_t &packet)
 {
@@ -3834,10 +3690,7 @@ MAV_RESULT GCS_MAVLINK::handle_command_long_message(mavlink_command_long_t &pack
         break;
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
     case MAV_CMD_BATTERY_RESET:
         result = handle_command_battery_reset(packet);
         break;
@@ -4106,20 +3959,9 @@ bool GCS_MAVLINK::try_send_mission_message(const enum ap_message id)
         ret = true;
         break;
 <<<<<<< HEAD
-<<<<<<< HEAD
     case MSG_NEXT_WAYPOINT:
         CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
         queued_waypoint_send();
-=======
-    case MSG_NEXT_MISSION_REQUEST_WAYPOINTS:
-        CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
-        gcs().try_send_queued_message_for_type(MAV_MISSION_TYPE_MISSION);
-        ret = true;
-        break;
-    case MSG_NEXT_MISSION_REQUEST_RALLY:
-        CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
-        gcs().try_send_queued_message_for_type(MAV_MISSION_TYPE_RALLY);
->>>>>>> upstream/master
 =======
     case MSG_NEXT_MISSION_REQUEST_WAYPOINTS:
         CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
@@ -4305,12 +4147,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
     case MSG_CURRENT_WAYPOINT:
     case MSG_MISSION_ITEM_REACHED:
 <<<<<<< HEAD
-<<<<<<< HEAD
     case MSG_NEXT_WAYPOINT:
-=======
-    case MSG_NEXT_MISSION_REQUEST_WAYPOINTS:
-    case MSG_NEXT_MISSION_REQUEST_RALLY:
->>>>>>> upstream/master
 =======
     case MSG_NEXT_MISSION_REQUEST_WAYPOINTS:
     case MSG_NEXT_MISSION_REQUEST_RALLY:
@@ -4607,16 +4444,9 @@ uint32_t GCS_MAVLINK::correct_offboard_timestamp_usec_to_ms(uint64_t offboard_us
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     if (lag_correction.min_sample_counter == 0) {
         lag_correction.min_sample_us = diff_us;
 =======
-=======
-uint64_t GCS_MAVLINK::capabilities() const
-{
-    uint64_t ret = 0;
-
->>>>>>> upstream/master
     AP_SerialManager::SerialProtocol mavlink_protocol = AP::serialmanager().get_mavlink_protocol(chan);
     if (mavlink_protocol == AP_SerialManager::SerialProtocol_MAVLink2) {
         ret |= MAV_PROTOCOL_CAPABILITY_MAVLINK2;
@@ -4641,13 +4471,6 @@ uint64_t GCS_MAVLINK::capabilities() const
     if (AP::rally()) {
         ret |= MAV_PROTOCOL_CAPABILITY_MISSION_RALLY;
     }
-<<<<<<< HEAD
-=======
-
-    if (AP::rally()) {
-        ret |= MAV_PROTOCOL_CAPABILITY_MISSION_RALLY;
-    }
->>>>>>> upstream/master
     return ret;
 }
 

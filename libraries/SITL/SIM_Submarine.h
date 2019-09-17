@@ -71,12 +71,9 @@ protected:
         float equivalent_sphere_area = M_PI_4 * pow(volume * 3.0f / 4.0f, 2.0f / 3.0f);
 
 <<<<<<< HEAD
-<<<<<<< HEAD
         float bouyancy_acceleration = GRAVITY_MSS + net_bouyancy/weight;
     } frame_proprietary;
 =======
-=======
->>>>>>> upstream/master
     } frame_property;
 >>>>>>> upstream/master
 

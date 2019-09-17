@@ -84,13 +84,10 @@ protected:
     void update_targets_from_rc();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     // angle_input, angle_input_rad - convert RC input into an earth-frame target angle
     int32_t angle_input(RC_Channel* rc, int16_t angle_min, int16_t angle_max);
     float angle_input_rad(RC_Channel* rc, int16_t angle_min, int16_t angle_max);
 =======
-=======
->>>>>>> upstream/master
     // angle_input_rad - convert RC input into an earth-frame target angle
     float angle_input_rad(const RC_Channel* rc, int16_t angle_min, int16_t angle_max);
 >>>>>>> upstream/master

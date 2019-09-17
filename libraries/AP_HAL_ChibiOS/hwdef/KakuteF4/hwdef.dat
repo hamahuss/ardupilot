@@ -131,10 +131,7 @@ SPIDEV dataflash SPI3 DEVID1 M25P16_CS   MODE3 1*MHZ 8*MHZ
 SPIDEV osd       SPI3 DEVID4 MAX7456_CS  MODE0 10*MHZ 10*MHZ
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
 # one IMU
 IMU Invensense SPI:mpu6000 ROTATION_YAW_180
 

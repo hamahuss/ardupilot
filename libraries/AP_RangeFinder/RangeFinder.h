@@ -69,9 +69,6 @@ public:
         RangeFinder_TYPE_BLPing = 23,
         RangeFinder_TYPE_UAVCAN = 24,
         RangeFinder_TYPE_BenewakeTFminiPlus = 25,
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     };
 
@@ -170,9 +167,6 @@ public:
     bool has_data_orient(enum Rotation orientation) const;
     uint8_t range_valid_count_orient(enum Rotation orientation) const;
     const Vector3f &get_pos_offset_orient(enum Rotation orientation) const;
-
-    // indicate which bit in LOG_BITMASK indicates RFND should be logged
-    void set_rfnd_bit(uint32_t log_rfnd_bit) { _log_rfnd_bit = log_rfnd_bit; }
 
     // indicate which bit in LOG_BITMASK indicates RFND should be logged
     void set_rfnd_bit(uint32_t log_rfnd_bit) { _log_rfnd_bit = log_rfnd_bit; }

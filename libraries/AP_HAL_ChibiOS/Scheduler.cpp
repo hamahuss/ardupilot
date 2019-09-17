@@ -53,12 +53,6 @@ THD_WORKING_AREA(_uavcan_thread_wa, 4096);
 #ifndef HAL_NO_MONITOR_THREAD
 THD_WORKING_AREA(_monitor_thread_wa, MONITOR_THD_WA_SIZE);
 #endif
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
-#ifndef HAL_NO_MONITOR_THREAD
-THD_WORKING_AREA(_monitor_thread_wa, MONITOR_THD_WA_SIZE);
-#endif
 >>>>>>> upstream/master
 
 Scheduler::Scheduler()
@@ -71,15 +65,6 @@ void Scheduler::init()
     chBSemObjectInit(&_io_semaphore, false);
 <<<<<<< HEAD
 =======
-
-#ifndef HAL_NO_MONITOR_THREAD
-    // setup the monitor thread - this is used to detect software lockups
-    _monitor_thread_ctx = chThdCreateStatic(_monitor_thread_wa,
-                     sizeof(_monitor_thread_wa),
-                     APM_MONITOR_PRIORITY,        /* Initial priority.    */
-                     _monitor_thread,             /* Thread function.     */
-                     this);                     /* Thread parameter.    */
-#endif
 
 #ifndef HAL_NO_MONITOR_THREAD
     // setup the monitor thread - this is used to detect software lockups
@@ -333,49 +318,6 @@ void Scheduler::_timer_thread(void *arg)
                 sched->watchdog_pat();
             }
         }
-<<<<<<< HEAD
-=======
-    }
-}
-
-void Scheduler::_monitor_thread(void *arg)
-{
-    Scheduler *sched = (Scheduler *)arg;
-    chRegSetThreadName("apm_monitor");
-
-    while (!sched->_initialized) {
-        sched->delay(100);
-    }
-    bool using_watchdog = AP_BoardConfig::watchdog_enabled();
-
-    while (true) {
-        sched->delay(100);
-        if (using_watchdog) {
-            stm32_watchdog_save((uint32_t *)&hal.util->persistent_data, (sizeof(hal.util->persistent_data)+3)/4);
-        }
-        uint32_t now = AP_HAL::millis();
-        uint32_t loop_delay = now - sched->last_watchdog_pat_ms;
-        if (loop_delay >= 200) {
-            // the main loop has been stuck for at least
-            // 200ms. Starting logging the main loop state
-            const AP_HAL::Util::PersistentData &pd = hal.util->persistent_data;
-            AP::logger().Write("MON", "TimeUS,LDelay,Task,IErr,IErrCnt,MavMsg,MavCmd,SemLine,SPICnt,I2CCnt", "QIbIIHHHII",
-                               AP_HAL::micros64(),
-                               loop_delay,
-                               pd.scheduler_task,
-                               pd.internal_errors,
-                               pd.internal_error_count,
-                               pd.last_mavlink_msgid,
-                               pd.last_mavlink_cmd,
-                               pd.semaphore_line,
-                               pd.spi_count,
-                               pd.i2c_count);
-        }
-        if (loop_delay >= 500) {
-            // at 500ms we declare an internal error
-            AP::internalerror().error(AP_InternalError::error_t::main_loop_stuck);
-        }
->>>>>>> upstream/master
     }
 }
 

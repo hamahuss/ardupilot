@@ -102,7 +102,6 @@ public:
     float get_differential_pressure(void) const { return get_differential_pressure(primary); }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
     // return the current calibration offset
     float get_offset(uint8_t i) const {
         return param[i].offset;
@@ -127,8 +126,6 @@ public:
     }
     float get_EAS2TAS(void) const { return get_EAS2TAS(primary); }
 
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
     // update airspeed ratio calibration
@@ -263,8 +260,5 @@ private:
 
 namespace AP {
     AP_Airspeed *airspeed();
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 };

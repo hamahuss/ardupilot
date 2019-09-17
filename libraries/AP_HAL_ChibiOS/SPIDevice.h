@@ -128,9 +128,6 @@ private:
     uint32_t derive_freq_flag(uint32_t _frequency);
     // low level transfer function
     bool do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len) WARN_IF_UNUSED;
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 };
 

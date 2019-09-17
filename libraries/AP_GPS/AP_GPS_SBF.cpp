@@ -23,10 +23,7 @@
 #include "AP_GPS.h"
 #include "AP_GPS_SBF.h"
 <<<<<<< HEAD
-<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 #include <GCS_MAVLink/GCS.h>
@@ -241,7 +238,6 @@ AP_GPS_SBF::parse(uint8_t temp)
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 void
 AP_GPS_SBF::log_ExtEventPVTGeodetic(const msg4007 &temp)
 {
@@ -271,8 +267,6 @@ AP_GPS_SBF::log_ExtEventPVTGeodetic(const msg4007 &temp)
     DataFlash_Class::instance()->WriteBlock(&header, sizeof(header));
 }
 
-=======
->>>>>>> upstream/master
 =======
 >>>>>>> upstream/master
 bool

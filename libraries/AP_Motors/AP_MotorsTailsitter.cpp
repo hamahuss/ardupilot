@@ -50,7 +50,6 @@ void AP_MotorsTailsitter::output_to_motors()
         return;
     }
 <<<<<<< HEAD
-<<<<<<< HEAD
     float throttle = _throttle;
     float throttle_left  = 0;
     float throttle_right = 0;
@@ -85,8 +84,6 @@ void AP_MotorsTailsitter::output_to_motors()
             limit.throttle_lower = false;
             limit.throttle_upper = false;
 =======
-=======
->>>>>>> upstream/master
 
     switch (_spool_state) {
         case SpoolState::SHUT_DOWN:

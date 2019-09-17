@@ -26,9 +26,6 @@ const AP_Param::GroupInfo AP_BattMonitor_Params::var_info[] = {
 =======
     // @Description: Sets the analog input pin that should be used for voltage monitoring.
     // @Values: -1:Disabled, 2:Pixhawk/Pixracer/Navio2/Pixhawk2_PM1, 13:Pixhawk2_PM2, 14:CubeOrange, 13:CubeOrange_PM2, 100:PX4-v1
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     // @User: Standard
     // @RebootRequired: True
@@ -42,9 +39,6 @@ const AP_Param::GroupInfo AP_BattMonitor_Params::var_info[] = {
 =======
     // @Description: Sets the analog input pin that should be used for current monitoring.
     // @Values: -1:Disabled, 3:Pixhawk/Pixracer/Navio2/Pixhawk2_PM1, 14:Pixhawk2_PM2, 15:CubeOrange, 4:CubeOrange_PM2, 101:PX4-v1
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     // @User: Standard
     // @RebootRequired: True
@@ -155,12 +149,9 @@ const AP_Param::GroupInfo AP_BattMonitor_Params::var_info[] = {
     // @DisplayName: Critical battery failsafe action
     // @Description: What action the vehicle should perform if it hits a critical battery failsafe
 <<<<<<< HEAD
-<<<<<<< HEAD
     // @Values{Plane}: 0:None,1:RTL,2:Land,3:Terminate
     // @Values{Copter}: 0:None,1:Land,2:RTL,3:SmartRTL,4:SmartRTL or Land,5:Terminate
 =======
-=======
->>>>>>> upstream/master
     // @Values{Plane}: 0:None,1:RTL,2:Land,3:Terminate,4:QLand,5:Parachute
     // @Values{Copter}: 0:None,1:Land,2:RTL,3:SmartRTL or RTL,4:SmartRTL or Land,5:Terminate
 >>>>>>> upstream/master

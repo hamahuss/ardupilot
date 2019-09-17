@@ -13,9 +13,6 @@
 #else
 #include <malloc.h>
 #endif
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 
 using namespace HALSITL;

@@ -137,23 +137,4 @@ void comm_send_buffer(mavlink_channel_t chan, const uint8_t *buf, uint8_t len)
 #else
     (void)written;
 #endif
-<<<<<<< HEAD
-=======
-}
-
-/*
-  lock a channel for send
- */
-void comm_send_lock(mavlink_channel_t chan)
-{
-    chan_locks[(uint8_t)chan].take_blocking();
-}
-
-/*
-  unlock a channel
- */
-void comm_send_unlock(mavlink_channel_t chan)
-{
-    chan_locks[(uint8_t)chan].give();
->>>>>>> upstream/master
 }

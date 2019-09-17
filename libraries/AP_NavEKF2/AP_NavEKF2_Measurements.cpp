@@ -846,11 +846,8 @@ void NavEKF2_core::writeExtNavData(const Vector3f &sensOffset, const Vector3f &p
 }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 #endif // HAL_CPU_CLASS
 =======
-=======
->>>>>>> upstream/master
 /*
   return declination in radians
 */
@@ -867,7 +864,4 @@ float NavEKF2_core::MagDeclination(void) const
     }
     return _ahrs->get_compass()->get_declination();
 }
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master

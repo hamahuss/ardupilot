@@ -14,7 +14,6 @@ void loop();
 const AP_HAL::HAL& hal = AP_HAL::get_HAL();
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 const AP_FWVersion AP_FWVersion::fwver
 {
     major: 3,
@@ -57,9 +56,6 @@ private:
 
 static const uint8_t num_gcs = MAVLINK_COMM_NUM_BUFFERS;
 static GCS_MAVLINK_routing gcs_link[MAVLINK_COMM_NUM_BUFFERS];
-=======
-GCS_Dummy _gcs;
->>>>>>> upstream/master
 =======
 GCS_Dummy _gcs;
 >>>>>>> upstream/master

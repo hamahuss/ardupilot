@@ -61,9 +61,6 @@ public:
         MOTOR_FRAME_TYPE_DJI_X = 13, // X frame, DJI ordering
         MOTOR_FRAME_TYPE_CW_X = 14, // X frame, clockwise ordering
         MOTOR_FRAME_TYPE_I = 15, // (sideways H) octo only
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
     };
 
@@ -239,12 +236,7 @@ protected:
     float               _throttle_avg_max;          // last throttle input from set_throttle_avg_max
     LowPassFilterFloat  _throttle_filter;           // throttle input filter
 <<<<<<< HEAD
-<<<<<<< HEAD
     spool_up_down_desired _spool_desired;           // desired spool state
-=======
-    DesiredSpoolState   _spool_desired;             // desired spool state
-    SpoolState          _spool_state;               // current spool mode
->>>>>>> upstream/master
 =======
     DesiredSpoolState   _spool_desired;             // desired spool state
     SpoolState          _spool_state;               // current spool mode

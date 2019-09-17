@@ -26,9 +26,6 @@
 #include <AP_InternalError/AP_InternalError.h>
 
 template<uint16_t num_bits>
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
 >>>>>>> upstream/master
 class Bitmask {
 public:
@@ -44,10 +41,7 @@ public:
     }
 
 <<<<<<< HEAD
-<<<<<<< HEAD
 =======
-=======
->>>>>>> upstream/master
     Bitmask(const Bitmask &other) = delete;
 
 >>>>>>> upstream/master
