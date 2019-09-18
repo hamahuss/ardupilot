@@ -2,6 +2,8 @@
 #include "AC_PosControl.h"
 #include <AP_Math/AP_Math.h>
 #include <DataFlash/DataFlash.h>
+#include <AP_NavEKF2/AP_NavEKF2.h>
+#include <AP_NavEKF2/AP_NavEKF2_core.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -631,6 +633,8 @@ void AC_PosControl::run_z_controller()
     float thr_out = (p+i+d)*0.001f +_motors.get_throttle_hover();
     _ut = thr_out;
 
+
+
     // send throttle to attitude controller with angle boost
     _attitude_control.set_throttle_out(thr_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ);
 }
@@ -841,10 +845,7 @@ void AC_PosControl::write_log()
     const Vector3f &velocity = _inav.get_velocity();
     float accel_x, accel_y, thrust, troll, tpitch, tyaw;
     lean_angles_to_accel(accel_x, accel_y);
-    thrust = _ut;
-    troll = _attitude_control._tr;
-    tpitch = _attitude_control._tp;
-    tyaw = _attitude_control._ty;
+
 
     DataFlash_Class::instance()->Log_Write("PSC", "TimeUS,TPX,TPY,PX,PY,TVX,TVY,VX,VY,TAX,TAY,AX,AY",
                                            "smmmmnnnnoooo", "FBBBBBBBBBBBB", "Qffffffffffff",
@@ -861,13 +862,46 @@ void AC_PosControl::write_log()
                                            (double)accel_target.y,
                                            (double)accel_x,
                                            (double)accel_y);
+     calculate_virtual_inputs();
+     thrust = _uts;
+     troll = _urs;
+     tpitch = _ups;
+     tyaw = _uys;
 
-    DataFlash_Class::instance()->Log_Write("IN", "TimeUS,ut,tr,tp,ty", "Qffff",
+     float thrust1, troll1, tpitch1, tyaw1;
+
+	 thrust1 = _ut;
+	 troll1 = _attitude_control._tr;
+	 tpitch1 = _attitude_control._tp;
+	 tyaw1 = _attitude_control._ty;
+
+	 float acch, vh,xh, dth;
+
+	 acch = _ddxh;
+	 vh = _dxh;
+	 xh = _xh;
+	 dth= _dth;
+
+	 observer();
+
+    DataFlash_Class::instance()->Log_Write("IN", "TimeUS,uts,trs,tps,tys,ut,tr,tp,ty ", "Qffffffff",
                                             AP_HAL::micros64(),
                                             (double)thrust,
 											(double)troll,
 											(double)tpitch,
-											(double)tyaw);
+											(double)tyaw,
+											(double)thrust1,
+											(double)troll1,
+											(double)tpitch1,
+											(double)tyaw1);
+
+    DataFlash_Class::instance()->Log_Write("OBS", "TimeUS,ddx,dx,x,dth", "Qffff",
+                                            AP_HAL::micros64(),
+                                            (double)acch,
+											(double)vh,
+											(double)xh,
+											(double)dth);
+
 }
 
 /// init_vel_controller_xyz - initialise the velocity controller - should be called once before the caller attempts to use the controller
@@ -950,6 +984,45 @@ void AC_PosControl::update_vel_controller_xyz(float ekfNavVelGainScaler)
     update_z_controller();
 }
 
+
+
+void AC_PosControl::calculate_virtual_inputs()
+{
+	double u1, u2, u3, u4;
+	u1 = hal.rcout->read(0)/1000.f;
+	u2 = hal.rcout->read(1)/1000.f;
+	u3 = hal.rcout->read(2)/1000.f;
+	u4 = hal.rcout->read(3)/1000.f;
+	_F1 = -1.473641523595032*u1*u1*u1 + 11.069063228257594*u1*u1 -16.707399930105716*u1 + 7.300711024486214;
+	_F2 = -1.473641523595032*u4*u4*u4 + 11.069063228257594*u4*u4 -16.707399930105716*u4 + 7.300711024486214;
+	_F3 = -1.473641523595032*u2*u2*u2 + 11.069063228257594*u2*u2 -16.707399930105716*u2 + 7.300711024486214;
+	_F4 = -1.473641523595032*u3*u3*u3 + 11.069063228257594*u3*u3 -16.707399930105716*u3 + 7.300711024486214;
+	_Tau1 = -0.090549269717609*u1*u1*u1 + 0.477099764968194*u1*u1 -0.679050064467978*u1 + 0.304521714315383;
+	_Tau2 = -0.090549269717609*u4*u4*u4 + 0.477099764968194*u4*u4 -0.679050064467978*u4 + 0.304521714315383;
+	_Tau3 = -0.090549269717609*u2*u2*u2 + 0.477099764968194*u2*u2 -0.679050064467978*u2 + 0.304521714315383;
+	_Tau4 = -0.090549269717609*u3*u3*u3 + 0.477099764968194*u3*u3 -0.679050064467978*u3 + 0.304521714315383;
+
+	_uts = _F1+_F2+_F3+_F4;
+	_urs = 0.323*cos(M_PI_2/2)*(_F3+ _F4- _F1- _F2);
+	_ups = 0.323*cos(M_PI_2/2)*(_F1 + _F4 - _F2 -_F3);
+	_uys = _Tau1 + _Tau3 - _Tau4 - _Tau2;
+}
+
+
+void AC_PosControl::observer()
+{
+	    if(_uts > 5)
+	_ddxh = -(_ahrs.cos_roll() * _ahrs.sin_pitch() * _ahrs.cos_yaw() + _ahrs.sin_yaw() * _ahrs.sin_roll()) * _uts;
+
+	_dxh += _ddxh * _dt;
+	_xh += _dxh * _dt;
+	_dth = _dt;
+}
+
+
+
+
+
 float AC_PosControl::get_horizontal_error() const
 {
     return norm(_pos_error.x, _pos_error.y);
@@ -985,6 +1058,7 @@ void AC_PosControl::desired_accel_to_vel(float nav_dt)
         _vel_desired.x += _accel_desired.x * nav_dt;
         _vel_desired.y += _accel_desired.y * nav_dt;
     }
+    _dth = nav_dt;
 }
 
 /// desired_vel_to_pos - move position target using desired velocities

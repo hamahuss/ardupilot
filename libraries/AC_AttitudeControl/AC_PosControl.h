@@ -417,4 +417,11 @@ protected:
     uint32_t    _ekf_xy_reset_ms;      // system time of last recorded ekf xy position reset
     uint32_t    _ekf_z_reset_ms;       // system time of last recorded ekf altitude reset
     float _ut;
+    double _F1, _F2, _F3, _F4;
+    double _Tau1, _Tau2, _Tau3, _Tau4;
+    double  _uts, _urs, _ups, _uys;
+
+    void calculate_virtual_inputs();
+    void observer();
+    float _xh, _xhp, _dxh, _dxhp, _ddxh, _dth;
 };
