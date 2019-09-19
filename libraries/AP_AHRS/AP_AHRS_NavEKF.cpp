@@ -861,6 +861,13 @@ bool AP_AHRS_NavEKF::get_relative_position_NE_origin(Vector2f &posNE) const
     }
 }
 
+
+void AP_AHRS_NavEKF::get_pos12(Vector2f &posNE, Vector2f &posNE1) const
+{
+	EKF2.getPos12(posNE, posNE1);
+
+}
+
 // return a relative ground position to the home in meters
 // North/East order.
 bool AP_AHRS_NavEKF::get_relative_position_NE_home(Vector2f &posNE) const

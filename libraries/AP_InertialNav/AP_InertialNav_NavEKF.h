@@ -43,6 +43,9 @@ public:
      */
     const Vector3f&    get_position() const;
 
+    void  get_position12(Vector2f &posNE, Vector2f &posNE1) const;
+
+
     /**
      * get_llh - updates the provided location with the latest calculated location including absolute altitude
      *  returns true on success (i.e. the EKF knows it's latest position), false on failure

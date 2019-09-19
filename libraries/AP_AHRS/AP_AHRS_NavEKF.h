@@ -147,6 +147,9 @@ public:
     bool get_relative_position_NE_home(Vector2f &posNE) const override;
     bool get_relative_position_NE_origin(Vector2f &posNE) const override;
 
+
+    void get_pos12(Vector2f &posNE, Vector2f &posNE1) const;
+
     // return the relative position down to either home or origin
     // baro will be used for the _home relative one if the EKF isn't
     void get_relative_position_D_home(float &posD) const override;

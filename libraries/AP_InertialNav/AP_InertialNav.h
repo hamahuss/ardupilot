@@ -57,6 +57,7 @@ public:
      * @return
      */
     virtual const Vector3f&    get_position() const = 0;
+    virtual void  get_position12(Vector2f &posNE, Vector2f &posNE1) const;
 
     /**
      * get_llh - updates the provided location with the latest calculated location including absolute altitude

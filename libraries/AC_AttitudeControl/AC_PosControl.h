@@ -423,5 +423,10 @@ protected:
 
     void calculate_virtual_inputs();
     void observer();
-    float _xh, _xhp, _dxh, _dxhp, _ddxh, _dth;
+    double _xh=0;
+    double  _dxh=0;
+    double _ddxh=0;
+    double _prev_ddx;
+    int8_t _i;
+    uint64_t _now_us_p;
 };

@@ -487,6 +487,8 @@ void AC_PosControl::update_z_controller()
 
     // call z-axis position controller
     run_z_controller();
+
+
 }
 
 /// calc_leash_length - calculates the vertical leash lengths from maximum speed, acceleration
@@ -844,6 +846,11 @@ void AC_PosControl::write_log()
     const Vector3f &position = _inav.get_position();
     const Vector3f &velocity = _inav.get_velocity();
     float accel_x, accel_y, thrust, troll, tpitch, tyaw;
+
+     Vector2f pos1;
+     Vector2f pos2;
+     _inav.get_position12(pos1,pos2);
+
     lean_angles_to_accel(accel_x, accel_y);
 
 
@@ -862,6 +869,14 @@ void AC_PosControl::write_log()
                                            (double)accel_target.y,
                                            (double)accel_x,
                                            (double)accel_y);
+
+    DataFlash_Class::instance()->Log_Write("P12", "TimeUS,PX1,PX2,PY1,PY2", "Qffff",
+                                           AP_HAL::micros64(),
+                                           (double)pos1.x,
+                                           (double)pos2.x,
+                                           (double)pos1.y,
+                                           (double)pos2.y);
+
      calculate_virtual_inputs();
      thrust = _uts;
      troll = _urs;
@@ -875,14 +890,14 @@ void AC_PosControl::write_log()
 	 tpitch1 = _attitude_control._tp;
 	 tyaw1 = _attitude_control._ty;
 
-	 float acch, vh,xh, dth;
+	 float acch, vh,xh;
+
+
+	 observer();
 
 	 acch = _ddxh;
 	 vh = _dxh;
 	 xh = _xh;
-	 dth= _dth;
-
-	 observer();
 
     DataFlash_Class::instance()->Log_Write("IN", "TimeUS,uts,trs,tps,tys,ut,tr,tp,ty ", "Qffffffff",
                                             AP_HAL::micros64(),
@@ -895,12 +910,11 @@ void AC_PosControl::write_log()
 											(double)tpitch1,
 											(double)tyaw1);
 
-    DataFlash_Class::instance()->Log_Write("OBS", "TimeUS,ddx,dx,x,dth", "Qffff",
+    DataFlash_Class::instance()->Log_Write("OBS", "TimeUS,ddx,dx,x", "Qfff",
                                             AP_HAL::micros64(),
                                             (double)acch,
 											(double)vh,
-											(double)xh,
-											(double)dth);
+											(double)xh);
 
 }
 
@@ -1011,12 +1025,43 @@ void AC_PosControl::calculate_virtual_inputs()
 
 void AC_PosControl::observer()
 {
-	    if(_uts > 5)
-	_ddxh = -(_ahrs.cos_roll() * _ahrs.sin_pitch() * _ahrs.cos_yaw() + _ahrs.sin_yaw() * _ahrs.sin_roll()) * _uts;
+    const uint64_t now_us = AP_HAL::micros64();
+    float dt = (now_us - _now_us_p) * 1.0e-6f;
+    _now_us_p = now_us;
 
-	_dxh += _ddxh * _dt;
-	_xh += _dxh * _dt;
-	_dth = _dt;
+//	    if(_uts > 5 && _i ==0)
+//	{
+//	    	_ddxh = (-(_ahrs.cos_roll() * _ahrs.sin_pitch() * _ahrs.cos_yaw() + _ahrs.sin_yaw() * _ahrs.sin_roll()) * _uts)*_dt*_dt;
+//	    	_dxh = _ddxh;
+//	}
+//
+//	    if(_uts > 5 && _i ==1)
+//	    {
+//	    	_ddxh = (-(_ahrs.cos_roll() * _ahrs.sin_pitch() * _ahrs.cos_yaw() + _ahrs.sin_yaw() * _ahrs.sin_roll()) * _uts)*_dt*_dt + 2 *_dxh ;
+//	    	_xh = _dxh;
+//	    	_dxh = _ddxh;
+//	    }
+//	    if(_uts > 5 && _i ==2)
+//	    {
+//
+//	    	_ddxh = (-(_ahrs.cos_roll() * _ahrs.sin_pitch() * _ahrs.cos_yaw() + _ahrs.sin_yaw() * _ahrs.sin_roll()) * _uts)*_dt*_dt + 2 *_dxh - _xh;
+//	    	_xh = _dxh;
+//	    	_dxh = _ddxh;
+//	    }
+//
+//	    if(_i==0 || _i==1)
+//		{
+//	    	if(_uts>5)
+//	    		_i= _i +1;
+//		}
+
+
+
+
+    _ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts/1.5f);
+	_dxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts * dt/1.5f + _prev_ddx);
+	_xh = _xh + (float)(dt*(_prev_ddx + _dxh)*0.5f);
+	_prev_ddx = _dxh;
 }
 
 
@@ -1058,7 +1103,6 @@ void AC_PosControl::desired_accel_to_vel(float nav_dt)
         _vel_desired.x += _accel_desired.x * nav_dt;
         _vel_desired.y += _accel_desired.y * nav_dt;
     }
-    _dth = nav_dt;
 }
 
 /// desired_vel_to_pos - move position target using desired velocities
