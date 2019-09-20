@@ -423,10 +423,23 @@ protected:
 
     void calculate_virtual_inputs();
     void observer();
+    void voter();
     double _xh=0;
     double  _dxh=0;
     double _ddxh=0;
-    double _prev_ddx;
+    double _prev_ddx, _prev_dx;
+    double _yh=0;
+    double  _dyh=0;
+    double _ddyh=0;
+    double _prev_ddy, _prev_dy;
     int8_t _i;
     uint64_t _now_us_p;
+    float _s_x_kf1_kf2, _s_x_kf1_mod, _s_x_kf2_mod;
+    float _s_y_kf1_kf2, _s_y_kf1_mod, _s_y_kf2_mod;
+    float _s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod;
+
+    float _xv, _yv, _dv, _dkf1, _dkf2, _dmod;
+
+    float calculate_indicator(float d, float a, float n);
+    float voter_output(float s1, float s2, float s3, float x1, float x2, float x3);
 };

@@ -273,3 +273,20 @@ bool rotation_equal(enum Rotation r1, enum Rotation r2)
     return (v1 - v2).length() < 0.001;
 }
 
+
+float sign(float p)
+{
+	if(p>1) return 1;
+	if(p<-1) return -1;
+	return p;
+}
+
+
+float absf(float p)
+{
+	if(p>0) return p;
+	if(p<0) return -p;
+	return 0;
+}
+
+

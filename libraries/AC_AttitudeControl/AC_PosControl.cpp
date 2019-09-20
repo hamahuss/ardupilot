@@ -890,14 +890,19 @@ void AC_PosControl::write_log()
 	 tpitch1 = _attitude_control._tp;
 	 tyaw1 = _attitude_control._ty;
 
-	 float acch, vh,xh;
+	 float accxh, vxh,xh, accyh, vyh, yh;
 
 
 	 observer();
+	 voter();
 
-	 acch = _ddxh;
-	 vh = _dxh;
+	 accxh = _ddxh;
+	 vxh = _dxh;
 	 xh = _xh;
+	 accyh = _ddyh;
+	 vyh = _dyh;
+	 yh = _yh;
+
 
     DataFlash_Class::instance()->Log_Write("IN", "TimeUS,uts,trs,tps,tys,ut,tr,tp,ty ", "Qffffffff",
                                             AP_HAL::micros64(),
@@ -910,11 +915,37 @@ void AC_PosControl::write_log()
 											(double)tpitch1,
 											(double)tyaw1);
 
-    DataFlash_Class::instance()->Log_Write("OBS", "TimeUS,ddx,dx,x", "Qfff",
+    DataFlash_Class::instance()->Log_Write("OBS", "TimeUS,ddx,dx,x,ddy,dy,y", "Qffffff",
                                             AP_HAL::micros64(),
-                                            (double)acch,
-											(double)vh,
-											(double)xh);
+                                            (double)accxh,
+											(double)vxh,
+											(double)xh,
+											(double)accyh,
+											(double)vyh,
+											(double)yh);
+
+    DataFlash_Class::instance()->Log_Write("VOT", "TimeUS,sx1,sx2,sx3,sy1,sy2,sy3,xv,yv", "Qffffffff",
+                                            AP_HAL::micros64(),
+                                            (double)_s_x_kf1_kf2,
+											(double)_s_x_kf1_mod,
+											(double)_s_x_kf2_mod,
+											(double)_s_y_kf1_kf2,
+											(double)_s_y_kf1_mod,
+											(double)_s_y_kf2_mod,
+											(double)_xv,
+											(double)_yv);
+
+
+
+    DataFlash_Class::instance()->Log_Write("VTD", "TimeUS,sd1,sd2,sd3,d1,d2,dm,dv", "Qfffffff",
+                                            AP_HAL::micros64(),
+                                            (double)_s_d_kf1_kf2,
+											(double)_s_d_kf1_mod,
+											(double)_s_d_kf2_mod,
+											(double)_dkf1,
+											(double)_dkf2,
+											(double)_dmod,
+											(double)_dv);
 
 }
 
@@ -1029,43 +1060,82 @@ void AC_PosControl::observer()
     float dt = (now_us - _now_us_p) * 1.0e-6f;
     _now_us_p = now_us;
 
-//	    if(_uts > 5 && _i ==0)
-//	{
-//	    	_ddxh = (-(_ahrs.cos_roll() * _ahrs.sin_pitch() * _ahrs.cos_yaw() + _ahrs.sin_yaw() * _ahrs.sin_roll()) * _uts)*_dt*_dt;
-//	    	_dxh = _ddxh;
-//	}
-//
-//	    if(_uts > 5 && _i ==1)
-//	    {
-//	    	_ddxh = (-(_ahrs.cos_roll() * _ahrs.sin_pitch() * _ahrs.cos_yaw() + _ahrs.sin_yaw() * _ahrs.sin_roll()) * _uts)*_dt*_dt + 2 *_dxh ;
-//	    	_xh = _dxh;
-//	    	_dxh = _ddxh;
-//	    }
-//	    if(_uts > 5 && _i ==2)
-//	    {
-//
-//	    	_ddxh = (-(_ahrs.cos_roll() * _ahrs.sin_pitch() * _ahrs.cos_yaw() + _ahrs.sin_yaw() * _ahrs.sin_roll()) * _uts)*_dt*_dt + 2 *_dxh - _xh;
-//	    	_xh = _dxh;
-//	    	_dxh = _ddxh;
-//	    }
-//
-//	    if(_i==0 || _i==1)
-//		{
-//	    	if(_uts>5)
-//	    		_i= _i +1;
-//		}
+    Vector2f pos1;
+    Vector2f pos2;
+    _inav.get_position12(pos1,pos2);
+
+    if(_uts>6)
+    {
+    	_prev_ddx = _ddxh;
+    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 2*0.8*sign((pos1.x+pos2.x)/2 - _xh);
+    	_prev_dx = _dxh;
+    	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh) +  1.5*sqrt(0.8) * sqrt(absf((pos1.x+pos2.x)/2 - _xh)) * sign((pos1.x+pos2.x)/2 - _xh);
+    	_xh = _xh + (float)(dt*(_prev_dx + _dxh)*0.5f);
 
 
-
-
-    _ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts/1.5f);
-	_dxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts * dt/1.5f + _prev_ddx);
-	_xh = _xh + (float)(dt*(_prev_ddx + _dxh)*0.5f);
-	_prev_ddx = _dxh;
+    	_prev_ddy = _ddyh;
+    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 2*0.8*sign((pos1.y+pos2.y)/2 - _yh);
+    	_prev_dy = _dyh;
+    	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh) +  1.5*sqrt(0.8) * sqrt(absf((pos1.y+pos2.y)/2 - _yh)) * sign((pos1.y+pos2.y)/2 - _yh);
+    	_yh = _yh + (float)(dt*(_prev_dy + _dyh)*0.5f);
+    }
 }
 
 
+void AC_PosControl::voter()
+{
+    Vector2f pos1;
+    Vector2f pos2;
+    _inav.get_position12(pos1,pos2);
+    float e_x_kf1_kf2, e_x_kf1_mod, e_x_kf2_mod;
+    float e_y_kf1_kf2, e_y_kf1_mod, e_y_kf2_mod;
+    float e_d_kf1_kf2, e_d_kf1_mod, e_d_kf2_mod;
 
+    _dkf1 = norm(pos1.x, pos1.y);
+    _dkf2 = norm(pos2.x, pos2.y);
+    _dmod = norm(_xh, _yh);
+
+    e_x_kf1_kf2 = absf(pos1.x - pos2.x);
+    e_x_kf1_mod = absf(pos1.x - _xh);
+    e_x_kf2_mod = absf(pos2.x - _xh);
+    e_y_kf1_kf2 = absf(pos1.y - pos2.y);
+    e_y_kf1_mod = absf(pos1.y - _yh);
+    e_y_kf2_mod = absf(pos2.y - _yh);
+    e_d_kf1_kf2 = absf(_dkf1 - _dkf2);
+    e_d_kf1_mod = absf(_dkf1 - _dmod);
+	e_d_kf2_mod = absf(_dkf2 - _dmod);
+
+    _s_x_kf1_kf2 = calculate_indicator(e_x_kf1_kf2, 0.5, 6);
+    _s_x_kf1_mod = calculate_indicator(e_x_kf1_mod, 0.5, 6);
+    _s_x_kf2_mod = calculate_indicator(e_x_kf2_mod, 0.5, 6);
+    _s_y_kf1_kf2 = calculate_indicator(e_y_kf1_kf2, 0.5, 6);
+	_s_y_kf1_mod = calculate_indicator(e_y_kf1_mod, 0.5, 6);
+	_s_y_kf2_mod = calculate_indicator(e_y_kf2_mod, 0.5, 6);
+    _s_d_kf1_kf2 = calculate_indicator(e_d_kf1_kf2, 0.5, 6);
+	_s_d_kf1_mod = calculate_indicator(e_d_kf1_mod, 0.5, 6);
+	_s_d_kf2_mod = calculate_indicator(e_d_kf2_mod, 0.5, 6);
+
+	_xv = voter_output(_s_x_kf1_kf2, _s_x_kf1_mod, _s_x_kf2_mod, pos1.x, pos2.x, _xh);
+	_yv = voter_output(_s_y_kf1_kf2, _s_y_kf1_mod, _s_y_kf2_mod, pos1.y, pos2.y, _yh);
+	_dv = voter_output(_s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod, _dkf1, _dkf2, _dmod);
+}
+
+float AC_PosControl::calculate_indicator(float d, float a, float n)
+{
+	if (d <= a) return 1;
+	if(d>a && d<(n*a)) return ((n/(n-1))*(1 - (d/(n*a))));
+	return 0;
+}
+
+
+float AC_PosControl::voter_output(float s1, float s2, float s3, float x1, float x2, float x3)
+{
+	float w1, w2, w3;
+	w1 = (s1 + s2)/2;
+	w2 = (s1 + s3)/2;
+	w3 = (s2 + s3)/2;
+	return (((x1 * w1)+ (x2 * w2) + (x3 * w3))/(w1 + w2 + w3));
+}
 
 
 float AC_PosControl::get_horizontal_error() const
