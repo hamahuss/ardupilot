@@ -636,7 +636,7 @@ void AC_PosControl::run_z_controller()
     _ut = thr_out;
 
 
-
+	 observer();
     // send throttle to attitude controller with angle boost
     _attitude_control.set_throttle_out(thr_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ);
 }
@@ -893,7 +893,7 @@ void AC_PosControl::write_log()
 	 float accxh, vxh,xh, accyh, vyh, yh;
 
 
-	 observer();
+
 	 voter();
 
 	 accxh = _ddxh;
@@ -1064,21 +1064,21 @@ void AC_PosControl::observer()
     Vector2f pos2;
     _inav.get_position12(pos1,pos2);
 
-    if(_uts>6)
-    {
+
     	_prev_ddx = _ddxh;
-    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 2*0.8*sign((pos1.x+pos2.x)/2 - _xh);
-    	_prev_dx = _dxh;
-    	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh) +  1.5*sqrt(0.8) * sqrt(absf((pos1.x+pos2.x)/2 - _xh)) * sign((pos1.x+pos2.x)/2 - _xh);
-    	_xh = _xh + (float)(dt*(_prev_dx + _dxh)*0.5f);
+    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.1*0.3*sign((pos1.x+pos2.x)/2 - _xh);
+    	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh);
+    	_prev_dx = _xhd;
+    	_xhd = _dxh +  1.5*sqrt(0.3) * sqrt(absf((pos1.x+pos2.x)/2 - _xh)) * sign((pos1.x+pos2.x)/2 - _xh);
+    	_xh = _xh + (float)(dt*(_prev_dx + _xhd)*0.5f);
 
 
     	_prev_ddy = _ddyh;
-    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 2*0.8*sign((pos1.y+pos2.y)/2 - _yh);
-    	_prev_dy = _dyh;
-    	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh) +  1.5*sqrt(0.8) * sqrt(absf((pos1.y+pos2.y)/2 - _yh)) * sign((pos1.y+pos2.y)/2 - _yh);
-    	_yh = _yh + (float)(dt*(_prev_dy + _dyh)*0.5f);
-    }
+    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.1*0.3*sign((pos1.y+pos2.y)/2 - _yh);
+    	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh);
+    	_prev_dy = _yhd;
+    	_yhd = _dyh +  1.5*sqrt(0.3) * sqrt(absf((pos1.x+pos2.x)/2 - _yh)) * sign((pos1.y+pos2.y)/2 - _yh);
+    	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
 }
 
 

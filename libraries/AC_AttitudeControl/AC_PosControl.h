@@ -427,7 +427,7 @@ protected:
     double _xh=0;
     double  _dxh=0;
     double _ddxh=0;
-    double _prev_ddx, _prev_dx;
+    double _prev_ddx, _prev_dx, _xhd, _yhd;
     double _yh=0;
     double  _dyh=0;
     double _ddyh=0;

@@ -532,6 +532,158 @@ void NavEKF2_core::readGpsData()
     }
 }
 
+// check for new valid GPS data and update stored measurement if available
+void NavEKF2_core::readGpsData1(uint8_t i)
+{
+    // check for new GPS data
+    // do not accept data at a faster rate than 14Hz to avoid overflowing the FIFO buffer
+     AP_GPS &gps = AP::gps();
+    gps.update_primary(i);
+    if (gps.last_message_time_ms() - lastTimeGpsReceived_ms > 70) {
+        if (gps.status() >= AP_GPS::GPS_OK_FIX_3D) {
+            // report GPS fix status
+            gpsCheckStatus.bad_fix = false;
+
+            // store fix time from previous read
+            secondLastGpsTime_ms = lastTimeGpsReceived_ms;
+
+            // get current fix time
+            lastTimeGpsReceived_ms = gps.last_message_time_ms();
+
+            // estimate when the GPS fix was valid, allowing for GPS processing and other delays
+            // ideally we should be using a timing signal from the GPS receiver to set this time
+            gpsDataNew.time_ms = lastTimeGpsReceived_ms - frontend->_gpsDelay_ms;
+
+            // Correct for the average intersampling delay due to the filter updaterate
+            gpsDataNew.time_ms -= localFilterTimeStep_ms/2;
+
+            // Prevent time delay exceeding age of oldest IMU data in the buffer
+            gpsDataNew.time_ms = MAX(gpsDataNew.time_ms,imuDataDelayed.time_ms);
+
+            // Get which GPS we are using for position information
+            gpsDataNew.sensor_idx = gps.primary_sensor();
+
+            // read the NED velocity from the GPS
+            gpsDataNew.vel = gps.velocity();
+
+            // Use the speed and position accuracy from the GPS if available, otherwise set it to zero.
+            // Apply a decaying envelope filter with a 5 second time constant to the raw accuracy data
+            float alpha = constrain_float(0.0002f * (lastTimeGpsReceived_ms - secondLastGpsTime_ms),0.0f,1.0f);
+            gpsSpdAccuracy *= (1.0f - alpha);
+            float gpsSpdAccRaw;
+            if (!gps.speed_accuracy(gpsSpdAccRaw)) {
+                gpsSpdAccuracy = 0.0f;
+            } else {
+                gpsSpdAccuracy = MAX(gpsSpdAccuracy,gpsSpdAccRaw);
+                gpsSpdAccuracy = MIN(gpsSpdAccuracy,50.0f);
+            }
+            gpsPosAccuracy *= (1.0f - alpha);
+            float gpsPosAccRaw;
+            if (!gps.horizontal_accuracy(gpsPosAccRaw)) {
+                gpsPosAccuracy = 0.0f;
+            } else {
+                gpsPosAccuracy = MAX(gpsPosAccuracy,gpsPosAccRaw);
+                gpsPosAccuracy = MIN(gpsPosAccuracy,100.0f);
+            }
+            gpsHgtAccuracy *= (1.0f - alpha);
+            float gpsHgtAccRaw;
+            if (!gps.vertical_accuracy(gpsHgtAccRaw)) {
+                gpsHgtAccuracy = 0.0f;
+            } else {
+                gpsHgtAccuracy = MAX(gpsHgtAccuracy,gpsHgtAccRaw);
+                gpsHgtAccuracy = MIN(gpsHgtAccuracy,100.0f);
+            }
+
+            // check if we have enough GPS satellites and increase the gps noise scaler if we don't
+            if (gps.num_sats() >= 6 && (PV_AidingMode == AID_ABSOLUTE)) {
+                gpsNoiseScaler = 1.0f;
+            } else if (gps.num_sats() == 5 && (PV_AidingMode == AID_ABSOLUTE)) {
+                gpsNoiseScaler = 1.4f;
+            } else { // <= 4 satellites or in constant position mode
+                gpsNoiseScaler = 2.0f;
+            }
+
+            // Check if GPS can output vertical velocity, if it is allowed to be used, and set GPS fusion mode accordingly
+            if (gps.have_vertical_velocity() && frontend->_fusionModeGPS == 0 && !frontend->inhibitGpsVertVelUse) {
+                useGpsVertVel = true;
+            } else {
+                useGpsVertVel = false;
+            }
+
+            // Monitor quality of the GPS velocity data before and after alignment using separate checks
+            if (PV_AidingMode != AID_ABSOLUTE) {
+                // Pre-alignment checks
+                gpsGoodToAlign = calcGpsGoodToAlign();
+            } else {
+                gpsGoodToAlign = false;
+            }
+
+            // Post-alignment checks
+            calcGpsGoodForFlight();
+
+            // Read the GPS locaton in WGS-84 lat,long,height coordinates
+            const struct Location &gpsloc = gps.location();
+
+            // Set the EKF origin and magnetic field declination if not previously set  and GPS checks have passed
+            if (gpsGoodToAlign && !validOrigin) {
+                setOrigin();
+
+                // set the NE earth magnetic field states using the published declination
+                // and set the corresponding variances and covariances
+                alignMagStateDeclination();
+
+                // Set the height of the NED origin
+                ekfGpsRefHgt = (double)0.01 * (double)gpsloc.alt + (double)outputDataNew.position.z;
+
+                // Set the uncertinty of the GPS origin height
+                ekfOriginHgtVar = sq(gpsHgtAccuracy);
+
+            }
+
+            // convert GPS measurements to local NED and save to buffer to be fused later if we have a valid origin
+            if (validOrigin) {
+                gpsDataNew.pos = location_diff(EKF_origin, gpsloc);
+                gpsDataNew.hgt = (float)((double)0.01 * (double)gpsloc.alt - ekfGpsRefHgt);
+                storedGPS.push(gpsDataNew);
+                // declare GPS available for use
+                gpsNotAvailable = false;
+            }
+
+            frontend->logging.log_gps = true;
+
+        } else {
+            // report GPS fix status
+            gpsCheckStatus.bad_fix = true;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // read the delta angle and corresponding time interval from the IMU
 // return false if data is not available
 bool NavEKF2_core::readDeltaAngle(uint8_t ins_index, Vector3f &dAng, float &dAng_dt) {

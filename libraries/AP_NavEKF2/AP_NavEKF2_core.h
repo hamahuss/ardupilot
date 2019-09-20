@@ -73,6 +73,8 @@ public:
     // The predict flag is set true when a new prediction cycle can be started
     void UpdateFilter(bool predict);
 
+    void UpdateFilter1(bool predict, uint8_t instance);
+
     // Check basic filter health metrics and return a consolidated health status
     bool healthy(void) const;
 
@@ -583,6 +585,8 @@ private:
     // check for new valid GPS data and update stored measurement if available
     void readGpsData();
 
+    void readGpsData1(uint8_t i);
+
     // check for new altitude measurement data and update stored measurement if available
     void readBaroData();
 
@@ -597,6 +601,8 @@ private:
 
     // determine when to perform fusion of GPS position and  velocity measurements
     void SelectVelPosFusion();
+
+    void SelectVelPosFusion1(uint8_t i);
 
     // determine when to perform fusion of range measurements take realtive to a beacon at a known NED position
     void SelectRngBcnFusion();

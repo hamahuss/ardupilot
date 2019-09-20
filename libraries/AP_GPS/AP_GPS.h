@@ -205,6 +205,12 @@ public:
         return location(primary_instance);
     }
 
+
+    void update_primary(uint8_t i)
+    {
+    	primary_instance = i;
+    }
+
     // report speed accuracy
     bool speed_accuracy(uint8_t instance, float &sacc) const;
     bool speed_accuracy(float &sacc) const {

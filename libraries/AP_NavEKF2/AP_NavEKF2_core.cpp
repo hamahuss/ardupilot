@@ -553,6 +553,91 @@ void NavEKF2_core::UpdateFilter(bool predict)
 #endif
 }
 
+void NavEKF2_core::UpdateFilter1(bool predict, uint8_t instance)
+{
+    // Set the flag to indicate to the filter that the front-end has given permission for a new state prediction cycle to be started
+    startPredictEnabled = predict;
+
+    // don't run filter updates if states have not been initialised
+    if (!statesInitialised) {
+        return;
+    }
+
+    // start the timer used for load measurement
+#if EK2_DISABLE_INTERRUPTS
+    irqstate_t istate = irqsave();
+#endif
+    hal.util->perf_begin(_perf_UpdateFilter);
+
+    // TODO - in-flight restart method
+
+    //get starting time for update step
+    imuSampleTime_ms = frontend->imuSampleTime_us / 1000;
+
+    // Check arm status and perform required checks and mode changes
+    controlFilterModes();
+
+    // read IMU data as delta angles and velocities
+    readIMUData();
+
+    // Run the EKF equations to estimate at the fusion time horizon if new IMU data is available in the buffer
+    if (runUpdates) {
+        // Predict states using IMU data from the delayed time horizon
+        UpdateStrapdownEquationsNED();
+
+        // Predict the covariance growth
+        CovariancePrediction();
+
+        // Update states using  magnetometer data
+        SelectMagFusion();
+
+        // Update states using GPS and altimeter data
+        SelectVelPosFusion1(instance);
+
+        // Update states using range beacon data
+        SelectRngBcnFusion();
+
+        // Update states using optical flow data
+        SelectFlowFusion();
+
+        // Update states using airspeed data
+        SelectTasFusion();
+
+        // Update states using sideslip constraint assumption for fly-forward vehicles
+        SelectBetaFusion();
+
+        // Update the filter status
+        updateFilterStatus();
+    }
+
+    // Wind output forward from the fusion to output time horizon
+    calcOutputStates();
+
+    // stop the timer used for load measurement
+    hal.util->perf_end(_perf_UpdateFilter);
+#if EK2_DISABLE_INTERRUPTS
+    irqrestore(istate);
+#endif
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void NavEKF2_core::correctDeltaAngle(Vector3f &delAng, float delAngDT)
 {
     delAng.x = delAng.x * stateStruct.gyro_scale.x;

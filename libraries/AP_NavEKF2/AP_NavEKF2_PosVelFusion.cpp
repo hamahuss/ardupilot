@@ -398,6 +398,186 @@ void NavEKF2_core::SelectVelPosFusion()
     }
 }
 
+// select fusion of velocity, position and height measurements
+void NavEKF2_core::SelectVelPosFusion1(uint8_t i)
+{
+    // Check if the magnetometer has been fused on that time step and the filter is running at faster than 200 Hz
+    // If so, don't fuse measurements on this time step to reduce frame over-runs
+    // Only allow one time slip to prevent high rate magnetometer data preventing fusion of other measurements
+    if (magFusePerformed && dtIMUavg < 0.005f && !posVelFusionDelayed) {
+        posVelFusionDelayed = true;
+        return;
+    } else {
+        posVelFusionDelayed = false;
+    }
+
+    // Check for data at the fusion time horizon
+    extNavDataToFuse = storedExtNav.recall(extNavDataDelayed, imuDataDelayed.time_ms);
+
+    // read GPS data from the sensor and check for new data in the buffer
+    readGpsData1(i);
+    gpsDataToFuse = storedGPS.recall(gpsDataDelayed,imuDataDelayed.time_ms);
+    // Determine if we need to fuse position and velocity data on this time step
+    if (gpsDataToFuse && PV_AidingMode == AID_ABSOLUTE) {
+        // set fusion request flags
+        if (frontend->_fusionModeGPS <= 1) {
+            fuseVelData = true;
+        } else {
+            fuseVelData = false;
+        }
+        fusePosData = true;
+        extNavUsedForPos = false;
+
+        // correct GPS data for position offset of antenna phase centre relative to the IMU
+        Vector3f posOffsetBody = AP::gps().get_antenna_offset(gpsDataDelayed.sensor_idx) - accelPosOffset;
+        if (!posOffsetBody.is_zero()) {
+            // Don't fuse velocity data if GPS doesn't support it
+            if (fuseVelData) {
+                // TODO use a filtered angular rate with a group delay that matches the GPS delay
+                Vector3f angRate = imuDataDelayed.delAng * (1.0f/imuDataDelayed.delAngDT);
+                Vector3f velOffsetBody = angRate % posOffsetBody;
+                Vector3f velOffsetEarth = prevTnb.mul_transpose(velOffsetBody);
+                gpsDataDelayed.vel.x -= velOffsetEarth.x;
+                gpsDataDelayed.vel.y -= velOffsetEarth.y;
+                gpsDataDelayed.vel.z -= velOffsetEarth.z;
+            }
+
+            Vector3f posOffsetEarth = prevTnb.mul_transpose(posOffsetBody);
+            gpsDataDelayed.pos.x -= posOffsetEarth.x;
+            gpsDataDelayed.pos.y -= posOffsetEarth.y;
+            gpsDataDelayed.hgt += posOffsetEarth.z;
+        }
+
+        // copy corrected GPS data to observation vector
+        if (fuseVelData) {
+            velPosObs[0] = gpsDataDelayed.vel.x;
+            velPosObs[1] = gpsDataDelayed.vel.y;
+            velPosObs[2] = gpsDataDelayed.vel.z;
+        }
+        velPosObs[3] = gpsDataDelayed.pos.x;
+        velPosObs[4] = gpsDataDelayed.pos.y;
+
+    } else if (extNavDataToFuse && PV_AidingMode == AID_ABSOLUTE) {
+        // This is a special case that uses and external nav system for position
+        extNavUsedForPos = true;
+        activeHgtSource = HGT_SOURCE_EV;
+        fuseVelData = false;
+        fuseHgtData = true;
+        fusePosData = true;
+        velPosObs[3] = extNavDataDelayed.pos.x;
+        velPosObs[4] = extNavDataDelayed.pos.y;
+        velPosObs[5] = extNavDataDelayed.pos.z;
+
+        // if compass is disabled, also use it for yaw
+        if (!use_compass()) {
+            extNavUsedForYaw = true;
+            if (!yawAlignComplete) {
+                extNavYawResetRequest = true;
+                magYawResetRequest = false;
+                gpsYawResetRequest = false;
+                controlMagYawReset();
+                finalInflightYawInit = true;
+            } else {
+                fuseEulerYaw();
+            }
+        } else {
+            extNavUsedForYaw = false;
+        }
+
+    } else {
+        fuseVelData = false;
+        fusePosData = false;
+    }
+
+    // we have GPS data to fuse and a request to align the yaw using the GPS course
+    if (gpsYawResetRequest) {
+        realignYawGPS();
+    }
+
+    // Select height data to be fused from the available baro, range finder and GPS sources
+
+    selectHeightForFusion();
+
+    // if we are using GPS, check for a change in receiver and reset position and height
+    if (gpsDataToFuse && PV_AidingMode == AID_ABSOLUTE && gpsDataDelayed.sensor_idx != last_gps_idx) {
+        // record the ID of the GPS that we are using for the reset
+        last_gps_idx = gpsDataDelayed.sensor_idx;
+
+        // Store the position before the reset so that we can record the reset delta
+        posResetNE.x = stateStruct.position.x;
+        posResetNE.y = stateStruct.position.y;
+
+        // Set the position states to the position from the new GPS
+        stateStruct.position.x = gpsDataNew.pos.x;
+        stateStruct.position.y = gpsDataNew.pos.y;
+
+        // Calculate the position offset due to the reset
+        posResetNE.x = stateStruct.position.x - posResetNE.x;
+        posResetNE.y = stateStruct.position.y - posResetNE.y;
+
+        // Add the offset to the output observer states
+        for (uint8_t i=0; i<imu_buffer_length; i++) {
+            storedOutput[i].position.x += posResetNE.x;
+            storedOutput[i].position.y += posResetNE.y;
+        }
+        outputDataNew.position.x += posResetNE.x;
+        outputDataNew.position.y += posResetNE.y;
+        outputDataDelayed.position.x += posResetNE.x;
+        outputDataDelayed.position.y += posResetNE.y;
+
+        // store the time of the reset
+        lastPosReset_ms = imuSampleTime_ms;
+
+        // If we are alseo using GPS as the height reference, reset the height
+        if (activeHgtSource == HGT_SOURCE_GPS) {
+            // Store the position before the reset so that we can record the reset delta
+            posResetD = stateStruct.position.z;
+
+            // write to the state vector
+            stateStruct.position.z = -hgtMea;
+
+            // Calculate the position jump due to the reset
+            posResetD = stateStruct.position.z - posResetD;
+
+            // Add the offset to the output observer states
+            outputDataNew.position.z += posResetD;
+            outputDataDelayed.position.z += posResetD;
+            for (uint8_t i=0; i<imu_buffer_length; i++) {
+                storedOutput[i].position.z += posResetD;
+            }
+
+            // store the time of the reset
+            lastPosResetD_ms = imuSampleTime_ms;
+        }
+    }
+
+    // If we are operating without any aiding, fuse in the last known position
+    // to constrain tilt drift. This assumes a non-manoeuvring vehicle
+    // Do this to coincide with the height fusion
+    if (fuseHgtData && PV_AidingMode == AID_NONE) {
+        velPosObs[3] = lastKnownPositionNE.x;
+        velPosObs[4] = lastKnownPositionNE.y;
+        fusePosData = true;
+        fuseVelData = false;
+    }
+
+    // perform fusion
+    if (fuseVelData || fusePosData || fuseHgtData) {
+        FuseVelPosNED();
+        // clear the flags to prevent repeated fusion of the same data
+        fuseVelData = false;
+        fuseHgtData = false;
+        fusePosData = false;
+    }
+}
+
+
+
+
+
+
+
+
 // fuse selected position, velocity and height measurements
 void NavEKF2_core::FuseVelPosNED()
 {

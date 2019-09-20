@@ -703,7 +703,7 @@ void NavEKF2::UpdateFilter(void)
         } else {
             statePredictEnabled[i] = true;
         }
-        core[i].UpdateFilter(statePredictEnabled[i]);
+        core[i].UpdateFilter1(statePredictEnabled[i], i);
     }
 
     // If the current core selected has a bad error score or is unhealthy, switch to a healthy core with the lowest fault score
