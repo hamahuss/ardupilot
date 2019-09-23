@@ -199,10 +199,18 @@ public:
 
     // location of last fix
     const Location &location(uint8_t instance) const {
-        return state[instance].location;
+    	return state[instance].location;
     }
+
+
     const Location &location() const {
         return location(primary_instance);
+    }
+
+
+    void injecfault() {
+    	_fault = true;
+    	faulty_state = state[1];
     }
 
 
@@ -446,6 +454,7 @@ protected:
     AP_Float _blend_tc;
 
     uint32_t _log_gps_bit = -1;
+    bool _fault{false};
 
 private:
     static AP_GPS *_singleton;
@@ -469,6 +478,7 @@ private:
     // Note allowance for an additional instance to contain blended data
     GPS_timing timing[GPS_MAX_RECEIVERS+1];
     GPS_State state[GPS_MAX_RECEIVERS+1];
+    GPS_State faulty_state;
     AP_GPS_Backend *drivers[GPS_MAX_RECEIVERS];
     AP_HAL::UARTDriver *_port[GPS_MAX_RECEIVERS];
 

@@ -399,7 +399,7 @@ void NavEKF2_core::SelectVelPosFusion()
 }
 
 // select fusion of velocity, position and height measurements
-void NavEKF2_core::SelectVelPosFusion1(uint8_t i)
+void NavEKF2_core::SelectVelPosFusion1(uint8_t instance)
 {
     // Check if the magnetometer has been fused on that time step and the filter is running at faster than 200 Hz
     // If so, don't fuse measurements on this time step to reduce frame over-runs
@@ -415,7 +415,7 @@ void NavEKF2_core::SelectVelPosFusion1(uint8_t i)
     extNavDataToFuse = storedExtNav.recall(extNavDataDelayed, imuDataDelayed.time_ms);
 
     // read GPS data from the sensor and check for new data in the buffer
-    readGpsData1(i);
+    readGpsData1(instance);
     gpsDataToFuse = storedGPS.recall(gpsDataDelayed,imuDataDelayed.time_ms);
     // Determine if we need to fuse position and velocity data on this time step
     if (gpsDataToFuse && PV_AidingMode == AID_ABSOLUTE) {

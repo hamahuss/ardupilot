@@ -683,9 +683,22 @@ void AP_GPS::update_instance(uint8_t instance)
  */
 void AP_GPS::update(void)
 {
-    for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
-        update_instance(i);
+
+	if(!_fault)
+    {
+//		state[1].location.lat = faulty_state.location.lat;
+//		state[1].location.lng = faulty_state.location.lng;
+//		state[1].location.alt = faulty_state.location.alt;
+//		state[1].status = NO_GPS;
+//		state[1].location.lat*=1.005;
+
+	    for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
+	        update_instance(i);
+	    }
+
     }
+	else update_instance(0);
+
 
     // calculate number of instances
     for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
@@ -777,6 +790,9 @@ void AP_GPS::update(void)
     // update notify with gps status. We always base this on the primary_instance
     AP_Notify::flags.gps_status = state[primary_instance].status;
     AP_Notify::flags.gps_num_sats = state[primary_instance].num_sats;
+
+
+
 
 }
 
@@ -1482,7 +1498,7 @@ void AP_GPS::calc_blended_state(void)
     // Calculate a corrected location for each GPS
     Location corrected_location[GPS_MAX_RECEIVERS];
     for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
-        corrected_location[i] = state[i].location;
+    	corrected_location[i] = state[i].location;
         location_offset(corrected_location[i], _NE_pos_offset_m[i].x, _NE_pos_offset_m[i].y);
         corrected_location[i].alt += (int)(_hgt_offset_cm[i]);
     }

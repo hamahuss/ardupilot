@@ -219,44 +219,44 @@ void NavEKF2_core::setAidingMode()
         // check if position drift has been constrained by a measurement source
         bool posAiding = posUsed || rngBcnUsed;
 
-        // Check if the loss of attitude aiding has become critical
-        bool attAidLossCritical = false;
-        if (!attAiding) {
-            attAidLossCritical = (imuSampleTime_ms - prevFlowFuseTime_ms > frontend->tiltDriftTimeMax_ms) &&
-                   (imuSampleTime_ms - lastTasPassTime_ms > frontend->tiltDriftTimeMax_ms) &&
-                   (imuSampleTime_ms - lastRngBcnPassTime_ms > frontend->tiltDriftTimeMax_ms) &&
-                   (imuSampleTime_ms - lastPosPassTime_ms > frontend->tiltDriftTimeMax_ms) &&
-                   (imuSampleTime_ms - lastVelPassTime_ms > frontend->tiltDriftTimeMax_ms);
-        }
+//        // Check if the loss of attitude aiding has become critical
+//        bool attAidLossCritical = false;
+//        if (!attAiding) {
+//            attAidLossCritical = (imuSampleTime_ms - prevFlowFuseTime_ms > frontend->tiltDriftTimeMax_ms) &&
+//                   (imuSampleTime_ms - lastTasPassTime_ms > frontend->tiltDriftTimeMax_ms) &&
+//                   (imuSampleTime_ms - lastRngBcnPassTime_ms > frontend->tiltDriftTimeMax_ms) &&
+//                   (imuSampleTime_ms - lastPosPassTime_ms > frontend->tiltDriftTimeMax_ms) &&
+//                   (imuSampleTime_ms - lastVelPassTime_ms > frontend->tiltDriftTimeMax_ms);
+//        }
+//
+//        // Check if the loss of position accuracy has become critical
+//        bool posAidLossCritical = false;
+//        if (!posAiding ) {
+//            uint16_t maxLossTime_ms;
+//            if (!velAiding) {
+//                maxLossTime_ms = frontend->posRetryTimeNoVel_ms;
+//            } else {
+//                maxLossTime_ms = frontend->posRetryTimeUseVel_ms;
+//            }
+//            posAidLossCritical = (imuSampleTime_ms - lastRngBcnPassTime_ms > maxLossTime_ms) &&
+//                   (imuSampleTime_ms - lastPosPassTime_ms > maxLossTime_ms);
+//        }
 
-        // Check if the loss of position accuracy has become critical
-        bool posAidLossCritical = false;
-        if (!posAiding ) {
-            uint16_t maxLossTime_ms;
-            if (!velAiding) {
-                maxLossTime_ms = frontend->posRetryTimeNoVel_ms;
-            } else {
-                maxLossTime_ms = frontend->posRetryTimeUseVel_ms;
-            }
-            posAidLossCritical = (imuSampleTime_ms - lastRngBcnPassTime_ms > maxLossTime_ms) &&
-                   (imuSampleTime_ms - lastPosPassTime_ms > maxLossTime_ms);
-        }
-
-        if (attAidLossCritical) {
-            // if the loss of attitude data is critical, then put the filter into a constant position mode
-            PV_AidingMode = AID_NONE;
-            posTimeout = true;
-            velTimeout = true;
-            rngBcnTimeout = true;
-            tasTimeout = true;
-            gpsNotAvailable = true;
-        } else if (posAidLossCritical) {
-            // if the loss of position is critical, declare all sources of position aiding as being timed out
-            posTimeout = true;
-            velTimeout = true;
-            rngBcnTimeout = true;
-            gpsNotAvailable = true;
-        }
+//        if (attAidLossCritical) {
+//            // if the loss of attitude data is critical, then put the filter into a constant position mode
+//            PV_AidingMode = AID_NONE;
+//            posTimeout = true;
+//            velTimeout = true;
+//            rngBcnTimeout = true;
+//            tasTimeout = true;
+//            gpsNotAvailable = true;
+//        } else if (posAidLossCritical) {
+//            // if the loss of position is critical, declare all sources of position aiding as being timed out
+//            posTimeout = true;
+//            velTimeout = true;
+//            rngBcnTimeout = true;
+//            gpsNotAvailable = true;
+//        }
         }
         break;
 

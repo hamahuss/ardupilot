@@ -171,6 +171,8 @@ const AP_Param::GroupInfo AC_PosControl::var_info[] = {
     // @User: Advanced
     AP_SUBGROUPINFO(_pid_vel_xy, "_VELXY_", 6, AC_PosControl, AC_PID_2D),
 
+
+
     // @Param: _ANGLE_MAX
     // @DisplayName: Position Control Angle Max
     // @Description: Maximum lean angle autopilot can request.  Set to zero to use ANGLE_MAX parameter value
@@ -179,6 +181,19 @@ const AP_Param::GroupInfo AC_PosControl::var_info[] = {
     // @Increment: 1
     // @User: Advanced
     AP_GROUPINFO("_ANGLE_MAX",  7, AC_PosControl, _lean_angle_max, 0.0f),
+
+
+    // @Param: _VELXY_D_FILT
+    // @DisplayName: Velocity (horizontal) input filter
+    // @Description: Velocity (horizontal) input filter.  This filter (in hz) is applied to the input for P and I terms
+    // @Range: 0 100
+    // @Units: Hz
+    // @User: Advanced
+	AP_GROUPINFO("_INJECT_FAU",  8, AC_PosControl, _inject, 0.0f),
+
+
+
+
 
     AP_GROUPEND
 };
@@ -636,7 +651,7 @@ void AC_PosControl::run_z_controller()
     _ut = thr_out;
 
 
-	 observer();
+
     // send throttle to attitude controller with angle boost
     _attitude_control.set_throttle_out(thr_out, true, POSCONTROL_THROTTLE_CUTOFF_FREQ);
 }
@@ -849,6 +864,15 @@ void AC_PosControl::write_log()
 
      Vector2f pos1;
      Vector2f pos2;
+
+     if(_inject==1 && !_fault_injected)
+     {
+    	 AP_GPS &gps = AP::gps();
+    	 gps.injecfault();
+    	 _fault_injected = true;
+     }
+
+
      _inav.get_position12(pos1,pos2);
 
     lean_angles_to_accel(accel_x, accel_y);
@@ -893,7 +917,7 @@ void AC_PosControl::write_log()
 	 float accxh, vxh,xh, accyh, vyh, yh;
 
 
-
+	 observer();
 	 voter();
 
 	 accxh = _ddxh;
@@ -1066,18 +1090,18 @@ void AC_PosControl::observer()
 
 
     	_prev_ddx = _ddxh;
-    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.1*0.3*sign((pos1.x+pos2.x)/2 - _xh);
+    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.1*1*sign((pos1.x+pos2.x)/2 - _xh);
     	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh);
     	_prev_dx = _xhd;
-    	_xhd = _dxh +  1.5*sqrt(0.3) * sqrt(absf((pos1.x+pos2.x)/2 - _xh)) * sign((pos1.x+pos2.x)/2 - _xh);
+    	_xhd = _dxh +  1.5*sqrt(1) * sqrt(absf((pos1.x+pos2.x)/2 - _xh)) * sign((pos1.x+pos2.x)/2 - _xh);
     	_xh = _xh + (float)(dt*(_prev_dx + _xhd)*0.5f);
 
 
     	_prev_ddy = _ddyh;
-    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.1*0.3*sign((pos1.y+pos2.y)/2 - _yh);
+    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.1*1*sign((pos1.y+pos2.y)/2 - _yh);
     	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh);
     	_prev_dy = _yhd;
-    	_yhd = _dyh +  1.5*sqrt(0.3) * sqrt(absf((pos1.x+pos2.x)/2 - _yh)) * sign((pos1.y+pos2.y)/2 - _yh);
+    	_yhd = _dyh +  1.5*sqrt(1) * sqrt(absf((pos1.y+pos2.y)/2 - _yh)) * sign((pos1.y+pos2.y)/2 - _yh);
     	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
 }
 

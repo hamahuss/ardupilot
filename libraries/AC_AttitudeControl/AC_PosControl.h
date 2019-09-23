@@ -37,6 +37,10 @@
 #define POSCONTROL_THROTTLE_CUTOFF_FREQ         2.0f    // low-pass filter on accel error (unit: hz)
 #define POSCONTROL_ACCEL_FILTER_HZ              2.0f    // low-pass filter on acceleration (unit: hz)
 #define POSCONTROL_JERK_RATIO                   1.0f    // Defines the time it takes to reach the requested acceleration
+#define AC_INJEC                   				0.0f    // Defines the time it takes to reach the requested acceleration
+
+
+
 
 #define POSCONTROL_OVERSPEED_GAIN_Z             2.0f    // gain controlling rate at which z-axis speed is brought back within SPEED_UP and SPEED_DOWN range
 
@@ -378,6 +382,7 @@ protected:
     AC_PID      _pid_accel_z;
     AC_P        _p_pos_xy;
     AC_PID_2D   _pid_vel_xy;
+    AP_Int8 	_inject;
 
     // internal variables
     float       _dt;                    // time difference (in seconds) between calls from the main program
@@ -437,6 +442,8 @@ protected:
     float _s_x_kf1_kf2, _s_x_kf1_mod, _s_x_kf2_mod;
     float _s_y_kf1_kf2, _s_y_kf1_mod, _s_y_kf2_mod;
     float _s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod;
+    bool _fault_injected;
+
 
     float _xv, _yv, _dv, _dkf1, _dkf2, _dmod;
 
