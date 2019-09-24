@@ -97,3 +97,10 @@ GTAGS
 config.mk
 *.apj
 .gdbinit
+modules/ChibiOS
+modules/gtest
+modules/mavlink
+modules/PX4Firmware
+modules/PX4NuttX
+modules/uavcan
+modules/waf
