@@ -214,6 +214,11 @@ public:
     }
 
 
+    bool gps_faulty(){
+    	return _fault;
+    }
+
+
     void update_primary(uint8_t i)
     {
     	primary_instance = i;

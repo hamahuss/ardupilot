@@ -35,6 +35,7 @@
 #include "AP_GPS_UBLOX.h"
 #include "AP_GPS_MAV.h"
 #include "GPS_Backend.h"
+#include <RC_Channel/RC_Channel.h>
 
 #if HAL_WITH_UAVCAN
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
@@ -684,20 +685,34 @@ void AP_GPS::update_instance(uint8_t instance)
 void AP_GPS::update(void)
 {
 
-	if(!_fault)
-    {
-//		state[1].location.lat = faulty_state.location.lat;
-//		state[1].location.lng = faulty_state.location.lng;
-//		state[1].location.alt = faulty_state.location.alt;
-//		state[1].status = NO_GPS;
-//		state[1].location.lat*=1.005;
 
-	    for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
-	        update_instance(i);
+	for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
+		        update_instance(i);
+	}
+
+//	uint16_t radio_in;
+//	radio_in = RC_Channels::get_radio_in(7);
+	uint32_t t_now = AP_HAL::millis();
+//	if(radio_in>1700)
+//    {
+////		state[1].location.lat = faulty_state.location.lat;
+////		state[1].location.lng = faulty_state.location.lng;
+////		state[1].location.alt = faulty_state.location.alt;
+////		state[1].status = NO_GPS;
+//	    		state[0].location.lat+=1e2*sinf(t_now*1e-3);
+////	    		state[1].location.lng+=1e2;
+//    }
+
+
+		if(_fault)
+	    {
+	//		state[1].location.lat = faulty_state.location.lat;
+	//		state[1].location.lng = faulty_state.location.lng;
+	//		state[1].location.alt = faulty_state.location.alt;
+	//		state[1].status = NO_GPS;
+		    		state[0].location.lat+=1e2*sinf(t_now*1e-3);
+	//	    		state[1].location.lng+=1e2;
 	    }
-
-    }
-	else update_instance(0);
 
 
     // calculate number of instances
