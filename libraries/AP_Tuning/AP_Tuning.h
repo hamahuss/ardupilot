@@ -1,14 +1,8 @@
 #pragma once
 
-<<<<<<< HEAD
 #include <AP_Common/AP_Common.h>
 #include <AP_HAL/AP_HAL.h>
 #include <DataFlash/DataFlash.h>
-=======
-#include <AP_Param/AP_Param.h>
-
-#include "stdint.h"
->>>>>>> upstream/master
 
 /*
   transmitter tuning library. Meant to be subclassed per vehicle type

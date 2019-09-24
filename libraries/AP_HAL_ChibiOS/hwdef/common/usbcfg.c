@@ -31,10 +31,10 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "usbcfg.h"
+
 // #pragma GCC optimize("O0")
 
-#if defined(HAL_USB_PRODUCT_ID) && !HAL_HAVE_DUAL_USB_CDC
+#ifdef HAL_USB_PRODUCT_ID
 
 /* Virtual serial port over USB.*/
 SerialUSBDriver SDU1;
@@ -178,10 +178,10 @@ static USBDescriptor vcom_strings[] = {
   {0, NULL}, // version
 };
 
+#define USB_DESC_MAX_STRLEN 100
 static uint8_t vcom_buffers[3][2+2*USB_DESC_MAX_STRLEN];
 
 /*
-<<<<<<< HEAD
   check if one string contains another
  */
 static bool string_contains(const char *haystack, const char *needle)
@@ -241,8 +241,6 @@ static void string_substitute(const char *str, char *str2)
 
 
 /*
-=======
->>>>>>> upstream/master
   dynamically allocate a USB descriptor string
  */
 static void setup_usb_string(USBDescriptor *desc, const char *str, uint8_t *b)
@@ -416,7 +414,7 @@ const USBConfig usbcfg = {
 /*
  * Serial over USB driver configuration.
  */
-const SerialUSBConfig serusbcfg1 = {
+const SerialUSBConfig serusbcfg = {
   &USBD1,
   USBD1_DATA_REQUEST_EP,
   USBD1_DATA_AVAILABLE_EP,

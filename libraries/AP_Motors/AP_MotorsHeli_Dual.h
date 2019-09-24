@@ -24,6 +24,9 @@
 #define AP_MOTORS_HELI_DUAL_COLLECTIVE_DIRECTION_NORMAL        0
 #define AP_MOTORS_HELI_DUAL_COLLECTIVE_DIRECTION_REVERSED      1
 
+// rsc function output channel
+#define AP_MOTORS_HELI_DUAL_RSC                     CH_8
+
 // tandem modes
 #define AP_MOTORS_HELI_DUAL_MODE_TANDEM                0 // tandem mode (rotors front and aft)
 #define AP_MOTORS_HELI_DUAL_MODE_TRANSVERSE            1 // transverse mode (rotors side by side)
@@ -45,7 +48,8 @@ public:
     // constructor
     AP_MotorsHeli_Dual(uint16_t loop_rate,
                        uint16_t speed_hz = AP_MOTORS_HELI_SPEED_DEFAULT) :
-        AP_MotorsHeli(loop_rate, speed_hz)
+        AP_MotorsHeli(loop_rate, speed_hz),
+        _rotor(SRV_Channel::k_heli_rsc, AP_MOTORS_HELI_DUAL_RSC)
     {
         AP_Param::setup_object_defaults(this, var_info);
     };
@@ -57,26 +61,17 @@ public:
     // output_test - spin a motor at the pwm value specified
     void output_test(uint8_t motor_seq, int16_t pwm) override;
 
-    // set_rpm - for rotor speed governor
-    void set_rpm(float rotor_rpm) override;
-
     // set_desired_rotor_speed - sets target rotor speed as a number from 0 ~ 1000
     void set_desired_rotor_speed(float desired_speed) override;
 
     // get_estimated_rotor_speed - gets estimated rotor speed as a number from 0 ~ 1000
-    float get_main_rotor_speed() const  override { return _main_rotor.get_rotor_speed(); }
+    float get_main_rotor_speed() const  override { return _rotor.get_rotor_speed(); }
 
     // get_desired_rotor_speed - gets target rotor speed as a number from 0 ~ 1000
-    float get_desired_rotor_speed() const  override { return _main_rotor.get_rotor_speed(); }
+    float get_desired_rotor_speed() const  override { return _rotor.get_rotor_speed(); }
 
     // rotor_speed_above_critical - return true if rotor speed is above that critical for flight
-    bool rotor_speed_above_critical() const  override { return _main_rotor.get_rotor_speed() > _main_rotor.get_critical_speed(); }
-    
-    // get_governor_output
-    float get_governor_output() const override { return _main_rotor.get_governor_output(); }
-    
-    // get_control_output
-    float get_control_output() const override { return _main_rotor.get_control_output(); }
+    bool rotor_speed_above_critical() const  override { return _rotor.get_rotor_speed() > _rotor.get_critical_speed(); }
 
     // calculate_scalars - recalculates various scalars used
     void calculate_scalars() override;
@@ -114,12 +109,7 @@ protected:
     void move_actuators(float roll_out, float pitch_out, float coll_in, float yaw_out)  override;
 
     //  objects we depend upon
-<<<<<<< HEAD
     AP_MotorsHeli_RSC           _rotor;             // main rotor controller
-=======
-    AP_MotorsHeli_Swash        _swashplate1;        // swashplate1
-    AP_MotorsHeli_Swash        _swashplate2;        // swashplate2
->>>>>>> upstream/master
 
     // internal variables
     float _oscillate_angle = 0.0f;                  // cyclic oscillation angle, used by servo_test function

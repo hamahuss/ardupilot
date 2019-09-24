@@ -19,13 +19,6 @@
 
 #define AP_ACCELCAL_POSITION_REQUEST_INTERVAL_MS 1000
 
-#define _printf(fmt, args ...) do {                                     \
-        if (_gcs != nullptr) {                                          \
-            _gcs->send_text(MAV_SEVERITY_CRITICAL, fmt, ## args);       \
-        }                                                               \
-    } while (0)
-
-
 const extern AP_HAL::HAL& hal;
 static bool _start_collect_sample;
 
@@ -360,13 +353,13 @@ bool AP_AccelCal::client_active(uint8_t client_num)
     return (bool)_clients[client_num]->_acal_get_calibrator(0);
 }
 
-void AP_AccelCal::handleMessage(const mavlink_message_t &msg)
+void AP_AccelCal::handleMessage(const mavlink_message_t* msg)
 {
     if (!_waiting_for_mavlink_ack) {
         return;
     }
     _waiting_for_mavlink_ack = false;
-    if (msg.msgid == MAVLINK_MSG_ID_COMMAND_ACK) {
+    if (msg->msgid == MAVLINK_MSG_ID_COMMAND_ACK) {
         _start_collect_sample = true;
     }
 }
@@ -382,7 +375,6 @@ bool AP_AccelCal::gcs_vehicle_position(float position)
 
     return false;
 }
-<<<<<<< HEAD
 
 void AP_AccelCal::_printf(const char* fmt, ...)
 {
@@ -411,5 +403,3 @@ void AP_AccelCal::_printf(const char* fmt, ...)
     _gcs->send_text(MAV_SEVERITY_CRITICAL, msg);
 #endif
 }
-=======
->>>>>>> upstream/master

@@ -18,11 +18,7 @@
 #include "sdcard.h"
 #include "hwdef/common/spi_hook.h"
 #include <AP_BoardConfig/AP_BoardConfig.h>
-<<<<<<< HEAD
 #include "Semaphores.h"
-=======
-#include <AP_Filesystem/AP_Filesystem.h>
->>>>>>> upstream/master
 
 extern const AP_HAL::HAL& hal;
 
@@ -83,12 +79,8 @@ bool sdcard_init()
         printf("Successfully mounted SDCard (slowdown=%u)\n", (unsigned)sd_slowdown);
 
         // Create APM Directory if needed
-<<<<<<< HEAD
         mkdir("/APM", 0777);
         mkdir("/APM/LOGS", 0777);
-=======
-        AP::FS().mkdir("/APM");
->>>>>>> upstream/master
         sdcard_running = true;
         sem.give();
         return true;
@@ -103,11 +95,7 @@ bool sdcard_init()
     device = AP_HAL::get_HAL().spi->get_device("sdcard");
     if (!device) {
         printf("No sdcard SPI device found\n");
-<<<<<<< HEAD
         sem.give();
-=======
-        sdcard_running = false;
->>>>>>> upstream/master
         return false;
     }
     device->set_slowdown(sd_slowdown);
@@ -138,21 +126,14 @@ bool sdcard_init()
         printf("Successfully mounted SDCard (slowdown=%u)\n", (unsigned)sd_slowdown);
 
         // Create APM Directory if needed
-<<<<<<< HEAD
         mkdir("/APM", 0777);
         mkdir("/APM/LOGS", 0777);
         sem.give();
-=======
-        AP::FS().mkdir("/APM");
->>>>>>> upstream/master
         return true;
     }
-#endif
-<<<<<<< HEAD
-    sem.give();
-=======
     sdcard_running = false;
->>>>>>> upstream/master
+#endif
+    sem.give();
 #endif
     return false;
 }
@@ -181,15 +162,13 @@ void sdcard_stop(void)
 #endif
 }
 
-bool sdcard_retry(void)
+void sdcard_retry(void)
 {
 #ifdef USE_POSIX
     if (!sdcard_running) {
         sdcard_init();
     }
-    return sdcard_running;
 #endif
-    return false;
 }
 
 #if HAL_USE_MMC_SPI

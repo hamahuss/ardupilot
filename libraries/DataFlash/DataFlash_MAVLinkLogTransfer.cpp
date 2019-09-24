@@ -40,16 +40,12 @@ bool DataFlash_Class::should_handle_log_message()
 /**
    handle all types of log download requests from the GCS
  */
-<<<<<<< HEAD:libraries/DataFlash/DataFlash_MAVLinkLogTransfer.cpp
 void DataFlash_Class::handle_log_message(GCS_MAVLINK &link, mavlink_message_t *msg)
-=======
-void AP_Logger::handle_log_message(GCS_MAVLINK &link, const mavlink_message_t &msg)
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_MAVLinkLogTransfer.cpp
 {
     if (!should_handle_log_message()) {
         return;
     }
-    switch (msg.msgid) {
+    switch (msg->msgid) {
     case MAVLINK_MSG_ID_LOG_REQUEST_LIST:
         handle_log_request_list(link, msg);
         break;
@@ -68,11 +64,7 @@ void AP_Logger::handle_log_message(GCS_MAVLINK &link, const mavlink_message_t &m
 /**
    handle all types of log download requests from the GCS
  */
-<<<<<<< HEAD:libraries/DataFlash/DataFlash_MAVLinkLogTransfer.cpp
 void DataFlash_Class::handle_log_request_list(GCS_MAVLINK &link, mavlink_message_t *msg)
-=======
-void AP_Logger::handle_log_request_list(GCS_MAVLINK &link, const mavlink_message_t &msg)
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_MAVLinkLogTransfer.cpp
 {
     if (_log_sending_link != nullptr) {
         link.send_text(MAV_SEVERITY_INFO, "Log download in progress");
@@ -80,7 +72,7 @@ void AP_Logger::handle_log_request_list(GCS_MAVLINK &link, const mavlink_message
     }
 
     mavlink_log_request_list_t packet;
-    mavlink_msg_log_request_list_decode(&msg, &packet);
+    mavlink_msg_log_request_list_decode(msg, &packet);
 
     _log_num_logs = get_num_logs();
     if (_log_num_logs == 0) {
@@ -108,11 +100,7 @@ void AP_Logger::handle_log_request_list(GCS_MAVLINK &link, const mavlink_message
 /**
    handle request for log data
  */
-<<<<<<< HEAD:libraries/DataFlash/DataFlash_MAVLinkLogTransfer.cpp
 void DataFlash_Class::handle_log_request_data(GCS_MAVLINK &link, mavlink_message_t *msg)
-=======
-void AP_Logger::handle_log_request_data(GCS_MAVLINK &link, const mavlink_message_t &msg)
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_MAVLinkLogTransfer.cpp
 {
     if (_log_sending_link != nullptr) {
         // some GCS (e.g. MAVProxy) attempt to stream request_data
@@ -126,7 +114,7 @@ void AP_Logger::handle_log_request_data(GCS_MAVLINK &link, const mavlink_message
     }
 
     mavlink_log_request_data_t packet;
-    mavlink_msg_log_request_data_decode(&msg, &packet);
+    mavlink_msg_log_request_data_decode(msg, &packet);
 
     // consider opening or switching logs:
     if (transfer_activity != SENDING || _log_num_data != packet.id) {
@@ -166,14 +154,10 @@ void AP_Logger::handle_log_request_data(GCS_MAVLINK &link, const mavlink_message
 /**
    handle request to erase log data
  */
-<<<<<<< HEAD:libraries/DataFlash/DataFlash_MAVLinkLogTransfer.cpp
 void DataFlash_Class::handle_log_request_erase(GCS_MAVLINK &link, mavlink_message_t *msg)
-=======
-void AP_Logger::handle_log_request_erase(GCS_MAVLINK &link, const mavlink_message_t &msg)
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_MAVLinkLogTransfer.cpp
 {
     // mavlink_log_erase_t packet;
-    // mavlink_msg_log_erase_decode(&msg, &packet);
+    // mavlink_msg_log_erase_decode(msg, &packet);
 
     EraseAll();
 }
@@ -181,14 +165,10 @@ void AP_Logger::handle_log_request_erase(GCS_MAVLINK &link, const mavlink_messag
 /**
    handle request to stop transfer and resume normal logging
  */
-<<<<<<< HEAD:libraries/DataFlash/DataFlash_MAVLinkLogTransfer.cpp
 void DataFlash_Class::handle_log_request_end(GCS_MAVLINK &link, mavlink_message_t *msg)
-=======
-void AP_Logger::handle_log_request_end(GCS_MAVLINK &link, const mavlink_message_t &msg)
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_MAVLinkLogTransfer.cpp
 {
     mavlink_log_request_end_t packet;
-    mavlink_msg_log_request_end_decode(&msg, &packet);
+    mavlink_msg_log_request_end_decode(msg, &packet);
 
     transfer_activity = IDLE;
     _log_sending_link = nullptr;

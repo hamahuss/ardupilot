@@ -22,13 +22,7 @@
 #include "Util.h"
 #include "hwdef/common/stm32_util.h"
 
-<<<<<<< HEAD
 #if HAL_USE_I2C == TRUE || HAL_USE_SPI == TRUE
-=======
-#ifndef HAL_DEVICE_THREAD_STACK
-#define HAL_DEVICE_THREAD_STACK 1024
-#endif
->>>>>>> upstream/master
 
 using namespace ChibiOS;
 
@@ -119,7 +113,7 @@ AP_HAL::Device::PeriodicHandle DeviceBus::register_periodic_callback(uint32_t pe
             break;
         }
 
-        thread_ctx = thread_create_alloc(THD_WORKING_AREA_SIZE(HAL_DEVICE_THREAD_STACK),
+        thread_ctx = thread_create_alloc(THD_WORKING_AREA_SIZE(1024),
                                          name,
                                          thread_priority,           /* Initial priority.    */
                                          DeviceBus::bus_thread,    /* Thread function.     */

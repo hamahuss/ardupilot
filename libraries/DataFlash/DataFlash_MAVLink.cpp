@@ -227,13 +227,8 @@ void DataFlash_MAVLink::stop_logging()
     }
 }
 
-<<<<<<< HEAD:libraries/DataFlash/DataFlash_MAVLink.cpp
 void DataFlash_MAVLink::handle_ack(mavlink_channel_t chan,
                                    mavlink_message_t* msg,
-=======
-void AP_Logger_MAVLink::handle_ack(const mavlink_channel_t chan,
-                                   const mavlink_message_t &msg,
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_MAVLink.cpp
                                    uint32_t seqno)
 {
     if (!_initialised) {
@@ -255,8 +250,8 @@ void AP_Logger_MAVLink::handle_ack(const mavlink_channel_t chan,
             // }
             stats_init();
             _sending_to_client = true;
-            _target_system_id = msg.sysid;
-            _target_component_id = msg.compid;
+            _target_system_id = msg->sysid;
+            _target_component_id = msg->compid;
             _chan = chan;
             _next_seq_num = 0;
             start_new_log_reset_variables();
@@ -278,21 +273,12 @@ void AP_Logger_MAVLink::handle_ack(const mavlink_channel_t chan,
     }
 }
 
-<<<<<<< HEAD:libraries/DataFlash/DataFlash_MAVLink.cpp
 void DataFlash_MAVLink::remote_log_block_status_msg(mavlink_channel_t chan,
                                                     mavlink_message_t* msg)
 {
     mavlink_remote_log_block_status_t packet;
     mavlink_msg_remote_log_block_status_decode(msg, &packet);
     if (!semaphore->take_nonblocking()) {
-=======
-void AP_Logger_MAVLink::remote_log_block_status_msg(const mavlink_channel_t chan,
-                                                    const mavlink_message_t& msg)
-{
-    mavlink_remote_log_block_status_t packet;
-    mavlink_msg_remote_log_block_status_decode(&msg, &packet);
-    if (!semaphore.take_nonblocking()) {
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_MAVLink.cpp
         return;
     }
     if(packet.status == 0){
@@ -343,13 +329,8 @@ void DataFlash_MAVLink::Log_Write_DF_MAV(DataFlash_MAVLink &df)
     if (df.stats.collection_count == 0) {
         return;
     }
-<<<<<<< HEAD:libraries/DataFlash/DataFlash_MAVLink.cpp
     struct log_DF_MAV_Stats pkt = {
         LOG_PACKET_HEADER_INIT(LOG_DF_MAV_STATS),
-=======
-    const struct log_MAV_Stats pkt{
-        LOG_PACKET_HEADER_INIT(LOG_MAV_STATS),
->>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_MAVLink.cpp
         timestamp         : AP_HAL::millis(),
         seqno             : df._next_seq_num-1,
         dropped           : df._dropped,
@@ -588,7 +569,7 @@ bool DataFlash_MAVLink::send_log_block(struct dm_block &block)
 #endif
     
 #if DF_MAVLINK_DISABLE_INTERRUPTS
-    void *istate = hal.scheduler->disable_interrupts_save();
+    irqstate_t istate = irqsave();
 #endif
 
 // DM_packing: 267039 events, 0 overruns, 8440834us elapsed, 31us avg, min 31us max 32us 0.488us rms
@@ -610,7 +591,7 @@ bool DataFlash_MAVLink::send_log_block(struct dm_block &block)
     hal.util->perf_end(_perf_packing);
 
 #if DF_MAVLINK_DISABLE_INTERRUPTS
-    hal.scheduler->restore_interrupts(istate);
+    irqrestore(istate);
 #endif
 
     block.last_sent = AP_HAL::millis();

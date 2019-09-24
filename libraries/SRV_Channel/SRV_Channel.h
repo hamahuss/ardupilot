@@ -121,34 +121,6 @@ public:
         k_dspoilerLeft2         = 86,           ///< differential spoiler 2 (left wing)
         k_dspoilerRight2        = 87,           ///< differential spoiler 2 (right wing)
         k_winch                 = 88,
-<<<<<<< HEAD
-=======
-        k_mainsail_sheet        = 89,           ///< Main Sail control via sheet
-        k_cam_iso               = 90,
-        k_cam_aperture          = 91,
-        k_cam_focus             = 92,
-        k_cam_shutter_speed     = 93,
-        k_scripting1            = 94,           ///< Scripting related outputs
-        k_scripting2            = 95,
-        k_scripting3            = 96,
-        k_scripting4            = 97,
-        k_scripting5            = 98,
-        k_scripting6            = 99,
-        k_scripting7            = 100,
-        k_scripting8            = 101,
-        k_scripting9            = 102,
-        k_scripting10           = 103,
-        k_scripting11           = 104,
-        k_scripting12           = 105,
-        k_scripting13           = 106,
-        k_scripting14           = 107,
-        k_scripting15           = 108,
-        k_scripting16           = 109,
-        k_LED_neopixel1         = 120,
-        k_LED_neopixel2         = 121,
-        k_LED_neopixel3         = 122,
-        k_LED_neopixel4         = 123,
->>>>>>> upstream/master
         k_nr_aux_servo_functions         ///< This must be the last enum value (only add new values _before_ this one)
     } Aux_servo_function_t;
 
@@ -220,11 +192,7 @@ public:
     bool function_configured(void) const {
         return function.configured();
     }
-
-    // specify that small rc input changes should be ignored during passthrough
-    // used by DO_SET_SERVO commands
-    void ignore_small_rcin_changes() { ign_small_rcin_changes = true; }
-
+    
 private:
     AP_Int16 servo_min;
     AP_Int16 servo_max;
@@ -275,13 +243,6 @@ private:
     // mask of channels where we have a output_pwm value. Cleared when a
     // scaled value is written. 
     static servo_mask_t have_pwm_mask;
-
-    // previous radio_in during pass-thru
-    int16_t previous_radio_in;
-
-    // specify that small rcinput changes should be ignored during passthrough
-    // used by DO_SET_SERVO commands
-    bool ign_small_rcin_changes;
 };
 
 /*
@@ -476,7 +437,7 @@ private:
 
     SRV_Channel::servo_mask_t trimmed_mask;
 
-    static Bitmask<SRV_Channel::k_nr_aux_servo_functions> function_mask;
+    static Bitmask function_mask;
     static bool initialised;
 
     // this static arrangement is to avoid having static objects in AP_Param tables

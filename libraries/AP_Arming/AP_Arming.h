@@ -9,7 +9,6 @@
 
 class AP_Arming {
 public:
-<<<<<<< HEAD
     enum ArmingChecks {
         ARMING_CHECK_NONE       = 0x0000,
         ARMING_CHECK_ALL        = 0x0001,
@@ -25,48 +24,12 @@ public:
         ARMING_CHECK_LOGGING    = 0x0400,
         ARMING_CHECK_SWITCH     = 0x0800,
         ARMING_CHECK_GPS_CONFIG = 0x1000,
-=======
-
-    AP_Arming();
-
-    /* Do not allow copies */
-    AP_Arming(const AP_Arming &other) = delete;
-    AP_Arming &operator=(const AP_Arming&) = delete;
-
-    static AP_Arming *get_singleton();
-
-    enum ArmingChecks {
-        ARMING_CHECK_NONE        = 0x0000,
-        ARMING_CHECK_ALL         = (1U << 0),
-        ARMING_CHECK_BARO        = (1U << 1),
-        ARMING_CHECK_COMPASS     = (1U << 2),
-        ARMING_CHECK_GPS         = (1U << 3),
-        ARMING_CHECK_INS         = (1U << 4),
-        ARMING_CHECK_PARAMETERS  = (1U << 5),
-        ARMING_CHECK_RC          = (1U << 6),
-        ARMING_CHECK_VOLTAGE     = (1U << 7),
-        ARMING_CHECK_BATTERY     = (1U << 8),
-        ARMING_CHECK_AIRSPEED    = (1U << 9),
-        ARMING_CHECK_LOGGING     = (1U << 10),
-        ARMING_CHECK_SWITCH      = (1U << 11),
-        ARMING_CHECK_GPS_CONFIG  = (1U << 12),
-        ARMING_CHECK_SYSTEM      = (1U << 13),
-        ARMING_CHECK_MISSION     = (1U << 14),
-        ARMING_CHECK_RANGEFINDER = (1U << 15),
->>>>>>> upstream/master
     };
 
     enum ArmingMethod {
         NONE = 0,
         RUDDER,
-<<<<<<< HEAD
         MAVLINK
-=======
-        MAVLINK,
-        AUXSWITCH,
-        MOTORTEST,
-        SCRIPTING,
->>>>>>> upstream/master
     };
 
     enum ArmingRequired {
@@ -75,18 +38,10 @@ public:
         YES_ZERO_PWM = 2
     };
 
-    void init(void);
-
     // these functions should not be used by Copter which holds the armed state in the motors library
-<<<<<<< HEAD
     ArmingRequired arming_required();
     virtual bool arm(uint8_t method, bool do_arming_checks=true);
     bool disarm();
-=======
-    Required arming_required();
-    virtual bool arm(AP_Arming::Method method, bool do_arming_checks=true);
-    virtual bool disarm();
->>>>>>> upstream/master
     bool is_armed();
 
     // get bitmask of enabled checks
@@ -98,11 +53,7 @@ public:
     // some arming checks have side-effects, or require some form of state
     // change to have occurred, and thus should not be done as pre-arm
     // checks.  Those go here:
-<<<<<<< HEAD
     bool arm_checks(uint8_t method);
-=======
-    virtual bool arm_checks(AP_Arming::Method method);
->>>>>>> upstream/master
 
     // get expected magnetic field strength
     uint16_t compass_magfield_expected() const;
@@ -123,7 +74,7 @@ protected:
 
     // Parameters
     AP_Int8                 require;
-    AP_Int32                checks_to_perform;      // bitmask for which checks are required
+    AP_Int16                checks_to_perform;      // bitmask for which checks are required
     AP_Float                accel_error_threshold;
     AP_Float                _min_voltage[AP_BATT_MONITOR_MAX_INSTANCES];
     AP_Int8                 _rudder_arming;
@@ -162,21 +113,6 @@ protected:
 
     bool manual_transmitter_checks(bool report);
 
-<<<<<<< HEAD
-=======
-    bool mission_checks(bool report);
-
-    bool rangefinder_checks(bool report);
-
-    bool fence_checks(bool report);
-
-    virtual bool system_checks(bool report);
-
-    bool can_checks(bool report);
-
-    virtual bool proximity_checks(bool report) const;
-
->>>>>>> upstream/master
     bool servo_checks(bool report) const;
     bool rc_checks_copter_sub(bool display_failure, const RC_Channel *channels[4], const bool check_min_max = true) const;
 
@@ -185,19 +121,11 @@ protected:
     // returns a mavlink severity which should be used if a specific check fails
     MAV_SEVERITY check_severity(const enum AP_Arming::ArmingChecks check) const;
     // handle the case where a check fails
-    void check_failed(const enum AP_Arming::ArmingChecks check, bool report, const char *fmt, ...) const FMT_PRINTF(4, 5);
-
-    void Log_Write_Arm_Disarm();
+    void check_failed(const enum AP_Arming::ArmingChecks check, bool report, const char *fmt, ...) const;
 
 private:
-
-    static AP_Arming *_singleton;
 
     bool ins_accels_consistent(const AP_InertialSensor &ins);
     bool ins_gyros_consistent(const AP_InertialSensor &ins);
 
-};
-
-namespace AP {
-    AP_Arming &arming();
 };

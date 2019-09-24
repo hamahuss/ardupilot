@@ -23,18 +23,12 @@ extern const AP_HAL::HAL& hal;
 
 namespace SITL {
 
-<<<<<<< HEAD
 BalanceBot::BalanceBot(const char *home_str, const char *frame_str) :
     Aircraft(home_str, frame_str),
     max_speed(4),
     max_accel(14),
     skid_turn_rate(140), // degrees/sec
     skid_steering(true)
-=======
-BalanceBot::BalanceBot(const char *frame_str) :
-    Aircraft(frame_str),
-    skid_turn_rate(140) // degrees/sec
->>>>>>> upstream/master
 {
     dcm.from_euler(0,0,0); // initial yaw, pitch and roll in radians
     printf("Balance Bot Simulation Started\n");

@@ -9,7 +9,8 @@
 #include <AP_Param/AP_Param.h>
 
 #include "definitions.h"
-#include "crc.h"
+#include "edc.h"
+#include "location.h"
 #include "matrix3.h"
 #include "polygon.h"
 #include "quaternion.h"
@@ -17,7 +18,6 @@
 #include "vector2.h"
 #include "vector3.h"
 #include "spline5.h"
-#include "location.h"
 
 // define AP_Param types AP_Vector3f and Ap_Matrix3f
 AP_PARAMDEFV(Vector3f, Vector3f, AP_PARAM_VECTOR3F);
@@ -82,16 +82,16 @@ template <typename T>
 float safe_sqrt(const T v);
 
 // invOut is an inverted 4x4 matrix when returns true, otherwise matrix is Singular
-bool inverse3x3(float m[], float invOut[]) WARN_IF_UNUSED;
+bool inverse3x3(float m[], float invOut[]);
 
 // invOut is an inverted 3x3 matrix when returns true, otherwise matrix is Singular
-bool inverse4x4(float m[],float invOut[]) WARN_IF_UNUSED;
+bool inverse4x4(float m[],float invOut[]);
 
 // matrix multiplication of two NxN matrices
 float *mat_mul(float *A, float *B, uint8_t n);
 
 // matrix algebra
-bool inverse(float x[], float y[], uint16_t dim) WARN_IF_UNUSED;
+bool inverse(float x[], float y[], uint16_t dim);
 
 /*
  * Constrain an angle to be within the range: -180 to 180 degrees. The second
@@ -99,34 +99,27 @@ bool inverse(float x[], float y[], uint16_t dim) WARN_IF_UNUSED;
  * 100 == centi.
  */
 template <typename T>
-T wrap_180(const T angle, T unit_mod = T(1));
+float wrap_180(const T angle, float unit_mod = 1);
 
 /*
  * Wrap an angle in centi-degrees. See wrap_180().
  */
-inline float wrap_180_cd(const float angle) { return wrap_180(angle, float(100)); }
-inline int32_t wrap_180_cd(const int32_t angle) { return wrap_180(int(angle), int(100)); }
-#ifdef ALLOW_DOUBLE_MATH_FUNCTIONS
-inline double wrap_180_cd(const double angle) { return wrap_180(angle, double(100)); }
-#endif
+template <typename T>
+auto wrap_180_cd(const T angle) -> decltype(wrap_180(angle, 100.f));
 
 /*
  * Constrain an euler angle to be within the range: 0 to 360 degrees. The
  * second parameter changes the units. Default: 1 == degrees, 10 == dezi,
  * 100 == centi.
  */
-float wrap_360(const float angle, float unit_mod = 1);
-#ifdef ALLOW_DOUBLE_MATH_FUNCTIONS
-double wrap_360(const double angle, double unit_mod = 1);
-#endif
-int wrap_360(const int angle, int unit_mod = 1);
+template <typename T>
+float wrap_360(const T angle, float unit_mod = 1);
 
-inline int32_t wrap_360_cd(const int32_t angle) { return wrap_360(int(angle), int(100)); }
-inline float wrap_360_cd(const float angle) { return wrap_360(angle, float(100)); }
-#ifdef ALLOW_DOUBLE_MATH_FUNCTIONS
-inline double wrap_360_cd(const double angle) { return wrap_360(angle, double(100)); }
-#endif
-
+/*
+ * Wrap an angle in centi-degrees. See wrap_360().
+ */
+template <typename T>
+auto wrap_360_cd(const T angle) -> decltype(wrap_360(angle, 100.f));
 
 /*
   wrap an angle in radians to -PI ~ PI (equivalent to +- 180 degrees)
@@ -253,19 +246,6 @@ float linear_interpolate(float low_output, float high_output,
                          float var_value,
                          float var_low, float var_high);
 
-/* cubic "expo" curve generator 
- * alpha range: [0,1] min to max expo
- * input range: [-1,1]
- */
-float expo_curve(float alpha, float input);
-
-/* throttle curve generator
- * thr_mid: output at mid stick
- * alpha: expo coefficient
- * thr_in: [0-1]
- */
-float throttle_curve(float thr_mid, float alpha, float thr_in);
-
 /* simple 16 bit random number generator */
 uint16_t get_random16(void);
 
@@ -281,7 +261,7 @@ float absf(float p);
 Vector3f rand_vec3f(void);
 
 // confirm a value is a valid octal value
-bool is_valid_octal(uint16_t octal) WARN_IF_UNUSED;
+bool is_valid_octal(uint16_t octal);
 
 // return true if two rotations are equal
-bool rotation_equal(enum Rotation r1, enum Rotation r2) WARN_IF_UNUSED;
+bool rotation_equal(enum Rotation r1, enum Rotation r2);

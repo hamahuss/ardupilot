@@ -23,18 +23,8 @@ public:
     void init(void);
 
     static const struct AP_Param::GroupInfo var_info[];
-<<<<<<< HEAD
 
     class CAN_if_var_info {
-=======
-#if !HAL_MINIMIZE_FEATURES
-    AP_HAL::UARTDriver *get_slcan_serial();
-    uint8_t get_slcan_timeout() { return _slcan._timeout; }
-    void reset_slcan_serial() { _slcan._ser_port.set_and_save_ifchanged(-1); }
-#endif
-private:
-    class Interface {
->>>>>>> upstream/master
         friend class AP_BoardConfig_CAN;
 
     public:

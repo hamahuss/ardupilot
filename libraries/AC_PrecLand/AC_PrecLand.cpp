@@ -89,21 +89,7 @@ const AP_Param::GroupInfo AC_PrecLand::var_info[] = {
     // @Values: -1:DefaultBus,0:InternalI2C,1:ExternalI2C
     // @User: Advanced
     AP_GROUPINFO("BUS",    8, AC_PrecLand, _bus, -1),
-<<<<<<< HEAD
     
-=======
-
-    // @Param: LAG
-    // @DisplayName: Precision Landing sensor lag
-    // @Description: Precision Landing sensor lag, to cope with variable landing_target latency
-    // @Range: 0.02 0.250
-    // @Increment: 1
-    // @Units: s
-    // @User: Advanced
-    // @RebootRequired: True
-    AP_GROUPINFO("LAG", 9, AC_PrecLand, _lag, 0.02f), // 20ms is the old default buffer size (8 frames @ 400hz/2.5ms)
-
->>>>>>> upstream/master
     AP_GROUPEND
 };
 
@@ -232,7 +218,7 @@ bool AC_PrecLand::get_target_velocity_relative_cms(Vector2f& ret)
 }
 
 // handle_msg - Process a LANDING_TARGET mavlink message
-void AC_PrecLand::handle_msg(const mavlink_message_t &msg)
+void AC_PrecLand::handle_msg(mavlink_message_t* msg)
 {
     // run backend update
     if (_backend != nullptr) {

@@ -33,15 +33,11 @@ extern const AP_HAL::HAL& hal;
    already know that we should setup the rangefinder
 */
 AP_RangeFinder_uLanding::AP_RangeFinder_uLanding(RangeFinder::RangeFinder_State &_state,
-<<<<<<< HEAD
                                                  AP_SerialManager &serial_manager,
-=======
-                                                 AP_RangeFinder_Params &_params,
->>>>>>> upstream/master
                                                  uint8_t serial_instance) :
     AP_RangeFinder_Backend(_state)
 {
-    uart = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_Rangefinder, serial_instance);
+    uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Rangefinder, serial_instance);
     if (uart != nullptr) {
         uart->begin(ULANDING_BAUD, ULANDING_BUFSIZE_RX, ULANDING_BUFSIZE_TX);
     }
@@ -52,9 +48,9 @@ AP_RangeFinder_uLanding::AP_RangeFinder_uLanding(RangeFinder::RangeFinder_State 
    trying to take a reading on Serial. If we get a result the sensor is
    there.
 */
-bool AP_RangeFinder_uLanding::detect(uint8_t serial_instance)
+bool AP_RangeFinder_uLanding::detect(AP_SerialManager &serial_manager, uint8_t serial_instance)
 {
-    return AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_Rangefinder, serial_instance) != nullptr;
+    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Rangefinder, serial_instance) != nullptr;
 }
 
 /*
@@ -177,7 +173,7 @@ bool AP_RangeFinder_uLanding::get_reading(uint16_t &reading_cm)
                  */
                 continue;
             } else {
-                if (_version == 0 && _header != ULANDING_HDR) {
+                if (_version == 0) {
                     // parse data for Firmware Version #0
                     sum += (_linebuf[2]&0x7F)*128 + (_linebuf[1]&0x7F);
                     count++;
@@ -202,7 +198,7 @@ bool AP_RangeFinder_uLanding::get_reading(uint16_t &reading_cm)
 
     reading_cm = sum / count;
 
-    if (_version == 0 && _header != ULANDING_HDR) {
+    if (_version == 0) {
         reading_cm *= 2.5f;
     }
 

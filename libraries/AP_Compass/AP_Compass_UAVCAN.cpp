@@ -19,17 +19,12 @@
 
 #include "AP_Compass_UAVCAN.h"
 
-<<<<<<< HEAD
 #if HAL_OS_POSIX_IO
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #endif
-=======
-#include <AP_BoardConfig/AP_BoardConfig_CAN.h>
-#include <AP_UAVCAN/AP_UAVCAN.h>
->>>>>>> upstream/master
 
 #include <AP_BoardConfig/AP_BoardConfig.h>
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
@@ -70,24 +65,7 @@ AP_Compass_Backend *AP_Compass_UAVCAN::probe(Compass &compass)
         return nullptr;
     }
 
-<<<<<<< HEAD
     AP_Compass_UAVCAN *sensor;
-=======
-void AP_Compass_UAVCAN::init()
-{
-    _instance = register_compass();
-
-    uint32_t devid = AP_HAL::Device::make_bus_id(AP_HAL::Device::BUS_TYPE_UAVCAN,
-                                                 _ap_uavcan->get_driver_index(),
-                                                 _node_id,
-                                                 1); // the 1 is arbitrary
-
-    set_dev_id(_instance, devid);
-    set_external(_instance, true);
-
-    debug_mag_uavcan(2, _ap_uavcan->get_driver_index(),  "AP_Compass_UAVCAN loaded\n\r");
-}
->>>>>>> upstream/master
 
     for (uint8_t i = 0; i < MAX_NUMBER_OF_CAN_DRIVERS; i++) {
         AP_UAVCAN *ap_uavcan = AP_UAVCAN::get_uavcan(i);

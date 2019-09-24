@@ -16,14 +16,9 @@
 class AP_Compass_MAG3110 : public AP_Compass_Backend
 {
 public:
-<<<<<<< HEAD
     static AP_Compass_Backend *probe(Compass &compass,
                                      AP_HAL::OwnPtr<AP_HAL::Device> dev,
                                      enum Rotation = ROTATION_NONE);
-=======
-    static AP_Compass_Backend *probe(AP_HAL::OwnPtr<AP_HAL::Device> dev,
-                                     enum Rotation rotation);
->>>>>>> upstream/master
 
     static constexpr const char *name = "MAG3110";
 

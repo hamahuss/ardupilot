@@ -40,11 +40,8 @@ AP_RangeFinder_analog::AP_RangeFinder_analog(RangeFinder::RangeFinder_State &_st
         set_status(RangeFinder::RangeFinder_NotConnected);
         return;
     }
-<<<<<<< HEAD
     source->set_stop_pin((uint8_t)_state.stop_pin);
     source->set_settle_time((uint16_t)_state.settle_time_ms);
-=======
->>>>>>> upstream/master
     set_status(RangeFinder::RangeFinder_NoData);
 }
 
@@ -72,15 +69,10 @@ void AP_RangeFinder_analog::update_voltage(void)
        return;
    }
    // cope with changed settings
-<<<<<<< HEAD
    source->set_pin(state.pin);
    source->set_stop_pin((uint8_t)state.stop_pin);
    source->set_settle_time((uint16_t)state.settle_time_ms);
    if (state.ratiometric) {
-=======
-   source->set_pin(params.pin);
-   if (params.ratiometric) {
->>>>>>> upstream/master
        state.voltage_mv = source->voltage_average_ratiometric() * 1000U;
    } else {
        state.voltage_mv = source->voltage_average() * 1000U;
@@ -115,7 +107,7 @@ void AP_RangeFinder_analog::update(void)
         } else {
             dist_m = scaling / (v - offset);
         }
-        if (dist_m > _max_distance_cm * 0.01f) {
+        if (isinf(dist_m) || dist_m > _max_distance_cm * 0.01f) {
             dist_m = _max_distance_cm * 0.01f;
         }
         break;

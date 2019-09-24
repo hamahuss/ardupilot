@@ -40,14 +40,9 @@
 #include "AP_Baro_LPS2XH.h"
 #include "AP_Baro_FBM320.h"
 #include "AP_Baro_DPS280.h"
-#include "AP_Baro_BMP388.h"
 #if HAL_WITH_UAVCAN
 #include "AP_Baro_UAVCAN.h"
 #endif
-
-#include <AP_Airspeed/AP_Airspeed.h>
-#include <AP_AHRS/AP_AHRS.h>
-#include <AP_Logger/AP_Logger.h>
 
 #define INTERNAL_TEMPERATURE_CLAMP 35.0f
 
@@ -148,30 +143,11 @@ const AP_Param::GroupInfo AP_Baro::var_info[] = {
     // @Increment: 1
     AP_GROUPINFO("FLTR_RNG", 13, AP_Baro, _filter_range, HAL_BARO_FILTER_DEFAULT),
 
-<<<<<<< HEAD
-=======
-#ifdef HAL_PROBE_EXTERNAL_I2C_BAROS
-    // @Param: PROBE_EXT
-    // @DisplayName: External barometers to probe
-    // @Description: This sets which types of external i2c barometer to look for. It is a bitmask of barometer types. The I2C buses to probe is based on GND_EXT_BUS. If GND_EXT_BUS is -1 then it will probe all external buses, otherwise it will probe just the bus number given in GND_EXT_BUS.
-    // @Bitmask: 0:BMP085,1:BMP280,2:MS5611,3:MS5607,4:MS5637,5:FBM320,6:DPS280,7:LPS25H,8:Keller,10:MS5837,11:BMP388
-    // @Values: 1:BMP085,2:BMP280,4:MS5611,8:MS5607,16:MS5637,32:FBM320,64:DPS280,128:LPS25H,256:Keller,512:MS5837,1024:BMP388
-    // @User: Advanced
-    AP_GROUPINFO("PROBE_EXT", 14, AP_Baro, _baro_probe_ext, HAL_BARO_PROBE_EXT_DEFAULT),
-#endif
-
->>>>>>> upstream/master
     AP_GROUPEND
 };
 
 // singleton instance
 AP_Baro *AP_Baro::_instance;
-
-#ifdef HAL_NO_GCS
-#define BARO_SEND_TEXT(severity, format, args...)
-#else
-#define BARO_SEND_TEXT(severity, format, args...) gcs().send_text(severity, format, ##args)
-#endif
 
 /*
   AP_Baro constructor
@@ -187,21 +163,17 @@ AP_Baro::AP_Baro()
 // the altitude() or climb_rate() interfaces can be used
 void AP_Baro::calibrate(bool save)
 {
+    gcs().send_text(MAV_SEVERITY_INFO, "Calibrating barometer");
+
+    // reset the altitude offset when we calibrate. The altitude
+    // offset is supposed to be for within a flight
+    _alt_offset.set_and_save(0);
+
     // start by assuming all sensors are calibrated (for healthy() test)
     for (uint8_t i=0; i<_num_sensors; i++) {
         sensors[i].calibrated = true;
         sensors[i].alt_ok = true;
     }
-
-    if (hal.util->was_watchdog_reset()) {
-        BARO_SEND_TEXT(MAV_SEVERITY_INFO, "Baro: skipping calibration");
-        return;
-    }
-    BARO_SEND_TEXT(MAV_SEVERITY_INFO, "Calibrating barometer");
-
-    // reset the altitude offset when we calibrate. The altitude
-    // offset is supposed to be for within a flight
-    _alt_offset.set_and_save(0);
 
     // let the barometer settle for a full second after startup
     // the MS5611 reads quite a long way off for the first second,
@@ -211,7 +183,8 @@ void AP_Baro::calibrate(bool save)
         do {
             update();
             if (AP_HAL::millis() - tstart > 500) {
-                AP_BoardConfig::sensor_config_error("Baro: unable to calibrate");
+                AP_HAL::panic("PANIC: AP_Baro::read unsuccessful "
+                        "for more than 500ms in AP_Baro::calibrate [2]\r\n");
             }
             hal.scheduler->delay(10);
         } while (!healthy());
@@ -230,7 +203,8 @@ void AP_Baro::calibrate(bool save)
         do {
             update();
             if (AP_HAL::millis() - tstart > 500) {
-                AP_BoardConfig::sensor_config_error("Baro: unable to calibrate");
+                AP_HAL::panic("PANIC: AP_Baro::read unsuccessful "
+                        "for more than 500ms in AP_Baro::calibrate [3]\r\n");
             }
         } while (!healthy());
         for (uint8_t i=0; i<_num_sensors; i++) {
@@ -257,22 +231,11 @@ void AP_Baro::calibrate(bool save)
     // panic if all sensors are not calibrated
     for (uint8_t i=0; i<_num_sensors; i++) {
         if (sensors[i].calibrated) {
-<<<<<<< HEAD
             gcs().send_text(MAV_SEVERITY_INFO, "Barometer calibration complete");
             return;
         }
     }
     AP_HAL::panic("AP_Baro: all sensors uncalibrated");
-=======
-            BARO_SEND_TEXT(MAV_SEVERITY_INFO, "Barometer %u calibration complete", i+1);
-            num_calibrated++;
-        }
-    }
-    if (num_calibrated) {
-        return;
-    }
-    AP_BoardConfig::sensor_config_error("AP_Baro: all sensors uncalibrated");
->>>>>>> upstream/master
 }
 
 /*
@@ -330,24 +293,11 @@ float AP_Baro::get_EAS2TAS(void)
         return _EAS2TAS;
     }
 
-    float pressure = get_pressure();
-    if (is_zero(pressure)) {
-        return 1.0f;
-    }
-
     // only estimate lapse rate for the difference from the ground location
     // provides a more consistent reading then trying to estimate a complete
     // ISA model atmosphere
     float tempK = get_ground_temperature() + C_TO_KELVIN - ISA_LAPSE_RATE * altitude;
-<<<<<<< HEAD
     _EAS2TAS = safe_sqrt(SSL_AIR_DENSITY / ((float)get_pressure() / (ISA_GAS_CONSTANT * tempK)));
-=======
-    const float eas2tas_squared = SSL_AIR_DENSITY / (pressure / (ISA_GAS_CONSTANT * tempK));
-    if (!is_positive(eas2tas_squared)) {
-        return 1.0f;
-    }
-    _EAS2TAS = sqrtf(eas2tas_squared);
->>>>>>> upstream/master
     _last_altitude_EAS2TAS = altitude;
     return _EAS2TAS;
 }
@@ -406,28 +356,9 @@ float AP_Baro::get_external_temperature(const uint8_t instance) const
     if (_last_external_temperature_ms != 0 && AP_HAL::millis() - _last_external_temperature_ms < 10000) {
         return _external_temperature;
     }
-<<<<<<< HEAD
     // if we don't have an external temperature then use the minimum
     // of the barometer temperature and 35 degrees C. The reason for
     // not just using the baro temperature is it tends to read high,
-=======
-    
-#ifndef HAL_BUILD_AP_PERIPH
-    // if we don't have an external temperature then try to use temperature
-    // from the airspeed sensor
-    AP_Airspeed *airspeed = AP_Airspeed::get_singleton();
-    if (airspeed != nullptr) {
-        float temperature;
-        if (airspeed->healthy() && airspeed->get_temperature(temperature)) {
-            return temperature;
-        }
-    }
-#endif
-    
-    // if we don't have an external temperature and airspeed temperature
-    // then use the minimum of the barometer temperature and 35 degrees C.
-    // The reason for not just using the baro temperature is it tends to read high,
->>>>>>> upstream/master
     // often 30 degrees above the actual temperature. That means the
     // EAS2TAS tends to be off by quite a large margin, as well as
     // the calculation of altitude difference betweeen two pressures
@@ -478,14 +409,11 @@ void AP_Baro::init(void)
         return;
     }
 
-<<<<<<< HEAD
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     ADD_BACKEND(new AP_Baro_SITL(*this));
     return;
 #endif
     
-=======
->>>>>>> upstream/master
 #if HAL_WITH_UAVCAN
     bool added;
     do {
@@ -496,18 +424,12 @@ void AP_Baro::init(void)
     } while (added);
 #endif
 
-// macro for use by HAL_INS_PROBE_LIST
-#define GET_I2C_DEVICE(bus, address) hal.i2c_mgr->get_device(bus, address)
-
-#if defined(HAL_BARO_PROBE_LIST)
-    // probe list from BARO lines in hwdef.dat
-    HAL_BARO_PROBE_LIST;
-#elif AP_FEATURE_BOARD_DETECT
+#if AP_FEATURE_BOARD_DETECT
     switch (AP_BoardConfig::get_board_type()) {
     case AP_BoardConfig::PX4_BOARD_PX4V1:
 #ifdef HAL_BARO_MS5611_I2C_BUS
         ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-                                          std::move(GET_I2C_DEVICE(HAL_BARO_MS5611_I2C_BUS, HAL_BARO_MS5611_I2C_ADDR))));
+                                          std::move(hal.i2c_mgr->get_device(HAL_BARO_MS5611_I2C_BUS, HAL_BARO_MS5611_I2C_ADDR))));
 #endif
         break;
 
@@ -528,6 +450,11 @@ void AP_Baro::init(void)
                                           std::move(hal.spi->get_device(HAL_BARO_MS5611_NAME))));
         break;
 
+    case AP_BoardConfig::PX4_BOARD_PIXRACER:
+        ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
+                                          std::move(hal.spi->get_device(HAL_BARO_MS5611_SPI_INT_NAME))));
+        break;
+
     case AP_BoardConfig::PX4_BOARD_MINDPXV2:
         ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
                                           std::move(hal.spi->get_device(HAL_BARO_MS5611_NAME))));
@@ -536,7 +463,7 @@ void AP_Baro::init(void)
     case AP_BoardConfig::PX4_BOARD_AEROFC:
 #ifdef HAL_BARO_MS5607_I2C_BUS
         ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-                                          std::move(GET_I2C_DEVICE(HAL_BARO_MS5607_I2C_BUS, HAL_BARO_MS5607_I2C_ADDR)),
+                                          std::move(hal.i2c_mgr->get_device(HAL_BARO_MS5607_I2C_BUS, HAL_BARO_MS5607_I2C_ADDR)),
                                           AP_Baro_MS56XX::BARO_MS5607));
 #endif
         break;
@@ -564,7 +491,7 @@ void AP_Baro::init(void)
 
     case AP_BoardConfig::PX4_BOARD_PCNC1:
         ADD_BACKEND(AP_Baro_ICM20789::probe(*this,
-                                            std::move(GET_I2C_DEVICE(1, 0x63)),
+                                            std::move(hal.i2c_mgr->get_device(1, 0x63)),
                                             std::move(hal.spi->get_device(HAL_INS_MPU60x0_NAME))));
         break;
 
@@ -576,21 +503,9 @@ void AP_Baro::init(void)
     default:
         break;
     }
-#elif CONFIG_HAL_BOARD == HAL_BOARD_SITL
-    SITL::SITL *sitl = AP::sitl();
-    if (sitl == nullptr) {
-        AP_HAL::panic("No SITL pointer");
-    }
-    if (sitl->baro_count > 1) {
-        ::fprintf(stderr, "More than one baro not supported.  Sorry.");
-    }
-    if (sitl->baro_count == 1) {
-        ADD_BACKEND(new AP_Baro_SITL(*this));
-    }
 #elif HAL_BARO_DEFAULT == HAL_BARO_HIL
     drivers[0] = new AP_Baro_HIL(*this);
     _num_drivers = 1;
-<<<<<<< HEAD
 #elif HAL_BARO_DEFAULT == HAL_BARO_BMP085
     drivers[0] = new AP_Baro_BMP085(*this,
         std::move(hal.i2c_mgr->get_device(HAL_BARO_BMP085_BUS, HAL_BARO_BMP085_I2C_ADDR)));
@@ -624,14 +539,11 @@ void AP_Baro::init(void)
 #elif HAL_BARO_DEFAULT == HAL_BARO_LPS25H
 	ADD_BACKEND(AP_Baro_LPS2XH::probe(*this,
                                       std::move(hal.i2c_mgr->get_device(HAL_BARO_LPS25H_I2C_BUS, HAL_BARO_LPS25H_I2C_ADDR))));
-=======
->>>>>>> upstream/master
 #elif HAL_BARO_DEFAULT == HAL_BARO_LPS25H_IMU_I2C
 	ADD_BACKEND(AP_Baro_LPS2XH::probe_InvensenseIMU(*this,
-                                                    std::move(GET_I2C_DEVICE(HAL_BARO_LPS25H_I2C_BUS, HAL_BARO_LPS25H_I2C_ADDR)),
+                                                    std::move(hal.i2c_mgr->get_device(HAL_BARO_LPS25H_I2C_BUS, HAL_BARO_LPS25H_I2C_ADDR)),
                                                     HAL_BARO_LPS25H_I2C_IMU_ADDR));
 #elif HAL_BARO_DEFAULT == HAL_BARO_20789_I2C_I2C
-<<<<<<< HEAD
         ADD_BACKEND(AP_Baro_ICM20789::probe(*this,
                                             std::move(hal.i2c_mgr->get_device(HAL_BARO_20789_I2C_BUS, HAL_BARO_20789_I2C_ADDR_PRESS)),
                                             std::move(hal.i2c_mgr->get_device(HAL_BARO_20789_I2C_BUS, HAL_BARO_20789_I2C_ADDR_ICM))));
@@ -642,15 +554,6 @@ void AP_Baro::init(void)
 #elif HAL_BARO_DEFAULT == HAL_BARO_LPS22H_SPI
     ADD_BACKEND(AP_Baro_LPS2XH::probe(*this,
                                       std::move(hal.spi->get_device(HAL_BARO_LPS22H_NAME))));
-=======
-    ADD_BACKEND(AP_Baro_ICM20789::probe(*this,
-                                        std::move(GET_I2C_DEVICE(HAL_BARO_20789_I2C_BUS, HAL_BARO_20789_I2C_ADDR_PRESS)),
-                                        std::move(GET_I2C_DEVICE(HAL_BARO_20789_I2C_BUS, HAL_BARO_20789_I2C_ADDR_ICM))));
-#elif HAL_BARO_DEFAULT == HAL_BARO_20789_I2C_SPI
-    ADD_BACKEND(AP_Baro_ICM20789::probe(*this,
-                                        std::move(GET_I2C_DEVICE(HAL_BARO_20789_I2C_BUS, HAL_BARO_20789_I2C_ADDR_PRESS)),
-                                        std::move(hal.spi->get_device("icm20789"))));
->>>>>>> upstream/master
 #endif
 
 #if defined(BOARD_I2C_BUS_EXT) && CONFIG_HAL_BOARD == HAL_BOARD_F4LIGHT
@@ -672,19 +575,13 @@ void AP_Baro::init(void)
     if (_ext_bus >= 0) {
 #if APM_BUILD_TYPE(APM_BUILD_ArduSub)
         ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-                                          std::move(GET_I2C_DEVICE(_ext_bus, HAL_BARO_MS5837_I2C_ADDR)), AP_Baro_MS56XX::BARO_MS5837));
+                                          std::move(hal.i2c_mgr->get_device(_ext_bus, HAL_BARO_MS5837_I2C_ADDR)), AP_Baro_MS56XX::BARO_MS5837));
 
         ADD_BACKEND(AP_Baro_KellerLD::probe(*this,
-                                          std::move(GET_I2C_DEVICE(_ext_bus, HAL_BARO_KELLERLD_I2C_ADDR))));
+                                          std::move(hal.i2c_mgr->get_device(_ext_bus, HAL_BARO_KELLERLD_I2C_ADDR))));
 #else
         ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-<<<<<<< HEAD
                                           std::move(hal.i2c_mgr->get_device(_ext_bus, HAL_BARO_MS5611_I2C_ADDR))));
-=======
-                                          std::move(GET_I2C_DEVICE(_ext_bus, HAL_BARO_MS5611_I2C_ADDR))));
-#endif
-    }
->>>>>>> upstream/master
 
  #if CONFIG_HAL_BOARD == HAL_BOARD_F4LIGHT // we don't know which baro user will solder
 
@@ -708,109 +605,7 @@ void AP_Baro::init(void)
 #endif
 }
 
-<<<<<<< HEAD
 bool AP_Baro::should_df_log() const
-=======
-/*
-  probe all the i2c barometers enabled with GND_PROBE_EXT. This is
-  used on boards without a builtin barometer
- */
-void AP_Baro::_probe_i2c_barometers(void)
-{
-    uint32_t probe = _baro_probe_ext.get();
-    uint32_t mask = hal.i2c_mgr->get_bus_mask_external();
-    if (AP_BoardConfig::get_board_type() == AP_BoardConfig::PX4_BOARD_PIXHAWK2) {
-        // for the purpose of baro probing, treat CubeBlack internal i2c as external. It has
-        // no internal i2c baros, so this is safe
-        mask |= hal.i2c_mgr->get_bus_mask_internal();
-    }
-    // if the user has set GND_EXT_BUS then probe the bus given by that parameter
-    int8_t ext_bus = _ext_bus;
-    if (ext_bus >= 0) {
-        mask = 1U << (uint8_t)ext_bus;
-    }
-    if (probe & PROBE_BMP085) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_BMP085::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_BMP085_I2C_ADDR))));
-        }
-    }
-    if (probe & PROBE_BMP280) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_BMP280::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_BMP280_I2C_ADDR))));
-            ADD_BACKEND(AP_Baro_BMP280::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_BMP280_I2C_ADDR2))));
-        }
-    }
-    if (probe & PROBE_BMP388) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_BMP388::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_BMP388_I2C_ADDR))));
-            ADD_BACKEND(AP_Baro_BMP388::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_BMP388_I2C_ADDR2))));
-        }
-    }
-    if (probe & PROBE_MS5611) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_MS5611_I2C_ADDR))));
-            ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_MS5611_I2C_ADDR2))));
-        }
-    }
-    if (probe & PROBE_MS5607) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_MS5607_I2C_ADDR)),
-                                              AP_Baro_MS56XX::BARO_MS5607));
-        }
-    }
-    if (probe & PROBE_MS5637) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_MS5637_I2C_ADDR)),
-                                              AP_Baro_MS56XX::BARO_MS5637));
-        }
-    }
-    if (probe & PROBE_FBM320) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_FBM320::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_FBM320_I2C_ADDR))));
-            ADD_BACKEND(AP_Baro_FBM320::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_FBM320_I2C_ADDR2))));
-        }
-    }
-    if (probe & PROBE_DPS280) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_DPS280::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_DPS280_I2C_ADDR))));
-            ADD_BACKEND(AP_Baro_DPS280::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_DPS280_I2C_ADDR2))));
-        }
-    }
-    if (probe & PROBE_LPS25H) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_LPS2XH::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_LPS25H_I2C_ADDR))));
-        }
-    }
-    if (probe & PROBE_LPS25H) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_KellerLD::probe(*this,
-                                                std::move(GET_I2C_DEVICE(i, HAL_BARO_KELLERLD_I2C_ADDR))));
-        }
-    }
-    if (probe & PROBE_MS5837) {
-        FOREACH_I2C_MASK(i,mask) {
-            ADD_BACKEND(AP_Baro_MS56XX::probe(*this,
-                                              std::move(GET_I2C_DEVICE(i, HAL_BARO_MS5837_I2C_ADDR)), AP_Baro_MS56XX::BARO_MS5837));
-        }
-    }
-}
-
-bool AP_Baro::should_log() const
->>>>>>> upstream/master
 {
     DataFlash_Class *instance = DataFlash_Class::instance();
     if (instance == nullptr) {
@@ -830,8 +625,6 @@ bool AP_Baro::should_log() const
  */
 void AP_Baro::update(void)
 {
-    WITH_SEMAPHORE(_rsem);
-
     if (fabsf(_alt_offset - _alt_offset_active) > 0.01f) {
         // If there's more than 1cm difference then slowly slew to it via LPF.
         // The EKF does not like step inputs so this keeps it happy.
@@ -895,16 +688,9 @@ void AP_Baro::update(void)
     }
 
     // logging
-<<<<<<< HEAD
     if (should_df_log() && !AP::ahrs().have_ekf_logging()) {
         DataFlash_Class::instance()->Log_Write_Baro();
-=======
-#ifndef HAL_NO_LOGGING
-    if (should_log() && !AP::ahrs().have_ekf_logging()) {
-        AP::logger().Write_Baro();
->>>>>>> upstream/master
     }
-#endif
 }
 
 /*

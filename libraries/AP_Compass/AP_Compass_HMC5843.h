@@ -16,7 +16,6 @@ class AP_HMC5843_BusDriver;
 class AP_Compass_HMC5843 : public AP_Compass_Backend
 {
 public:
-<<<<<<< HEAD
     static AP_Compass_Backend *probe(Compass &compass,
                                      AP_HAL::OwnPtr<AP_HAL::Device> dev,
                                      bool force_external = false,
@@ -24,13 +23,6 @@ public:
 
     static AP_Compass_Backend *probe_mpu6000(Compass &compass,
                                              enum Rotation rotation = ROTATION_NONE);
-=======
-    static AP_Compass_Backend *probe(AP_HAL::OwnPtr<AP_HAL::Device> dev,
-                                     bool force_external,
-                                     enum Rotation rotation);
-
-    static AP_Compass_Backend *probe_mpu6000(enum Rotation rotation);
->>>>>>> upstream/master
 
     static constexpr const char *name = "HMC5843";
 

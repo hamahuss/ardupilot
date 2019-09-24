@@ -10,8 +10,7 @@
 #include <AP_Motors/AP_Motors.h>
 #include <AC_AttitudeControl/AC_AttitudeControl.h>
 #include <AC_AttitudeControl/AC_PosControl.h>
-#include <AP_RSSI/AP_RSSI.h>
-#include <AP_GPS/AP_GPS.h>
+#include <AP_RangeFinder/RangeFinder_Backend.h>
 
 #include "DataFlash.h"
 #include "DataFlash_File.h"
@@ -70,7 +69,7 @@ bool DataFlash_Backend::Log_Write_Format(const struct LogStructure *s)
  */
 bool DataFlash_Backend::Log_Write_Unit(const struct UnitStructure *s)
 {
-    struct log_Unit pkt{
+    struct log_Unit pkt = {
         LOG_PACKET_HEADER_INIT(LOG_UNIT_MSG),
         time_us : AP_HAL::micros64(),
         type    : s->ID,
@@ -86,7 +85,7 @@ bool DataFlash_Backend::Log_Write_Unit(const struct UnitStructure *s)
  */
 bool DataFlash_Backend::Log_Write_Multiplier(const struct MultiplierStructure *s)
 {
-    const struct log_Format_Multiplier pkt{
+    struct log_Format_Multiplier pkt = {
         LOG_PACKET_HEADER_INIT(LOG_MULT_MSG),
         time_us      : AP_HAL::micros64(),
         type         : s->ID,
@@ -111,7 +110,7 @@ bool DataFlash_Backend::Log_Write_Format_Units(const struct LogStructure *s)
  */
 bool DataFlash_Backend::Log_Write_Parameter(const char *name, float value)
 {
-    struct log_Parameter pkt{
+    struct log_Parameter pkt = {
         LOG_PACKET_HEADER_INIT(LOG_PARAMETER_MSG),
         time_us : AP_HAL::micros64(),
         name  : {},
@@ -141,11 +140,7 @@ void DataFlash_Class::Log_Write_GPS(uint8_t i, uint64_t time_us)
         time_us = AP_HAL::micros64();
     }
     const struct Location &loc = gps.location(i);
-
-    float yaw_deg=0, yaw_accuracy_deg=0;
-    gps.gps_yaw_deg(i, yaw_deg, yaw_accuracy_deg);
-
-    const struct log_GPS pkt = {
+    struct log_GPS pkt = {
         LOG_PACKET_HEADER_INIT((uint8_t)(LOG_GPS_MSG+i)),
         time_us       : time_us,
         status        : (uint8_t)gps.status(i),
@@ -159,7 +154,6 @@ void DataFlash_Class::Log_Write_GPS(uint8_t i, uint64_t time_us)
         ground_speed  : gps.ground_speed(i),
         ground_course : gps.ground_course(i),
         vel_z         : gps.velocity(i).z,
-        yaw           : yaw_deg,
         used          : (uint8_t)(gps.primary_sensor() == i)
     };
     WriteBlock(&pkt, sizeof(pkt));
@@ -169,7 +163,7 @@ void DataFlash_Class::Log_Write_GPS(uint8_t i, uint64_t time_us)
     gps.horizontal_accuracy(i, hacc);
     gps.vertical_accuracy(i, vacc);
     gps.speed_accuracy(i, sacc);
-    struct log_GPA pkt2{
+    struct log_GPA pkt2 = {
         LOG_PACKET_HEADER_INIT((uint8_t)(LOG_GPA_MSG+i)),
         time_us       : time_us,
         vdop          : gps.get_vdop(i),
@@ -184,7 +178,6 @@ void DataFlash_Class::Log_Write_GPS(uint8_t i, uint64_t time_us)
 }
 
 
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 // Write an RFND (rangefinder) packet
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
 {
@@ -204,18 +197,10 @@ void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
     WriteBlock(&pkt, sizeof(pkt));
 }
 
-=======
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 // Write an RCIN packet
 void DataFlash_Class::Log_Write_RCIN(void)
 {
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
     struct log_RCIN pkt = {
-=======
-    uint16_t values[14] = {};
-    rc().get_radio_in(values, ARRAY_SIZE(values));
-    const struct log_RCIN pkt{
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
         LOG_PACKET_HEADER_INIT(LOG_RCIN_MSG),
         time_us       : AP_HAL::micros64(),
         chan1         : RC_Channels::get_radio_in(0),
@@ -239,7 +224,7 @@ void DataFlash_Class::Log_Write_RCIN(void)
 // Write an SERVO packet
 void DataFlash_Class::Log_Write_RCOUT(void)
 {
-    const struct log_RCOUT pkt{
+    struct log_RCOUT pkt = {
         LOG_PACKET_HEADER_INIT(LOG_RCOUT_MSG),
         time_us       : AP_HAL::micros64(),
         chan1         : hal.rcout->read(0),
@@ -262,21 +247,12 @@ void DataFlash_Class::Log_Write_RCOUT(void)
 }
 
 // Write an RSSI packet
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 void DataFlash_Class::Log_Write_RSSI(AP_RSSI &rssi)
-=======
-void AP_Logger::Write_RSSI()
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 {
-    AP_RSSI *rssi = AP::rssi();
-    if (rssi == nullptr) {
-        return;
-    }
-
-    const struct log_RSSI pkt{
+    struct log_RSSI pkt = {
         LOG_PACKET_HEADER_INIT(LOG_RSSI_MSG),
         time_us       : AP_HAL::micros64(),
-        RXRSSI        : rssi->read_receiver_rssi()
+        RXRSSI        : rssi.read_receiver_rssi()
     };
     WriteBlock(&pkt, sizeof(pkt));
 }
@@ -287,7 +263,7 @@ void DataFlash_Class::Log_Write_Baro_instance(uint64_t time_us, uint8_t baro_ins
     float climbrate = baro.get_climb_rate();
     float drift_offset = baro.get_baro_drift_offset();
     float ground_temp = baro.get_ground_temperature();
-    const struct log_BARO pkt{
+    struct log_BARO pkt = {
         LOG_PACKET_HEADER_INIT(type),
         time_us       : time_us,
         altitude      : baro.get_altitude(baro_instance),
@@ -297,7 +273,6 @@ void DataFlash_Class::Log_Write_Baro_instance(uint64_t time_us, uint8_t baro_ins
         sample_time_ms: baro.get_last_update(baro_instance),
         drift_offset  : drift_offset,
         ground_temp   : ground_temp,
-        healthy       : (uint8_t)baro.healthy(baro_instance)
     };
     WriteBlock(&pkt, sizeof(pkt));
 }
@@ -323,7 +298,7 @@ void DataFlash_Class::Log_Write_IMU_instance(const uint64_t time_us, const uint8
     const AP_InertialSensor &ins = AP::ins();
     const Vector3f &gyro = ins.get_gyro(imu_instance);
     const Vector3f &accel = ins.get_accel(imu_instance);
-    const struct log_IMU pkt{
+    struct log_IMU pkt = {
         LOG_PACKET_HEADER_INIT(type),
         time_us : time_us,
         gyro_x  : gyro.x,
@@ -375,7 +350,7 @@ void DataFlash_Class::Log_Write_IMUDT_instance(const uint64_t time_us, const uin
     ins.get_delta_angle(imu_instance, delta_angle);
     ins.get_delta_velocity(imu_instance, delta_velocity);
 
-    const struct log_IMUDT pkt{
+    struct log_IMUDT pkt = {
         LOG_PACKET_HEADER_INIT(type),
         time_us : time_us,
         delta_time   : delta_t,
@@ -419,7 +394,7 @@ void DataFlash_Class::Log_Write_Vibration()
     uint64_t time_us = AP_HAL::micros64();
     const AP_InertialSensor &ins = AP::ins();
     const Vector3f vibration = ins.get_vibration_levels();
-    const struct log_Vibe pkt{
+    struct log_Vibe pkt = {
         LOG_PACKET_HEADER_INIT(LOG_VIBE_MSG),
         time_us     : time_us,
         vibe_x      : vibration.x,
@@ -432,7 +407,6 @@ void DataFlash_Class::Log_Write_Vibration()
     WriteBlock(&pkt, sizeof(pkt));
 }
 
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 // Write a mission command. Total length : 36 bytes
 bool DataFlash_Backend::Log_Write_Mission_Cmd(const AP_Mission &mission,
                                               const AP_Mission::Mission_Command &cmd)
@@ -440,74 +414,20 @@ bool DataFlash_Backend::Log_Write_Mission_Cmd(const AP_Mission &mission,
     mavlink_mission_item_t mav_cmd = {};
     AP_Mission::mission_cmd_to_mavlink(cmd,mav_cmd);
     return Log_Write_MavCmd(mission.num_commands(),mav_cmd);
-=======
-void AP_Logger::Write_Command(const mavlink_command_int_t &packet,
-                              const MAV_RESULT result,
-                              bool was_command_long)
-{
-    const struct log_MAVLink_Command pkt{
-        LOG_PACKET_HEADER_INIT(LOG_MAVLINK_COMMAND_MSG),
-        time_us         : AP_HAL::micros64(),
-        target_system   : packet.target_system,
-        target_component: packet.target_component,
-        frame           : packet.frame,
-        command         : packet.command,
-        current         : packet.current,
-        autocontinue    : packet.autocontinue,
-        param1          : packet.param1,
-        param2          : packet.param2,
-        param3          : packet.param3,
-        param4          : packet.param4,
-        x               : packet.x,
-        y               : packet.y,
-        z               : packet.z,
-        result          : (uint8_t)result,
-        was_command_long:was_command_long,
-    };
-    return WriteBlock(&pkt, sizeof(pkt));
-}
-
-bool AP_Logger_Backend::Write_Mission_Cmd(const AP_Mission &mission,
-                                              const AP_Mission::Mission_Command &cmd)
-{
-    mavlink_mission_item_int_t mav_cmd = {};
-    AP_Mission::mission_cmd_to_mavlink_int(cmd,mav_cmd);
-    const struct log_Cmd pkt{
-        LOG_PACKET_HEADER_INIT(LOG_CMD_MSG),
-        time_us         : AP_HAL::micros64(),
-        command_total   : mission.num_commands(),
-        sequence        : mav_cmd.seq,
-        command         : mav_cmd.command,
-        param1          : mav_cmd.param1,
-        param2          : mav_cmd.param2,
-        param3          : mav_cmd.param3,
-        param4          : mav_cmd.param4,
-        latitude        : mav_cmd.x,
-        longitude       : mav_cmd.y,
-        altitude        : mav_cmd.z,
-        frame           : mav_cmd.frame
-    };
-    return WriteBlock(&pkt, sizeof(pkt));
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 }
 
 void DataFlash_Backend::Log_Write_EntireMission(const AP_Mission &mission)
 {
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
     DFMessageWriter_WriteEntireMission writer;
     writer.set_dataflash_backend(this);
     writer.set_mission(&mission);
-=======
-    LoggerMessageWriter_WriteEntireMission writer{};
-    writer.set_logger_backend(this);
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
     writer.process();
 }
 
 // Write a text message to the log
 bool DataFlash_Backend::Log_Write_Message(const char *message)
 {
-    struct log_Message pkt{
+    struct log_Message pkt = {
         LOG_PACKET_HEADER_INIT(LOG_MESSAGE_MSG),
         time_us : AP_HAL::micros64(),
         msg  : {}
@@ -524,7 +444,7 @@ void DataFlash_Class::Log_Write_Power(void)
         // encode armed state in bit 3
         safety_and_armed |= 1U<<2;
     }
-    const struct log_POWR pkt{
+    struct log_POWR pkt = {
         LOG_PACKET_HEADER_INIT(LOG_POWR_MSG),
         time_us : AP_HAL::micros64(),
         Vcc     : hal.analogin->board_voltage(),
@@ -545,12 +465,8 @@ void DataFlash_Class::Log_Write_AHRS2(AP_AHRS &ahrs)
     if (!ahrs.get_secondary_attitude(euler) || !ahrs.get_secondary_position(loc)) {
         return;
     }
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
     ahrs.get_secondary_quaternion(quat);
     struct log_AHRS pkt = {
-=======
-    const struct log_AHRS pkt{
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
         LOG_PACKET_HEADER_INIT(LOG_AHR2_MSG),
         time_us : AP_HAL::micros64(),
         roll  : (int16_t)(degrees(euler.x)*100),
@@ -576,7 +492,7 @@ void DataFlash_Class::Log_Write_POS(AP_AHRS &ahrs)
     }
     float home, origin;
     ahrs.get_relative_position_D_home(home);
-    const struct log_POS pkt{
+    struct log_POS pkt = {
         LOG_PACKET_HEADER_INIT(LOG_POS_MSG),
         time_us        : AP_HAL::micros64(),
         lat            : loc.lat,
@@ -588,7 +504,6 @@ void DataFlash_Class::Log_Write_POS(AP_AHRS &ahrs)
     WriteBlock(&pkt, sizeof(pkt));
 }
 
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 #if AP_AHRS_NAVEKF_AVAILABLE
 void DataFlash_Class::Log_Write_EKF(AP_AHRS_NavEKF &ahrs)
 {
@@ -1381,11 +1296,8 @@ bool DataFlash_Backend::Log_Write_MavCmd(uint16_t cmd_total, const mavlink_missi
 }
 
 void DataFlash_Class::Log_Write_Radio(const mavlink_radio_t &packet)
-=======
-void AP_Logger::Write_Radio(const mavlink_radio_t &packet)
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 {
-    const struct log_Radio pkt{
+    struct log_Radio pkt = {
         LOG_PACKET_HEADER_INIT(LOG_RADIO_MSG),
         time_us      : AP_HAL::micros64(),
         rssi         : packet.rssi,
@@ -1400,14 +1312,8 @@ void AP_Logger::Write_Radio(const mavlink_radio_t &packet)
 }
 
 // Write a Camera packet
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 void DataFlash_Class::Log_Write_CameraInfo(enum LogMessages msg, const AP_AHRS &ahrs, const Location &current_loc)
-=======
-void AP_Logger::Write_CameraInfo(enum LogMessages msg, const Location &current_loc, uint64_t timestamp_us)
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 {
-    const AP_AHRS &ahrs = AP::ahrs();
-
     int32_t altitude, altitude_rel, altitude_gps;
     if (current_loc.flags.relative_alt) {
         altitude = current_loc.alt+ahrs.get_home().alt;
@@ -1423,7 +1329,7 @@ void AP_Logger::Write_CameraInfo(enum LogMessages msg, const Location &current_l
         altitude_gps = 0;
     }
 
-    const struct log_Camera pkt{
+    struct log_Camera pkt = {
         LOG_PACKET_HEADER_INIT(static_cast<uint8_t>(msg)),
         time_us     : AP_HAL::micros64(),
         gps_time    : gps.time_week_ms(),
@@ -1441,7 +1347,6 @@ void AP_Logger::Write_CameraInfo(enum LogMessages msg, const Location &current_l
 }
 
 // Write a Camera packet
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 void DataFlash_Class::Log_Write_Camera(const AP_AHRS &ahrs, const Location &current_loc)
 {
     Log_Write_CameraInfo(LOG_CAMERA_MSG, ahrs, current_loc);
@@ -1451,23 +1356,12 @@ void DataFlash_Class::Log_Write_Camera(const AP_AHRS &ahrs, const Location &curr
 void DataFlash_Class::Log_Write_Trigger(const AP_AHRS &ahrs, const Location &current_loc)
 {
     Log_Write_CameraInfo(LOG_TRIGGER_MSG, ahrs, current_loc);
-=======
-void AP_Logger::Write_Camera(const Location &current_loc, uint64_t timestamp_us)
-{
-    Write_CameraInfo(LOG_CAMERA_MSG, current_loc, timestamp_us);
-}
-
-// Write a Trigger packet
-void AP_Logger::Write_Trigger(const Location &current_loc)
-{
-    Write_CameraInfo(LOG_TRIGGER_MSG, current_loc, 0);
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 }
 
 // Write an attitude packet
 void DataFlash_Class::Log_Write_Attitude(AP_AHRS &ahrs, const Vector3f &targets)
 {
-    const struct log_Attitude pkt{
+    struct log_Attitude pkt = {
         LOG_PACKET_HEADER_INIT(LOG_ATTITUDE_MSG),
         time_us         : AP_HAL::micros64(),
         control_roll    : (int16_t)targets.x,
@@ -1485,7 +1379,7 @@ void DataFlash_Class::Log_Write_Attitude(AP_AHRS &ahrs, const Vector3f &targets)
 // Write an attitude packet
 void DataFlash_Class::Log_Write_AttitudeView(AP_AHRS_View &ahrs, const Vector3f &targets)
 {
-    const struct log_Attitude pkt{
+    struct log_Attitude pkt = {
         LOG_PACKET_HEADER_INIT(LOG_ATTITUDE_MSG),
         time_us         : AP_HAL::micros64(),
         control_roll    : (int16_t)targets.x,
@@ -1508,25 +1402,14 @@ void DataFlash_Class::Log_Write_Current_instance(const uint64_t time_us,
     AP_BattMonitor &battery = AP::battery();
     float temp;
     bool has_temp = battery.get_temperature(temp, battery_instance);
-    float current, consumed_mah, consumed_wh;
-    if (!battery.current_amps(current)) {
-        current = quiet_nanf();
-    }
-    if (!battery.consumed_mah(consumed_mah, battery_instance)) {
-        consumed_mah = quiet_nanf();
-    }
-    if (!battery.consumed_wh(consumed_wh, battery_instance)) {
-        consumed_wh = quiet_nanf();
-    }
-
-    const struct log_Current pkt = {
+    struct log_Current pkt = {
         LOG_PACKET_HEADER_INIT(type),
         time_us             : time_us,
         voltage             : battery.voltage(battery_instance),
         voltage_resting     : battery.voltage_resting_estimate(battery_instance),
-        current_amps        : current,
-        current_total       : consumed_mah,
-        consumed_wh         : consumed_wh,
+        current_amps        : battery.current_amps(battery_instance),
+        current_total       : battery.consumed_mah(battery_instance),
+        consumed_wh         : battery.consumed_wh(battery_instance),
         temperature         : (int16_t)(has_temp ? (temp * 100) : 0),
         resistance          : battery.get_resistance(battery_instance)
     };
@@ -1535,7 +1418,7 @@ void DataFlash_Class::Log_Write_Current_instance(const uint64_t time_us,
     // individual cell voltages
     if (battery.has_cell_voltages(battery_instance)) {
         const AP_BattMonitor::cells &cells = battery.get_cell_voltages(battery_instance);
-        struct log_Current_Cells cell_pkt{
+        struct log_Current_Cells cell_pkt = {
             LOG_PACKET_HEADER_INIT(celltype),
             time_us             : time_us,
             voltage             : battery.voltage(battery_instance)
@@ -1576,7 +1459,7 @@ void DataFlash_Class::Log_Write_Compass_instance(const Compass &compass, const u
     const Vector3f &mag_field = compass.get_field(mag_instance);
     const Vector3f &mag_offsets = compass.get_offsets(mag_instance);
     const Vector3f &mag_motor_offsets = compass.get_motor_offsets(mag_instance);
-    const struct log_Compass pkt{
+    struct log_Compass pkt = {
         LOG_PACKET_HEADER_INIT(type),
         time_us         : time_us,
         mag_x           : (int16_t)mag_field.x,
@@ -1614,7 +1497,7 @@ void DataFlash_Class::Log_Write_Compass(const Compass &compass, uint64_t time_us
 // Write a mode packet.
 bool DataFlash_Backend::Log_Write_Mode(uint8_t mode, uint8_t reason)
 {
-    const struct log_Mode pkt{
+    struct log_Mode pkt = {
         LOG_PACKET_HEADER_INIT(LOG_MODE_MSG),
         time_us  : AP_HAL::micros64(),
         mode     : mode,
@@ -1635,7 +1518,6 @@ void DataFlash_Class::Log_Write_ESC(void)
         // subscribe to ORB topic on first call
         _esc_status_sub = orb_subscribe(ORB_ID(esc_status));
     }
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
 
     // check for new ESC status data
     bool esc_updated = false;
@@ -1695,33 +1577,13 @@ void DataFlash_Class::Log_Write_Airspeed(AP_Airspeed &airspeed)
     }
 }
 
-=======
-    const struct log_Esc pkt{
-        LOG_PACKET_HEADER_INIT(uint8_t(LOG_ESC1_MSG+id)),
-        time_us     : time_us,
-        rpm         : rpm,
-        voltage     : voltage,
-        current     : current,
-        temperature : temperature,
-        current_tot : current_tot
-    };
-    WriteBlock(&pkt, sizeof(pkt));
-}
-
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
 // Write a Yaw PID packet
 void DataFlash_Class::Log_Write_PID(uint8_t msg_type, const PID_Info &info)
 {
-    const struct log_PID pkt{
+    struct log_PID pkt = {
         LOG_PACKET_HEADER_INIT(msg_type),
         time_us         : AP_HAL::micros64(),
-<<<<<<< HEAD:libraries/DataFlash/LogFile.cpp
         desired         : info.desired,
-=======
-        target          : info.target,
-        actual          : info.actual,
-        error           : info.error,
->>>>>>> upstream/master:libraries/AP_Logger/LogFile.cpp
         P               : info.P,
         I               : info.I,
         D               : info.D,
@@ -1733,9 +1595,10 @@ void DataFlash_Class::Log_Write_PID(uint8_t msg_type, const PID_Info &info)
 
 void DataFlash_Class::Log_Write_Origin(uint8_t origin_type, const Location &loc)
 {
-    const struct log_ORGN pkt{
+    uint64_t time_us = AP_HAL::micros64();
+    struct log_ORGN pkt = {
         LOG_PACKET_HEADER_INIT(LOG_ORGN_MSG),
-        time_us     : AP_HAL::micros64(),
+        time_us     : time_us,
         origin_type : origin_type,
         latitude    : loc.lat,
         longitude   : loc.lng,
@@ -1746,7 +1609,7 @@ void DataFlash_Class::Log_Write_Origin(uint8_t origin_type, const Location &loc)
 
 void DataFlash_Class::Log_Write_RPM(const AP_RPM &rpm_sensor)
 {
-    const struct log_RPM pkt{
+    struct log_RPM pkt = {
         LOG_PACKET_HEADER_INIT(LOG_RPM_MSG),
         time_us     : AP_HAL::micros64(),
         rpm1        : rpm_sensor.get_rpm(0),
@@ -1763,7 +1626,7 @@ void DataFlash_Class::Log_Write_Rate(const AP_AHRS &ahrs,
 {
     const Vector3f &rate_targets = attitude_control.rate_bf_targets();
     const Vector3f &accel_target = pos_control.get_accel_target();
-    const struct log_Rate pkt_rate{
+    struct log_Rate pkt_rate = {
         LOG_PACKET_HEADER_INIT(LOG_RATE_MSG),
         time_us         : AP_HAL::micros64(),
         control_roll    : degrees(rate_targets.x),
@@ -1805,7 +1668,7 @@ void DataFlash_Class::Log_Write_Rally(const AP_Rally &rally)
 // Write visual odometry sensor data
 void DataFlash_Class::Log_Write_VisualOdom(float time_delta, const Vector3f &angle_delta, const Vector3f &position_delta, float confidence)
 {
-    const struct log_VisualOdom pkt_visualodom{
+    struct log_VisualOdom pkt_visualodom = {
         LOG_PACKET_HEADER_INIT(LOG_VISUALODOM_MSG),
         time_us             : AP_HAL::micros64(),
         time_delta          : time_delta,
@@ -1823,7 +1686,7 @@ void DataFlash_Class::Log_Write_VisualOdom(float time_delta, const Vector3f &ang
 // Write AOA and SSA
 void DataFlash_Class::Log_Write_AOA_SSA(AP_AHRS &ahrs)
 {
-    const struct log_AOA_SSA aoa_ssa{
+    struct log_AOA_SSA aoa_ssa = {
         LOG_PACKET_HEADER_INIT(LOG_AOA_SSA_MSG),
         time_us         : AP_HAL::micros64(),
         AOA             : ahrs.getAOA(),
@@ -1844,7 +1707,7 @@ void DataFlash_Class::Log_Write_Beacon(AP_Beacon &beacon)
     float accuracy = 0.0f;
     beacon.get_vehicle_position_ned(pos, accuracy);
 
-    const struct log_Beacon pkt_beacon{
+    struct log_Beacon pkt_beacon = {
        LOG_PACKET_HEADER_INIT(LOG_BEACON_MSG),
        time_us         : AP_HAL::micros64(),
        health          : (uint8_t)beacon.healthy(),
@@ -1879,7 +1742,7 @@ void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
     float close_ang = 0.0f, close_dist = 0.0f;
     proximity.get_closest_object(close_ang, close_dist);
 
-    const struct log_Proximity pkt_proximity{
+    struct log_Proximity pkt_proximity = {
             LOG_PACKET_HEADER_INIT(LOG_PROXIMITY_MSG),
             time_us         : AP_HAL::micros64(),
             health          : (uint8_t)proximity.get_status(),
@@ -1900,7 +1763,7 @@ void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
 
 void DataFlash_Class::Log_Write_SRTL(bool active, uint16_t num_points, uint16_t max_points, uint8_t action, const Vector3f& breadcrumb)
 {
-    const struct log_SRTL pkt_srtl{
+    struct log_SRTL pkt_srtl = {
         LOG_PACKET_HEADER_INIT(LOG_SRTL_MSG),
         time_us         : AP_HAL::micros64(),
         active          : active,
@@ -1912,37 +1775,4 @@ void DataFlash_Class::Log_Write_SRTL(bool active, uint16_t num_points, uint16_t 
         D               : breadcrumb.z
     };
     WriteBlock(&pkt_srtl, sizeof(pkt_srtl));
-}
-
-void AP_Logger::Write_OABendyRuler(bool active, float target_yaw, float margin, const Location &final_dest, const Location &oa_dest)
-{
-    const struct log_OABendyRuler pkt{
-        LOG_PACKET_HEADER_INIT(LOG_OA_BENDYRULER_MSG),
-        time_us     : AP_HAL::micros64(),
-        active      : active,
-        target_yaw  : (uint16_t)wrap_360(target_yaw),
-        yaw         : (uint16_t)wrap_360(AP::ahrs().yaw_sensor * 0.01f),
-        margin      : margin,
-        final_lat   : final_dest.lat,
-        final_lng   : final_dest.lng,
-        oa_lat      : oa_dest.lat,
-        oa_lng      : oa_dest.lng
-    };
-    WriteBlock(&pkt, sizeof(pkt));
-}
-
-void AP_Logger::Write_OADijkstra(uint8_t state, uint8_t curr_point, uint8_t tot_points, const Location &final_dest, const Location &oa_dest)
-{
-    struct log_OADijkstra pkt{
-        LOG_PACKET_HEADER_INIT(LOG_OA_DIJKSTRA_MSG),
-        time_us     : AP_HAL::micros64(),
-        state       : state,
-        curr_point  : curr_point,
-        tot_points  : tot_points,
-        final_lat   : final_dest.lat,
-        final_lng   : final_dest.lng,
-        oa_lat      : oa_dest.lat,
-        oa_lng      : oa_dest.lng
-    };
-    WriteBlock(&pkt, sizeof(pkt));
 }

@@ -1,11 +1,6 @@
 #include "SoloGimbal_Parameters.h"
 #include <AP_HAL/AP_HAL.h>
-<<<<<<< HEAD
 
-=======
-#include <AP_Logger/AP_Logger.h>
-#include <GCS_MAVLink/GCS.h>
->>>>>>> upstream/master
 #include <stdio.h>
 
 extern const AP_HAL::HAL& hal;
@@ -171,14 +166,10 @@ void SoloGimbal_Parameters::update()
     }
 }
 
-<<<<<<< HEAD
 void SoloGimbal_Parameters::handle_param_value(mavlink_message_t *msg)
-=======
-void SoloGimbal_Parameters::handle_param_value(const mavlink_message_t &msg)
->>>>>>> upstream/master
 {
     mavlink_param_value_t packet;
-    mavlink_msg_param_value_decode(&msg, &packet);
+    mavlink_msg_param_value_decode(msg, &packet);
 
     DataFlash_Class *dataflash = DataFlash_Class::instance();
     if (dataflash != nullptr) {

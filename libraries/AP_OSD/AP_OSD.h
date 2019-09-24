@@ -88,11 +88,6 @@ private:
     AP_OSD_Setting compass{true, 15, 3};
     AP_OSD_Setting wind{false, 2, 12};
     AP_OSD_Setting aspeed{false, 2, 13};
-<<<<<<< HEAD
-=======
-    AP_OSD_Setting aspd1{false, 0, 0};
-    AP_OSD_Setting aspd2{false, 0, 0};
->>>>>>> upstream/master
     AP_OSD_Setting vspeed{true, 24, 9};
 
 #ifdef HAVE_AP_BLHELI_SUPPORT
@@ -126,7 +121,6 @@ private:
     void draw_rssi(uint8_t x, uint8_t y);
     void draw_current(uint8_t x, uint8_t y);
     void draw_batused(uint8_t x, uint8_t y);
-    void draw_batused(uint8_t instance, uint8_t x, uint8_t y);
     void draw_sats(uint8_t x, uint8_t y);
     void draw_fltmode(uint8_t x, uint8_t y);
     void draw_message(uint8_t x, uint8_t y);
@@ -138,11 +132,6 @@ private:
     void draw_compass(uint8_t x, uint8_t y);
     void draw_wind(uint8_t x, uint8_t y);
     void draw_aspeed(uint8_t x, uint8_t y);
-<<<<<<< HEAD
-=======
-    void draw_aspd1(uint8_t x, uint8_t y);
-    void draw_aspd2(uint8_t x, uint8_t y);
->>>>>>> upstream/master
     void draw_vspeed(uint8_t x, uint8_t y);
 
     //helper functions
@@ -199,9 +188,6 @@ public:
     AP_Int8 warn_nsat;
     AP_Float warn_batvolt;
     AP_Int8 msgtime_s;
-    AP_Int8 arm_scr;
-    AP_Int8 disarm_scr;
-    AP_Int8 failsafe_scr;
 
     enum {
         OPTION_DECIMAL_PACK = 1U<<0,
@@ -236,19 +222,4 @@ private:
     uint16_t previous_channel_value;
     bool switch_debouncer;
     uint32_t last_switch_ms;
-<<<<<<< HEAD
-=======
-    struct NavInfo nav_info;
-    int8_t previous_pwm_screen;
-    int8_t pre_fs_screen;
-    bool was_armed;
-    bool was_failsafe;
-    
-    uint32_t last_update_ms;
-    float last_distance_m;
-    float max_dist_m;
-    float max_alt_m;
-    float max_speed_mps;
-    float max_current_a;
->>>>>>> upstream/master
 };

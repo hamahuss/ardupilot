@@ -2,8 +2,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <GCS_MAVLink/include/mavlink/v2.0/checksum.h>
-#include <AP_GPS/AP_GPS.h>
-#include <AP_SerialManager/AP_SerialManager.h>
+#include <AP_HAL/utility/RingBuffer.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -18,10 +17,8 @@ AP_Mount_SToRM32_serial::AP_Mount_SToRM32_serial(AP_Mount &frontend, AP_Mount::m
 {}
 
 // init - performs any required initialisation for this instance
-void AP_Mount_SToRM32_serial::init()
+void AP_Mount_SToRM32_serial::init(const AP_SerialManager& serial_manager)
 {
-    const AP_SerialManager& serial_manager = AP::serialmanager();
-
     _port = serial_manager.find_serial(AP_SerialManager::SerialProtocol_SToRM32, 0);
     if (_port) {
         _initialised = true;

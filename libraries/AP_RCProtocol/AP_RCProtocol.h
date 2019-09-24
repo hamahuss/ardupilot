@@ -18,25 +18,20 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Common/AP_Common.h>
 
-#define MAX_RCIN_CHANNELS 18
+#define MAX_RCIN_CHANNELS 32
 #define MIN_RCIN_CHANNELS  5
 
 class AP_RCProtocol_Backend;
 
 class AP_RCProtocol {
 public:
-<<<<<<< HEAD
     AP_RCProtocol() {
         instance = this;
     }
-=======
-    AP_RCProtocol() {}
->>>>>>> upstream/master
     ~AP_RCProtocol();
 
     enum rcprotocol_t {
         PPM = 0,
-        IBUS,
         SBUS,
         SBUS_NI,
         DSM,
@@ -53,7 +48,6 @@ public:
     void process_pulse(uint32_t width_s0, uint32_t width_s1);
     void process_pulse_list(const uint32_t *widths, uint16_t n, bool need_swap);
     void process_byte(uint8_t byte, uint32_t baudrate);
-    void update(void);
 
     void disable_for_pulses(enum rcprotocol_t protocol) {
         _disabled_for_pulses |= (1U<<(uint8_t)protocol);
@@ -83,21 +77,13 @@ public:
     enum rcprotocol_t protocol_detected(void) const {
         return _detected_protocol;
     }
-<<<<<<< HEAD
     
     // access to singleton
     static AP_RCProtocol *get_instance(void) {
         return instance;
     }
-=======
-
-    // add a UART for RCIN
-    void add_uart(AP_HAL::UARTDriver* uart);
->>>>>>> upstream/master
 
 private:
-    void check_added_uart(void);
-
     enum rcprotocol_t _detected_protocol = NONE;
     uint16_t _disabled_for_pulses;
     bool _detected_with_bytes;
@@ -107,21 +93,7 @@ private:
     bool _valid_serial_prot = false;
     uint8_t _good_frames[NONE];
 
-<<<<<<< HEAD
     static AP_RCProtocol *instance;
-=======
-    // optional additional uart
-    struct {
-        AP_HAL::UARTDriver *uart;
-        uint32_t baudrate;
-        bool opened;
-        uint32_t last_baud_change_ms;
-    } added;
-};
-
-namespace AP {
-    AP_RCProtocol &RC();
->>>>>>> upstream/master
 };
 
 #include "AP_RCProtocol_Backend.h"

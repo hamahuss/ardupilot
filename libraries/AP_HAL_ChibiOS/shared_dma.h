@@ -92,9 +92,4 @@ private:
         Shared_DMA *obj;
     } locks[SHARED_DMA_MAX_STREAM_ID];
 };
-<<<<<<< HEAD
-=======
-
-
->>>>>>> upstream/master
 

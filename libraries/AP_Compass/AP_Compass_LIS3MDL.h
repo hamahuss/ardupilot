@@ -33,16 +33,10 @@
 class AP_Compass_LIS3MDL : public AP_Compass_Backend
 {
 public:
-<<<<<<< HEAD
     static AP_Compass_Backend *probe(Compass &compass,
                                      AP_HAL::OwnPtr<AP_HAL::Device> dev,
                                      bool force_external = false,
                                      enum Rotation rotation = ROTATION_NONE);
-=======
-    static AP_Compass_Backend *probe(AP_HAL::OwnPtr<AP_HAL::Device> dev,
-                                     bool force_external,
-                                     enum Rotation rotation);
->>>>>>> upstream/master
 
     void read() override;
 

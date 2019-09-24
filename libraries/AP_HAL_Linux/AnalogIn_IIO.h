@@ -25,7 +25,6 @@ class AnalogSource_IIO : public AP_HAL::AnalogSource {
 public:
     friend class AnalogIn_IIO;
     AnalogSource_IIO(int16_t pin, float initial_value, float voltage_scaling);
-<<<<<<< HEAD
     float read_average();
     float read_latest();
     void set_pin(uint8_t p);
@@ -34,14 +33,6 @@ public:
     float voltage_average();
     float voltage_latest();
     float voltage_average_ratiometric() { return voltage_average(); }
-=======
-    float read_average() override;
-    float read_latest() override;
-    void set_pin(uint8_t p) override;
-    float voltage_average() override;
-    float voltage_latest() override;
-    float voltage_average_ratiometric() override { return voltage_average(); }
->>>>>>> upstream/master
 private:
     float       _value;
     float       _latest;

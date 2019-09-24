@@ -408,7 +408,7 @@ AP_Mount::AP_Mount(const AP_AHRS_TYPE &ahrs, const struct Location &current_loc)
 }
 
 // init - detect and initialise all mounts
-void AP_Mount::init()
+void AP_Mount::init(const AP_SerialManager& serial_manager)
 {
     // check init has not been called before
     if (_num_instances != 0) {
@@ -466,7 +466,7 @@ void AP_Mount::init()
 
         // init new instance
         if (_backends[instance] != nullptr) {
-            _backends[instance]->init();
+            _backends[instance]->init(serial_manager);
             if (!primary_set) {
                 _primary = instance;
                 primary_set = true;
@@ -571,46 +571,24 @@ void AP_Mount::configure_msg(uint8_t instance, mavlink_message_t* msg)
     _backends[instance]->configure_msg(msg);
 }
 
-<<<<<<< HEAD
 /// Control the mount (depends on the previously set mount configuration)
 /// triggered by a MavLink packet.
 void AP_Mount::control_msg(uint8_t instance, mavlink_message_t *msg)
-=======
-/// Change the configuration of the mount
-void AP_Mount::handle_mount_configure(const mavlink_message_t &msg)
->>>>>>> upstream/master
 {
     if (instance >= AP_MOUNT_MAX_INSTANCES || _backends[instance] == nullptr) {
         return;
     }
 
-<<<<<<< HEAD
-=======
-    mavlink_mount_configure_t packet;
-    mavlink_msg_mount_configure_decode(&msg, &packet);
-
->>>>>>> upstream/master
     // send message to backend
     _backends[instance]->control_msg(msg);
 }
 
-<<<<<<< HEAD
 void AP_Mount::control(uint8_t instance, int32_t pitch_or_lat, int32_t roll_or_lon, int32_t yaw_or_alt, enum MAV_MOUNT_MODE mount_mode)
-=======
-/// Control the mount (depends on the previously set mount configuration)
-void AP_Mount::handle_mount_control(const mavlink_message_t &msg)
->>>>>>> upstream/master
 {
     if (instance >= AP_MOUNT_MAX_INSTANCES || _backends[instance] == nullptr) {
         return;
     }
 
-<<<<<<< HEAD
-=======
-    mavlink_mount_control_t packet;
-    mavlink_msg_mount_control_decode(&msg, &packet);
-
->>>>>>> upstream/master
     // send message to backend
     _backends[instance]->control(pitch_or_lat, roll_or_lon, yaw_or_alt, mount_mode);
 }
@@ -636,11 +614,7 @@ void AP_Mount::set_roi_target(uint8_t instance, const struct Location &target_lo
 }
 
 // pass a GIMBAL_REPORT message to the backend
-<<<<<<< HEAD
 void AP_Mount::handle_gimbal_report(mavlink_channel_t chan, mavlink_message_t *msg)
-=======
-void AP_Mount::handle_gimbal_report(mavlink_channel_t chan, const mavlink_message_t &msg)
->>>>>>> upstream/master
 {
     for (uint8_t instance=0; instance<AP_MOUNT_MAX_INSTANCES; instance++) {
         if (_backends[instance] != nullptr) {
@@ -649,33 +623,8 @@ void AP_Mount::handle_gimbal_report(mavlink_channel_t chan, const mavlink_messag
     }
 }
 
-<<<<<<< HEAD
 // handle PARAM_VALUE
 void AP_Mount::handle_param_value(mavlink_message_t *msg)
-=======
-void AP_Mount::handle_message(mavlink_channel_t chan, const mavlink_message_t &msg)
-{
-    switch (msg.msgid) {
-    case MAVLINK_MSG_ID_GIMBAL_REPORT:
-        handle_gimbal_report(chan, msg);
-        break;
-    case MAVLINK_MSG_ID_MOUNT_CONFIGURE:
-        handle_mount_configure(msg);
-        break;
-    case MAVLINK_MSG_ID_MOUNT_CONTROL:
-        handle_mount_control(msg);
-        break;
-    default:
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-        AP_HAL::panic("Unhandled mount case");
-#endif
-        break;
-    }
-}
-
-// handle PARAM_VALUE
-void AP_Mount::handle_param_value(const mavlink_message_t &msg)
->>>>>>> upstream/master
 {
     for (uint8_t instance=0; instance<AP_MOUNT_MAX_INSTANCES; instance++) {
         if (_backends[instance] != nullptr) {

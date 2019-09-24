@@ -21,12 +21,19 @@
 #include <AP_Math/AP_Math.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <GCS_MAVLink/GCS.h>
-#include <stdio.h>
 #include "AP_Terrain.h"
 
 #if AP_TERRAIN_AVAILABLE
 
-#include <AP_Filesystem/AP_Filesystem.h>
+#include <assert.h>
+#include <stdio.h>
+#if HAL_OS_POSIX_IO
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#endif
+#include <sys/types.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -173,7 +180,7 @@ void AP_Terrain::open_file(void)
     // create directory if need be
     if (!directory_created) {
         *p = 0;
-        directory_created = !AP::FS().mkdir(file_path);
+        directory_created = !mkdir(file_path, 0755);
         *p = '/';
 
         if (!directory_created) {
@@ -189,9 +196,13 @@ void AP_Terrain::open_file(void)
     }
 
     if (fd != -1) {
-        AP::FS().close(fd);
+        ::close(fd);
     }
-    fd = AP::FS().open(file_path, O_RDWR|O_CREAT);
+#if HAL_OS_POSIX_IO
+    fd = ::open(file_path, O_RDWR|O_CREAT|O_CLOEXEC, 0644);
+#else
+    fd = ::open(file_path, O_RDWR|O_CREAT|O_CLOEXEC);
+#endif
     if (fd == -1) {
 #if TERRAIN_DEBUG
         hal.console->printf("Open %s failed - %s\n",
@@ -219,23 +230,18 @@ void AP_Terrain::seek_offset(void)
     loc2.lng = (block.lon_degrees+1)*10*1000*1000L;
 
     // shift another two blocks east to ensure room is available
-<<<<<<< HEAD
     location_offset(loc2, 0, 2*grid_spacing*TERRAIN_GRID_BLOCK_SIZE_Y);
     Vector2f offset = location_diff(loc1, loc2);
-=======
-    loc2.offset(0, 2*grid_spacing*TERRAIN_GRID_BLOCK_SIZE_Y);
-    const Vector2f offset = loc1.get_distance_NE(loc2);
->>>>>>> upstream/master
     uint16_t east_blocks = offset.y / (grid_spacing*TERRAIN_GRID_BLOCK_SIZE_Y);
 
     uint32_t file_offset = (east_blocks * block.grid_idx_x + 
                             block.grid_idx_y) * sizeof(union grid_io_block);
-    if (AP::FS().lseek(fd, file_offset, SEEK_SET) != (off_t)file_offset) {
+    if (::lseek(fd, file_offset, SEEK_SET) != (off_t)file_offset) {
 #if TERRAIN_DEBUG
         hal.console->printf("Seek %lu failed - %s\n",
                             (unsigned long)file_offset, strerror(errno));
 #endif
-        AP::FS().close(fd);
+        ::close(fd);
         fd = -1;
         io_failure = true;
     }
@@ -253,16 +259,16 @@ void AP_Terrain::write_block(void)
 
     disk_block.block.crc = get_block_crc(disk_block.block);
 
-    ssize_t ret = AP::FS().write(fd, &disk_block, sizeof(disk_block));
+    ssize_t ret = ::write(fd, &disk_block, sizeof(disk_block));
     if (ret  != sizeof(disk_block)) {
 #if TERRAIN_DEBUG
         hal.console->printf("write failed - %s\n", strerror(errno));
 #endif
-        AP::FS().close(fd);
+        ::close(fd);
         fd = -1;
         io_failure = true;
     } else {
-        AP::FS().fsync(fd);
+        ::fsync(fd);
 #if TERRAIN_DEBUG
         printf("wrote block at %ld %ld ret=%d mask=%07llx\n",
                (long)disk_block.block.lat,
@@ -286,7 +292,7 @@ void AP_Terrain::read_block(void)
     int32_t lat = disk_block.block.lat;
     int32_t lon = disk_block.block.lon;
 
-    ssize_t ret = AP::FS().read(fd, &disk_block, sizeof(disk_block));
+    ssize_t ret = ::read(fd, &disk_block, sizeof(disk_block));
     if (ret != sizeof(disk_block) || 
         disk_block.block.lat != lat || 
         disk_block.block.lon != lon ||

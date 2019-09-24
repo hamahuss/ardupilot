@@ -18,7 +18,6 @@
 #include "hal.h"
 #include "usbcfg.h"
 #include "stm32_util.h"
-#include "watchdog.h"
 
 #if HAL_USE_PAL || defined(__DOXYGEN__)
 /**
@@ -26,74 +25,7 @@
  * @details Digital I/O ports static configuration as defined in @p board.h.
  *          This variable is used by the HAL when initializing the PAL driver.
  */
-<<<<<<< HEAD
 const PALConfig pal_default_config = {
-=======
-#if defined(STM32F100_MCUCONF) || defined(STM32F103_MCUCONF)
-
-const PALConfig pal_default_config =
-{
-  {VAL_GPIOA_ODR, VAL_GPIOA_CRL, VAL_GPIOA_CRH},
-  {VAL_GPIOB_ODR, VAL_GPIOB_CRL, VAL_GPIOB_CRH},
-  {VAL_GPIOC_ODR, VAL_GPIOC_CRL, VAL_GPIOC_CRH},
-  {VAL_GPIOD_ODR, VAL_GPIOD_CRL, VAL_GPIOD_CRH},
-  {VAL_GPIOE_ODR, VAL_GPIOE_CRL, VAL_GPIOE_CRH},
-};
-
-#else //Other than STM32F1 series
-
-/**
- * @brief   Type of STM32 GPIO port setup.
- */
-typedef struct {
-  uint32_t              moder;
-  uint32_t              otyper;
-  uint32_t              ospeedr;
-  uint32_t              pupdr;
-  uint32_t              odr;
-  uint32_t              afrl;
-  uint32_t              afrh;
-} gpio_setup_t;
-
-/**
- * @brief   Type of STM32 GPIO initialization data.
- */
-typedef struct {
-#if STM32_HAS_GPIOA || defined(__DOXYGEN__)
-  gpio_setup_t          PAData;
-#endif
-#if STM32_HAS_GPIOB || defined(__DOXYGEN__)
-  gpio_setup_t          PBData;
-#endif
-#if STM32_HAS_GPIOC || defined(__DOXYGEN__)
-  gpio_setup_t          PCData;
-#endif
-#if STM32_HAS_GPIOD || defined(__DOXYGEN__)
-  gpio_setup_t          PDData;
-#endif
-#if STM32_HAS_GPIOE || defined(__DOXYGEN__)
-  gpio_setup_t          PEData;
-#endif
-#if STM32_HAS_GPIOF || defined(__DOXYGEN__)
-  gpio_setup_t          PFData;
-#endif
-#if STM32_HAS_GPIOG || defined(__DOXYGEN__)
-  gpio_setup_t          PGData;
-#endif
-#if STM32_HAS_GPIOH || defined(__DOXYGEN__)
-  gpio_setup_t          PHData;
-#endif
-#if STM32_HAS_GPIOI || defined(__DOXYGEN__)
-  gpio_setup_t          PIData;
-#endif
-#if STM32_HAS_GPIOJ || defined(__DOXYGEN__)
-  gpio_setup_t          PJData;
-#endif
-#if STM32_HAS_GPIOK || defined(__DOXYGEN__)
-  gpio_setup_t          PKData;
-#endif
-} gpio_config_t;
->>>>>>> upstream/master
 
   {VAL_GPIOA_MODER, VAL_GPIOA_OTYPER, VAL_GPIOA_OSPEEDR, VAL_GPIOA_PUPDR, VAL_GPIOA_ODR, VAL_GPIOA_AFRL, VAL_GPIOA_AFRH},
   {VAL_GPIOB_MODER, VAL_GPIOB_OTYPER, VAL_GPIOB_OSPEEDR, VAL_GPIOB_PUPDR, VAL_GPIOB_ODR, VAL_GPIOB_AFRL, VAL_GPIOB_AFRH},
@@ -127,22 +59,12 @@ typedef struct {
  *          and before any other initialization.
  */
 void __early_init(void) {
-<<<<<<< HEAD
-=======
-#if !defined(STM32F100_MCUCONF) && !defined(STM32F103_MCUCONF)
-  stm32_gpio_init();
-#endif
->>>>>>> upstream/master
   stm32_clock_init();
 }
 
 void __late_init(void) {
   halInit();
   chSysInit();
-  stm32_watchdog_save_reason();
-#ifndef HAL_BOOTLOADER_BUILD
-  stm32_watchdog_clear_reason();
-#endif
 #if CH_CFG_USE_HEAP == TRUE
   malloc_init();
 #endif

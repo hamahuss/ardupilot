@@ -13,17 +13,14 @@ public:
     // Constructor
     AP_InertialNav_NavEKF(AP_AHRS_NavEKF &ahrs) :
         AP_InertialNav(),
+        _haveabspos(false),
         _ahrs_ekf(ahrs)
         {}
 
     /**
        update internal state
     */
-<<<<<<< HEAD
     void        update(float dt);
-=======
-    void        update() override;
->>>>>>> upstream/master
 
     /**
      * get_filter_status - returns filter status as a series of flags
@@ -31,7 +28,6 @@ public:
     nav_filter_status get_filter_status() const;
 
     /**
-<<<<<<< HEAD
      * get_origin - returns the inertial navigation origin in lat/lon/alt
      *
      * @return origin Location
@@ -39,8 +35,6 @@ public:
     struct Location get_origin() const;
 
     /**
-=======
->>>>>>> upstream/master
      * get_position - returns the current position relative to the home location in cm.
      *
      * the home location was set with AP_InertialNav::set_home_position(int32_t, int32_t)
@@ -53,7 +47,6 @@ public:
 
 
     /**
-<<<<<<< HEAD
      * get_llh - updates the provided location with the latest calculated location including absolute altitude
      *  returns true on success (i.e. the EKF knows it's latest position), false on failure
      */
@@ -71,8 +64,6 @@ public:
     int32_t     get_longitude() const;
 
     /**
-=======
->>>>>>> upstream/master
      * get_velocity - returns the current velocity in cm/s
      *
      * @return velocity vector:
@@ -112,11 +103,8 @@ public:
 private:
     Vector3f _relpos_cm;   // NEU
     Vector3f _velocity_cm; // NEU
-<<<<<<< HEAD
     float _pos_z_rate;
     struct Location _abspos;
     bool _haveabspos;
-=======
->>>>>>> upstream/master
     AP_AHRS_NavEKF &_ahrs_ekf;
 };

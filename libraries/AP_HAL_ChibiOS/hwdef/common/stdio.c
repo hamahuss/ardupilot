@@ -26,9 +26,9 @@
 #include <posix.h>
 #include <string.h>
 #include <hal.h>
+#include <memstreams.h>
 #include <chprintf.h>
 #include <ctype.h>
-<<<<<<< HEAD:libraries/AP_HAL_ChibiOS/hwdef/common/stdio.c
 #include "stdio.h"
 
 int vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
@@ -69,21 +69,13 @@ int vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
 }
 
 int snprintf(char *str, size_t size, const char *fmt, ...)
-=======
-#include "hwdef/common/stdio.h"
-#include <AP_HAL/AP_HAL.h>
-
-extern const AP_HAL::HAL& hal;
-
-int __wrap_snprintf(char *str, size_t size, const char *fmt, ...)
->>>>>>> upstream/master:libraries/AP_HAL_ChibiOS/stdio.cpp
 {
 #ifndef HAL_NO_PRINTF
    va_list arg;
    int done;
  
    va_start (arg, fmt);
-   done =  hal.util->vsnprintf(str, size, fmt, arg);
+   done =  vsnprintf(str, size, fmt, arg);
    va_end (arg);
  
    return done;
@@ -95,12 +87,7 @@ int __wrap_snprintf(char *str, size_t size, const char *fmt, ...)
 #endif
 }
 
-int __wrap_vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
-{
-    return hal.util->vsnprintf(str, size, fmt, ap);
-}
-
-int __wrap_vasprintf(char **strp, const char *fmt, va_list ap)
+int vasprintf(char **strp, const char *fmt, va_list ap)
 {
 #ifndef HAL_NO_PRINTF
     int len = vsnprintf(NULL, 0, fmt, ap);
@@ -122,7 +109,7 @@ int __wrap_vasprintf(char **strp, const char *fmt, va_list ap)
 #endif
 }
 
-int __wrap_asprintf(char **strp, const char *fmt, ...)
+int asprintf(char **strp, const char *fmt, ...)
 {
 #ifndef HAL_NO_PRINTF
     va_list ap;
@@ -137,7 +124,7 @@ int __wrap_asprintf(char **strp, const char *fmt, ...)
 #endif
 }
 
-int __wrap_vprintf(const char *fmt, va_list arg)
+int vprintf(const char *fmt, va_list arg)
 {
 #ifdef HAL_STDOUT_SERIAL
   return chvprintf ((BaseSequentialStream*)&HAL_STDOUT_SERIAL, fmt, arg);
@@ -150,7 +137,7 @@ int __wrap_vprintf(const char *fmt, va_list arg)
 // hook to allow for printf() on systems without HAL_STDOUT_SERIAL
 int (*vprintf_console_hook)(const char *fmt, va_list arg) = vprintf;
 
-int __wrap_printf(const char *fmt, ...)
+int printf(const char *fmt, ...)
 {
 #ifndef HAL_NO_PRINTF
    va_list arg;
@@ -167,7 +154,6 @@ int __wrap_printf(const char *fmt, ...)
 #endif
 }
 
-<<<<<<< HEAD:libraries/AP_HAL_ChibiOS/hwdef/common/stdio.c
 //just a stub
 int 
 scanf (const char *fmt, ...)
@@ -265,43 +251,143 @@ _atob (uint32_t *vp, char *p, int base)
   return (1);
 }
 
-=======
->>>>>>> upstream/master:libraries/AP_HAL_ChibiOS/stdio.cpp
 /*
-  we assume stdout or stderr. For output to files use the AP_Fileystem
-  posix_compat headers
+ *  atob(vp,p,base) 
+ *      converts p to binary result in vp, rtn 1 on success
  */
-<<<<<<< HEAD:libraries/AP_HAL_ChibiOS/hwdef/common/stdio.c
 int16_t
 atob(uint32_t *vp, char *p, int base)
-=======
-int __wrap_fprintf(void *f, const char *fmt, ...)
->>>>>>> upstream/master:libraries/AP_HAL_ChibiOS/stdio.cpp
 {
-#ifndef HAL_NO_PRINTF
-   va_list arg;
-   int done;
- 
-   va_start (arg, fmt);
-   done =  vprintf_console_hook(fmt, arg);
-   va_end (arg);
- 
-   return done;
-#else
-   (void)fmt;
-   return 0;
-#endif
+  uint32_t  v;
+
+  if (base == 0)
+    p = _getbase (p, &base);
+  if (_atob (&v, p, base)) {
+    *vp = v;
+    return (1);
+  }
+  return (0);
 }
 
-//just a stub for scanf
-int __wrap_scanf(const char *fmt, ...)
+
+#if defined(HAL_OS_FATFS_IO) && HAL_OS_FATFS_IO
+/*
+ *  vsscanf(buf,fmt,ap)
+ */
+int
+vsscanf (const char *buf, const char *s, va_list ap)
 {
-    (void)fmt;
-    return 0;
+    int             count, noassign, base=0, lflag;
+    uint32_t width;
+    const char     *tc;
+    char           *t, tmp[MAXLN];
+
+    count = noassign = width = lflag = 0;
+    while (*s && *buf) {
+  while (isspace ((unsigned char)(*s)))
+      s++;
+  if (*s == '%') {
+      s++;
+      for (; *s; s++) {
+    if (strchr ("dibouxcsefg%", *s))
+        break;
+    if (*s == '*')
+        noassign = 1;
+    else if (*s == 'l' || *s == 'L')
+        lflag = 1;
+    else if (*s >= '1' && *s <= '9') {
+        for (tc = s; isdigit ((unsigned)(*s)); s++);
+        strncpy (tmp, tc, s - tc);
+        tmp[s - tc] = '\0';
+        atob (&width, tmp, 10);
+        s--;
+    }
+      }
+      if (*s == 's') {
+    while (isspace ((unsigned char)(*buf)))
+        buf++;
+    if (!width)
+        width = strcspn (buf, ISSPACE);
+    if (!noassign) {
+        strncpy (t = va_arg (ap, char *), buf, width);
+        t[width] = '\0';
+    }
+    buf += width;
+      } else if (*s == 'c') {
+    if (!width)
+        width = 1;
+    if (!noassign) {
+        strncpy (t = va_arg (ap, char *), buf, width);
+        t[width] = '\0';
+    }
+    buf += width;
+      } else if (strchr ("dobxu", *s)) {
+    while (isspace ((unsigned char)(*buf)))
+        buf++;
+    if (*s == 'd' || *s == 'u')
+        base = 10;
+    else if (*s == 'x')
+        base = 16;
+    else if (*s == 'o')
+        base = 8;
+    else if (*s == 'b')
+        base = 2;
+    if (!width) {
+        if (isspace ((unsigned char)(*(s + 1))) || *(s + 1) == 0)
+      width = strcspn (buf, ISSPACE);
+        else
+      width = strchr (buf, *(s + 1)) - buf;
+    }
+    strncpy (tmp, buf, width);
+    tmp[width] = '\0';
+    buf += width;
+    if (!noassign)
+        atob (va_arg (ap, uint32_t *), tmp, base);
+      }
+      if (!noassign)
+    count++;
+      width = noassign = lflag = 0;
+      s++;
+  } else {
+      while (isspace ((unsigned char)(*buf)))
+    buf++;
+      if (*s != *buf)
+    break;
+      else
+    s++, buf++;
+  }
+    }
+    return (count);
 }
 
-extern "C" {
-    // alias fiprintf() to fprintf(). This saves flash space
-    int __wrap_fiprintf(const char *fmt, ...) __attribute__((alias("__wrap_fprintf")));
+static int vfscanf(FILE *stream, const char *fmt, va_list ap);
+
+/*
+ *  fscanf(stream,fmt,va_alist)
+ */
+int fscanf (FILE *stream, const char *fmt, ...)
+{
+    int             count;
+    va_list ap;
+
+    va_start (ap, fmt);
+    count = vfscanf (stream, fmt, ap);
+    va_end (ap);
+    return (count);
 }
 
+/*
+ *  vfscanf(stream,fmt,ap) 
+ */
+static int vfscanf (FILE *stream, const char *fmt, va_list ap)
+{
+    int             count;
+    char            buf[MAXLN + 1];
+
+    if (fgets (buf, MAXLN, stream) == 0) {
+	    return (-1);
+    }
+    count = vsscanf (buf, fmt, ap);
+    return (count);
+}
+#endif // HAL_OS_FATFS_IO

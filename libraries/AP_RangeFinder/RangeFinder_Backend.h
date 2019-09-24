@@ -31,7 +31,9 @@ public:
     // update the state structure
     virtual void update() = 0;
 
-    virtual void handle_msg(const mavlink_message_t &msg) { return; }
+    virtual void handle_msg(mavlink_message_t *msg) { return; }
+
+    void update_pre_arm_check();
 
     enum Rotation orientation() const { return (Rotation)state.orientation.get(); }
     uint16_t distance_cm() const { return state.distance_cm; }
@@ -79,9 +81,6 @@ protected:
 
     // semaphore for access to shared frontend data
     AP_HAL::Semaphore *_sem;    
-
-    //Type Backend initialised with
-    RangeFinder::RangeFinder_Type _backend_type;
 
     virtual MAV_DISTANCE_SENSOR _get_mav_distance_sensor_type() const = 0;
 };

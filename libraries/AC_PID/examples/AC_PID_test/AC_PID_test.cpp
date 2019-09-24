@@ -13,32 +13,6 @@ void loop();
 
 const AP_HAL::HAL& hal = AP_HAL::get_HAL();
 
-<<<<<<< HEAD
-=======
-class RC_Channel_PIDTest : public RC_Channel
-{
-};
-
-class RC_Channels_PIDTest : public RC_Channels
-{
-public:
-    RC_Channel *channel(uint8_t chan) override {
-        return &obj_channels[chan];
-    }
-
-    RC_Channel_PIDTest obj_channels[NUM_RC_CHANNELS];
-private:
-    int8_t flight_mode_channel_number() const override { return -1; };
-};
-
-#define RC_CHANNELS_SUBCLASS RC_Channels_PIDTest
-#define RC_CHANNEL_SUBCLASS RC_Channel_PIDTest
-
-#include <RC_Channel/RC_Channels_VarInfo.h>
-
-RC_Channels_PIDTest _rc;
-
->>>>>>> upstream/master
 // default PID values
 #define TEST_P 1.0f
 #define TEST_I 0.01f
@@ -60,17 +34,12 @@ void setup()
 void loop()
 {
     // setup (unfortunately must be done here as we cannot create a global AC_PID object)
-<<<<<<< HEAD
     AC_PID pid(TEST_P, TEST_I, TEST_D, TEST_IMAX * 100, TEST_FILTER, TEST_DT);
     AC_HELI_PID heli_pid(TEST_P, TEST_I, TEST_D, TEST_IMAX * 100, TEST_FILTER, TEST_DT, TEST_INITIAL_FF);
     uint16_t radio_in;
     uint16_t radio_trim;
     int16_t error;
     float control_P, control_I, control_D;
-=======
-    AC_PID pid(TEST_P, TEST_I, TEST_D, 0.0f, TEST_IMAX * 100.0f, 0.0f, 0.0f, TEST_FILTER, TEST_DT);
-    AC_HELI_PID heli_pid(TEST_P, TEST_I, TEST_D, TEST_INITIAL_FF, TEST_IMAX * 100, 0.0f, 0.0f, TEST_FILTER, TEST_DT);
->>>>>>> upstream/master
 
     // display PID gains
     hal.console->printf("P %f  I %f  D %f  imax %f\n", (double)pid.kP(), (double)pid.kI(), (double)pid.kD(), (double)pid.imax());
@@ -79,7 +48,6 @@ void loop()
     radio_trim = RC_Channels::get_radio_in(0);
 
     while (true) {
-<<<<<<< HEAD
         RC_Channels::read_input(); // poll the radio for new values
         radio_in = RC_Channels::get_radio_in(0);
         error = radio_in - radio_trim;
@@ -87,15 +55,6 @@ void loop()
         control_P = pid.get_p();
         control_I = pid.get_i();
         control_D = pid.get_d();
-=======
-        rc().read_input(); // poll the radio for new values
-        const uint16_t radio_in = c->get_radio_in();
-        const int16_t error = radio_in - radio_trim;
-        pid.update_error(error);
-        const float control_P = pid.get_p();
-        const float control_I = pid.get_i();
-        const float control_D = pid.get_d();
->>>>>>> upstream/master
 
         // display pid results
         hal.console->printf("radio: %d\t err: %d\t pid:%4.2f (p:%4.2f i:%4.2f d:%4.2f)\n",

@@ -17,15 +17,8 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
 #include "Util.h"
-<<<<<<< HEAD
-=======
-
-#if HAL_USE_I2C == TRUE && defined(HAL_I2C_DEVICE_LIST)
-
->>>>>>> upstream/master
 #include "Scheduler.h"
 #include "hwdef/common/stm32_util.h"
-#include <AP_InternalError/AP_InternalError.h>
 
 #include "ch.h"
 #include "hal.h"
@@ -90,7 +83,6 @@ void I2CBus::clear_all()
  */
 void I2CBus::clear_bus(uint8_t busidx)
 {
-#if HAL_I2C_CLEAR_ON_TIMEOUT
     const struct I2CInfo &info = I2CD[busidx];
     const iomode_t mode_saved = palReadLineMode(info.scl_line);
     palSetLineMode(info.scl_line, PAL_MODE_OUTPUT_PUSHPULL);
@@ -99,10 +91,8 @@ void I2CBus::clear_bus(uint8_t busidx)
         hal.scheduler->delay_microseconds(10);
     }
     palSetLineMode(info.scl_line, mode_saved);
-#endif
 }
 
-#if HAL_I2C_CLEAR_ON_TIMEOUT
 /*
   read SDA on a bus, to check if it may be stuck
  */
@@ -115,7 +105,6 @@ uint8_t I2CBus::read_sda(uint8_t busidx)
     palSetLineMode(info.sda_line, mode_saved);
     return ret;
 }
-#endif
 
 // setup I2C buses
 I2CDeviceManager::I2CDeviceManager(void)
@@ -219,7 +208,7 @@ bool I2CDevice::transfer(const uint8_t *send, uint32_t send_len,
                          uint8_t *recv, uint32_t recv_len)
 {
     if (!bus.semaphore.check_owner()) {
-        hal.console->printf("I2C: not owner of 0x%x for addr 0x%02x\n", (unsigned)get_bus_id(), _address);
+        hal.console->printf("I2C: not owner of 0x%x\n", (unsigned)get_bus_id());
         return false;
     }
     
@@ -279,28 +268,20 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
     for(uint8_t i=0 ; i <= _retries; i++) {
         int ret;
         // calculate a timeout as twice the expected transfer time, and set as min of 4ms
-        uint32_t timeout_ms = 1+2*(((8*1000000UL/bus.busclock)*(send_len+recv_len))/1000);
+        uint32_t timeout_ms = 1+2*(((8*1000000UL/bus.busclock)*MAX(send_len, recv_len))/1000);
         timeout_ms = MAX(timeout_ms, _timeout_ms);
 
         // if we are not using DMA then we may need to start the bus here
         bus.dma_allocate(bus.dma_handle);
         
-<<<<<<< HEAD
         bus.i2c_active = true;
         osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_READY, "i2cStart state");
-=======
-        osalSysLock();
-        hal.util->persistent_data.i2c_count++;
-        osalSysUnlock();
-
->>>>>>> upstream/master
         if(send_len == 0) {
             ret = i2cMasterReceiveTimeout(I2CD[bus.busnum].i2c, _address, recv, recv_len, MS2ST(timeout_ms));
         } else {
             ret = i2cMasterTransmitTimeout(I2CD[bus.busnum].i2c, _address, send, send_len,
                                            recv, recv_len, MS2ST(timeout_ms));
         }
-<<<<<<< HEAD
            
         bus.i2c_active = false;
         if (ret != MSG_OK) {
@@ -312,25 +293,6 @@ bool I2CDevice::_transfer(const uint8_t *send, uint32_t send_len,
             osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_READY, "i2cStart state");
         } else {
             osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_READY, "i2cStart state");
-=======
-
-        i2cSoftStop(I2CD[bus.busnum].i2c);
-        osalDbgAssert(I2CD[bus.busnum].i2c->state == I2C_STOP, "i2cStart state");
-
-        bus.dma_handle->unlock();
-        
-        if (I2CD[bus.busnum].i2c->errors & I2C_ISR_LIMIT) {
-            AP::internalerror().error(AP_InternalError::error_t::i2c_isr);
-            break;
-        }
-
-#ifdef STM32_I2C_ISR_LIMIT
-        AP_HAL::Util::PersistentData &pd = hal.util->persistent_data;
-        pd.i2c_isr_count += I2CD[bus.busnum].i2c->isr_count;
-#endif
-
-        if (ret == MSG_OK) {
->>>>>>> upstream/master
             bus.bouncebuffer_finish(send, recv, recv_len);
             i2cReleaseBus(I2CD[bus.busnum].i2c);
             return true;

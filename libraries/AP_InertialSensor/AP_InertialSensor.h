@@ -26,7 +26,6 @@
 #include <Filter/LowPassFilter2p.h>
 #include <Filter/LowPassFilter.h>
 #include <Filter/NotchFilter.h>
-#include <Filter/HarmonicNotchFilter.h>
 
 class AP_InertialSensor_Backend;
 class AuxiliaryBus;
@@ -136,7 +135,7 @@ public:
     bool gyro_calibrated_ok(uint8_t instance) const { return _gyro_cal_ok[instance]; }
     bool gyro_calibrated_ok_all() const;
     bool use_gyro(uint8_t instance) const;
-    Gyro_Calibration_Timing gyro_calibration_timing();
+    Gyro_Calibration_Timing gyro_calibration_timing() { return (Gyro_Calibration_Timing)_gyro_cal_timing.get(); }
 
     bool get_accel_health(uint8_t instance) const { return (instance<_accel_count) ? _accel_healthy[instance] : false; }
     bool get_accel_health(void) const { return get_accel_health(_primary_accel); }
@@ -204,26 +203,14 @@ public:
     uint8_t get_primary_accel(void) const { return _primary_accel; }
     uint8_t get_primary_gyro(void) const { return _primary_gyro; }
 
-    // Update the harmonic notch frequency
-    void update_harmonic_notch_freq_hz(float scaled_freq);
-
     // enable HIL mode
     void set_hil_mode(void) { _hil_mode = true; }
 
     // get the gyro filter rate in Hz
-    uint16_t get_gyro_filter_hz(void) const { return _gyro_filter_cutoff; }
+    uint8_t get_gyro_filter_hz(void) const { return _gyro_filter_cutoff; }
 
     // get the accel filter rate in Hz
-    uint16_t get_accel_filter_hz(void) const { return _accel_filter_cutoff; }
-
-    // harmonic notch current center frequency
-    float get_gyro_dynamic_notch_center_freq_hz(void) const { return _calculated_harmonic_notch_freq_hz; }
-
-    // harmonic notch reference center frequency
-    float get_gyro_harmonic_notch_center_freq_hz(void) const { return _harmonic_notch_filter.center_freq_hz(); }
-
-    // harmonic notch reference scale factor
-    float get_gyro_harmonic_notch_reference(void) const { return _harmonic_notch_filter.reference(); }
+    uint8_t get_accel_filter_hz(void) const { return _accel_filter_cutoff; }
 
     // indicate which bit in LOG_BITMASK indicates raw logging enabled
     void set_log_raw_bit(uint32_t log_raw_bit) { _log_raw_bit = log_raw_bit; }
@@ -288,9 +275,6 @@ public:
     // return time in microseconds of last update() call
     uint32_t get_last_update_usec(void) const { return _last_update_usec; }
 
-    // for killing an IMU for testing purposes
-    void kill_imu(uint8_t imu_idx, bool kill_it);
-
     enum IMU_SENSOR_TYPE {
         IMU_SENSOR_TYPE_ACCEL = 0,
         IMU_SENSOR_TYPE_GYRO = 1,
@@ -311,7 +295,6 @@ public:
         void periodic();
 
         bool doing_sensor_rate_logging() const { return _doing_sensor_rate_logging; }
-        bool doing_post_filter_logging() const { return _doing_post_filter_logging; }
 
         // class level parameters
         static const struct AP_Param::GroupInfo var_info[];
@@ -338,7 +321,6 @@ public:
 
         enum batch_opt_t {
             BATCH_OPT_SENSOR_RATE = (1<<0),
-            BATCH_OPT_POST_FILTER = (1<<1),
         };
 
         void rotate_to_next_sensor();
@@ -352,7 +334,6 @@ public:
         bool initialised : 1;
         bool isbh_sent : 1;
         bool _doing_sensor_rate_logging : 1;
-        bool _doing_post_filter_logging : 1;
         uint8_t instance : 3; // instance we are sending data for
         AP_InertialSensor::IMU_SENSOR_TYPE type : 1;
         uint16_t isb_seqnum;
@@ -422,14 +403,7 @@ private:
     bool _new_gyro_data[INS_MAX_INSTANCES];
 
     // optional notch filter on gyro
-    NotchFilterParams _notch_filter;
-    NotchFilterVector3f _gyro_notch_filter[INS_MAX_INSTANCES];
-
-    // optional harmonic notch filter on gyro
-    HarmonicNotchFilterParams _harmonic_notch_filter;
-    HarmonicNotchFilterVector3f _gyro_harmonic_notch_filter[INS_MAX_INSTANCES];
-    // the current center frequency for the notch
-    float _calculated_harmonic_notch_freq_hz;
+    NotchFilterVector3fParam _notch_filter;
 
     // Most recent gyro reading
     Vector3f _gyro[INS_MAX_INSTANCES];
@@ -492,8 +466,8 @@ private:
     float _temperature[INS_MAX_INSTANCES];
 
     // filtering frequency (0 means default)
-    AP_Int16    _accel_filter_cutoff;
-    AP_Int16    _gyro_filter_cutoff;
+    AP_Int8     _accel_filter_cutoff;
+    AP_Int8     _gyro_filter_cutoff;
     AP_Int8     _gyro_cal_timing;
 
     // use for attitude, velocity, position estimates
@@ -520,11 +494,6 @@ private:
     // primary accel and gyro
     uint8_t _primary_gyro;
     uint8_t _primary_accel;
-
-    // mask of accels and gyros which we will be actively using
-    // and this should wait for in wait_for_sample()
-    uint8_t _gyro_wait_mask;
-    uint8_t _accel_wait_mask;
 
     // bitmask bit which indicates if we should log raw accel and gyro data
     uint32_t _log_raw_bit;
@@ -610,8 +579,6 @@ private:
     uint32_t _gyro_startup_error_count[INS_MAX_INSTANCES];
     bool _startup_error_counts_set;
     uint32_t _startup_ms;
-
-    uint8_t imu_kill_mask;
 };
 
 namespace AP {

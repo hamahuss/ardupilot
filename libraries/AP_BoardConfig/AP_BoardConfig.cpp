@@ -87,43 +87,16 @@
 #define HAL_IMU_TEMP_DEFAULT       -1 // disabled
 #endif
 
-<<<<<<< HEAD
 #if AP_FEATURE_SAFETY_BUTTON
 #ifndef BOARD_SAFETY_OPTION_DEFAULT
 #define BOARD_SAFETY_OPTION_DEFAULT (BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_OFF|BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_ON)
 #endif
-=======
-#ifndef BOARD_SAFETY_OPTION_DEFAULT
-#  define BOARD_SAFETY_OPTION_DEFAULT (BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_OFF|BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_ON)
-#endif
-#ifndef BOARD_SAFETY_ENABLE
-#  define BOARD_SAFETY_ENABLE 1
->>>>>>> upstream/master
 #endif
 
 #ifndef BOARD_PWM_COUNT_DEFAULT
 #define BOARD_PWM_COUNT_DEFAULT 8
 #endif
 
-<<<<<<< HEAD
-=======
-#ifndef BOARD_CONFIG_BOARD_VOLTAGE_MIN
-#define BOARD_CONFIG_BOARD_VOLTAGE_MIN 4.3f
-#endif
-
-#ifndef HAL_BRD_OPTIONS_DEFAULT
-#if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS
-#define HAL_BRD_OPTIONS_DEFAULT BOARD_OPTION_WATCHDOG
-#else
-#define HAL_BRD_OPTIONS_DEFAULT 0
-#endif
-#endif
-
-#ifndef HAL_DEFAULT_BOOT_DELAY
-#define HAL_DEFAULT_BOOT_DELAY 0
-#endif
-
->>>>>>> upstream/master
 extern const AP_HAL::HAL& hal;
 AP_BoardConfig *AP_BoardConfig::instance;
 
@@ -231,7 +204,6 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
     AP_SUBGROUPINFO(_radio, "RADIO", 11, AP_BoardConfig, AP_Radio),
 #endif
 
-<<<<<<< HEAD
 #if defined(HAL_NEEDS_PARAM_HELPER)
     // @Group: ""
     // @Path: ../libraries/AP_Param_Helper/AP_Param_Helper.cpp
@@ -239,14 +211,13 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
 #endif
 
 #if AP_FEATURE_SAFETY_BUTTON
-=======
->>>>>>> upstream/master
     // @Param: SAFETYOPTION
     // @DisplayName: Options for safety button behavior
     // @Description: This controls the activation of the safety button. It allows you to control if the safety button can be used for safety enable and/or disable, and whether the button is only active when disarmed
     // @Bitmask: 0:ActiveForSafetyEnable,1:ActiveForSafetyDisable,2:ActiveWhenArmed
     // @User: Standard
     AP_GROUPINFO("SAFETYOPTION",   13, AP_BoardConfig, state.safety_option, BOARD_SAFETY_OPTION_DEFAULT),
+#endif
 
     // @Group: RTC
     // @Path: ../AP_RTC/AP_RTC.cpp
@@ -262,33 +233,6 @@ const AP_Param::GroupInfo AP_BoardConfig::var_info[] = {
     AP_GROUPINFO("SD_SLOWDOWN",  17,     AP_BoardConfig, _sdcard_slowdown,  0),
 #endif
 
-<<<<<<< HEAD
-=======
-#ifdef HAL_GPIO_PWM_VOLT_PIN
-    // @Param: PWM_VOLT_SEL
-    // @DisplayName: Set PWM Out Voltage
-    // @Description: This sets the voltage max for PWM output pulses. 0 for 3.3V and 1 for 5V output.
-    // @Values: 0:3.3V,1:5V
-    // @User: Advanced
-    AP_GROUPINFO("PWM_VOLT_SEL", 18, AP_BoardConfig, _pwm_volt_sel, 0),
-#endif
-
-    // @Param: OPTIONS
-    // @DisplayName: Board options
-    // @Description: Board specific option flags
-    // @Bitmask: 0:Enable hardware watchdog
-    // @User: Advanced
-    AP_GROUPINFO("OPTIONS", 19, AP_BoardConfig, _options, HAL_BRD_OPTIONS_DEFAULT),
-
-    // @Param: BOOT_DELAY
-    // @DisplayName: Boot delay
-    // @Description: This adds a delay in milliseconds to boot to ensure peripherals initialise fully
-    // @Range: 0 10000
-    // @Units: ms
-    // @User: Advanced
-    AP_GROUPINFO("BOOT_DELAY", 20, AP_BoardConfig, _boot_delay_ms, HAL_DEFAULT_BOOT_DELAY),
-    
->>>>>>> upstream/master
     AP_GROUPEND
 };
 
@@ -305,16 +249,6 @@ void AP_BoardConfig::init()
 
     AP::rtc().set_utc_usec(hal.util->get_hw_rtc(), AP_RTC::SOURCE_HW);
 
-    if (_boot_delay_ms > 0) {
-        uint16_t delay_ms = uint16_t(_boot_delay_ms.get());
-        if (hal.util->was_watchdog_armed() && delay_ms > 200) {
-            // don't delay a long time on watchdog reset, the pilot
-            // may be able to save the vehicle
-            delay_ms = 200;
-        }
-        hal.scheduler->delay(delay_ms);
-    }
-    
 #if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS && defined(USE_POSIX)
     uint8_t slowdown = constrain_int16(_sdcard_slowdown.get(), 0, 32);
     const uint8_t max_slowdown = 8;
@@ -366,53 +300,8 @@ void AP_BoardConfig::sensor_config_error(const char *reason)
       particular BRD_TYPE if needed)
     */
     while (true) {
-<<<<<<< HEAD
         printf("Sensor failure: %s\n", reason);
         gcs().send_text(MAV_SEVERITY_ERROR, "Check BRD_TYPE: %s", reason);
         hal.scheduler->delay(3000);
-=======
-        uint32_t now = AP_HAL::millis();
-        if (now - last_print_ms >= 3000) {
-            last_print_ms = now;
-            printf("Sensor failure: %s\n", reason);
-#if !APM_BUILD_TYPE(APM_BUILD_UNKNOWN) && !defined(HAL_BUILD_AP_PERIPH)
-            gcs().send_text(MAV_SEVERITY_ERROR, "Check BRD_TYPE: %s", reason);
-#endif
-        }
-#if !APM_BUILD_TYPE(APM_BUILD_UNKNOWN) && !defined(HAL_BUILD_AP_PERIPH)
-        gcs().update_receive();
-        gcs().update_send();
-#endif
-        hal.scheduler->delay(5);
->>>>>>> upstream/master
     }
-}
-
-/*
-  handle logic for safety state button press. This should be called at
-  10Hz when the button is pressed. The button can either be directly
-  on a pin or on a UAVCAN device
-  This function returns true if the safety state should be toggled
- */
-bool AP_BoardConfig::safety_button_handle_pressed(uint8_t press_count)
-{
-    if (press_count != 10) {
-        return false;
-    }
-    // get button options
-    uint16_t safety_options = get_safety_button_options();
-    if (!(safety_options & BOARD_SAFETY_OPTION_BUTTON_ACTIVE_ARMED) &&
-        hal.util->get_soft_armed()) {
-        return false;
-    }
-    AP_HAL::Util::safety_state safety_state = hal.util->safety_switch_state();
-    if (safety_state == AP_HAL::Util::SAFETY_DISARMED &&
-        !(safety_options & BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_OFF)) {
-        return false;
-    }
-    if (safety_state == AP_HAL::Util::SAFETY_ARMED &&
-        !(safety_options & BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_ON)) {
-        return false;
-    }
-    return true;
 }

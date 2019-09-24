@@ -17,12 +17,8 @@
 #include <AP_Common/AP_Common.h>
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Param/AP_Param.h>
-<<<<<<< HEAD
 #include <AP_Math/AP_Math.h>
 #include <AP_SerialManager/AP_SerialManager.h>
-=======
-#include <GCS_MAVLink/GCS.h>
->>>>>>> upstream/master
 
 class AP_VisualOdom_Backend;
 
@@ -69,13 +65,8 @@ public:
     // return a 3D vector defining the position offset of the camera in meters relative to the body frame origin
     const Vector3f &get_pos_offset(void) const { return _pos_offset; }
 
-<<<<<<< HEAD
     // consume VISUAL_POSITION_DELTA data from MAVLink messages
     void handle_msg(mavlink_message_t *msg);
-=======
-    // consume data from MAVLink messages
-    void handle_msg(const mavlink_message_t &msg);
->>>>>>> upstream/master
 
     static const struct AP_Param::GroupInfo var_info[];
 

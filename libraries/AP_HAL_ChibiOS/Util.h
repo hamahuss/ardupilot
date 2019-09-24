@@ -31,19 +31,8 @@ public:
     uint32_t available_memory() override;
 
     // Special Allocation Routines
-<<<<<<< HEAD
     void *malloc_type(size_t size, AP_HAL::Util::Memory_Type mem_type);
     void free_type(void *ptr, size_t size, AP_HAL::Util::Memory_Type mem_type);
-=======
-    void *malloc_type(size_t size, AP_HAL::Util::Memory_Type mem_type) override;
-    void free_type(void *ptr, size_t size, AP_HAL::Util::Memory_Type mem_type) override;
-
-#ifdef ENABLE_HEAP
-    // heap functions, note that a heap once alloc'd cannot be dealloc'd
-    virtual void *allocate_heap_memory(size_t size) override;
-    virtual void *heap_realloc(void *heap, void *ptr, size_t new_size) override;
-#endif // ENABLE_HEAP
->>>>>>> upstream/master
 
     /*
       return state of safety switch, if applicable
@@ -68,10 +57,7 @@ public:
      */
     bool fs_init(void) override;
 #endif
-
-    // return true if the reason for the reboot was a watchdog reset
-    bool was_watchdog_reset() const override;
-
+    
 private:
 #ifdef HAL_PWM_ALARM
     struct ToneAlarmPwmGroup {
@@ -92,10 +78,6 @@ private:
         uint16_t count;
         float sum;
         uint32_t last_update_ms;
-<<<<<<< HEAD
-=======
-        float output;
->>>>>>> upstream/master
     } heater;
 #endif
 
@@ -108,20 +90,6 @@ private:
       get system clock in UTC microseconds
      */
     uint64_t get_hw_rtc() const override;
-<<<<<<< HEAD
 
     bool flash_bootloader() override;
-=======
-#if !defined(HAL_NO_FLASH_SUPPORT) && !defined(HAL_NO_ROMFS_SUPPORT)
-    bool flash_bootloader() override;
-#endif
-
-#ifdef ENABLE_HEAP
-    static memory_heap_t scripting_heap;
-#endif // ENABLE_HEAP
-
-    // stm32F4 and F7 have 20 total RTC backup registers. We use the first one for boot type
-    // flags, so 19 available for persistent data
-    static_assert(sizeof(persistent_data) <= 19*4, "watchdog persistent data too large");
->>>>>>> upstream/master
 };

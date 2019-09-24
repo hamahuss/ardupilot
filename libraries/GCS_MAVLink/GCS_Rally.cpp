@@ -1,7 +1,5 @@
 /*
-   GCS MAVLink functions related to upload and download of rally
-   points with the ArduPilot-specific protocol comprised of
-   MAVLINK_MSG_ID_RALLY_POINT and MAVLINK_MSG_ID_RALLY_FETCH_POINT.
+   GCS MAVLink functions related to rally points
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,10 +16,8 @@
  */
 
 #include "GCS.h"
-#include <AP_Rally/AP_Rally.h>
-#include <AP_Logger/AP_Logger.h>
 
-void GCS_MAVLINK::handle_rally_point(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_rally_point(mavlink_message_t *msg)
 {
     AP_Rally *r = get_rally();
     if (r == nullptr) {
@@ -29,7 +25,7 @@ void GCS_MAVLINK::handle_rally_point(const mavlink_message_t &msg)
     }
 
     mavlink_rally_point_t packet;
-    mavlink_msg_rally_point_decode(&msg, &packet);
+    mavlink_msg_rally_point_decode(msg, &packet);
 
     if (packet.idx >= r->get_rally_total() ||
         packet.idx >= r->get_rally_max()) {
@@ -60,7 +56,7 @@ void GCS_MAVLINK::handle_rally_point(const mavlink_message_t &msg)
     }
 }
 
-void GCS_MAVLINK::handle_rally_fetch_point(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_rally_fetch_point(mavlink_message_t *msg)
 {
     AP_Rally *r = get_rally();
     if (r == nullptr) {
@@ -68,7 +64,7 @@ void GCS_MAVLINK::handle_rally_fetch_point(const mavlink_message_t &msg)
     }
 
     mavlink_rally_fetch_point_t packet;
-    mavlink_msg_rally_fetch_point_decode(&msg, &packet);
+    mavlink_msg_rally_fetch_point_decode(msg, &packet);
 
     if (packet.idx > r->get_rally_total()) {
         send_text(MAV_SEVERITY_WARNING, "Bad rally point ID");
@@ -81,15 +77,16 @@ void GCS_MAVLINK::handle_rally_fetch_point(const mavlink_message_t &msg)
         return;
     }
 
-    mavlink_msg_rally_point_send(chan, msg.sysid, msg.compid, packet.idx,
-                                 r->get_rally_total(), rally_point.lat, rally_point.lng,
-                                 rally_point.alt, rally_point.break_alt, rally_point.land_dir,
-                                 rally_point.flags);
+    mavlink_msg_rally_point_send_buf(msg,
+                                     chan, msg->sysid, msg->compid, packet.idx,
+                                     r->get_rally_total(), rally_point.lat, rally_point.lng,
+                                     rally_point.alt, rally_point.break_alt, rally_point.land_dir,
+                                     rally_point.flags);
 }
 
-void GCS_MAVLINK::handle_common_rally_message(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_common_rally_message(mavlink_message_t *msg)
 {
-    switch (msg.msgid) {
+    switch (msg->msgid) {
     case MAVLINK_MSG_ID_RALLY_POINT:
         handle_rally_point(msg);
         break;
@@ -100,3 +97,4 @@ void GCS_MAVLINK::handle_common_rally_message(const mavlink_message_t &msg)
         break;
     }
 }
+

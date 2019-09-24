@@ -14,10 +14,11 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <AP_AHRS/AP_AHRS.h>
 #include <AP_HAL/AP_HAL.h>
 
+#include "AP_Common/AP_FWVersion.h"
 #include "GCS.h"
-#include <AP_Logger/AP_Logger.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -34,17 +35,12 @@ bool GCS_MAVLINK::param_timer_registered;
 void
 GCS_MAVLINK::queued_param_send()
 {
-<<<<<<< HEAD
     if (!initialised) {
         return;
     }
 
     // send one parameter async reply if pending
     send_parameter_reply();
-=======
-    // send parameter async replies
-    uint8_t async_replies_sent_count = send_parameter_async_replies();
->>>>>>> upstream/master
 
     if (_queued_parameter == nullptr) {
         return;
@@ -128,10 +124,10 @@ bool GCS_MAVLINK::have_flow_control(void)
   save==false so we don't want the save to happen when the user connects the
   ground station.
  */
-void GCS_MAVLINK::handle_request_data_stream(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_request_data_stream(mavlink_message_t *msg)
 {
     mavlink_request_data_stream_t packet;
-    mavlink_msg_request_data_stream_decode(&msg, &packet);
+    mavlink_msg_request_data_stream_decode(msg, &packet);
 
     int16_t freq = 0;     // packet frequency
 
@@ -189,14 +185,14 @@ void GCS_MAVLINK::handle_request_data_stream(const mavlink_message_t &msg)
     }
 }
 
-void GCS_MAVLINK::handle_param_request_list(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_param_request_list(mavlink_message_t *msg)
 {
     if (!params_ready()) {
         return;
     }
 
     mavlink_param_request_list_t packet;
-    mavlink_msg_param_request_list_decode(&msg, &packet);
+    mavlink_msg_param_request_list_decode(msg, &packet);
 
     // requesting parameters is a convenient way to get extra information
     send_banner();
@@ -207,7 +203,7 @@ void GCS_MAVLINK::handle_param_request_list(const mavlink_message_t &msg)
     _queued_parameter_count = AP_Param::count_parameters();
 }
 
-void GCS_MAVLINK::handle_param_request_read(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_param_request_read(mavlink_message_t *msg)
 {
     if (param_requests.space() == 0) {
         // we can't process this right now, drop it
@@ -215,7 +211,7 @@ void GCS_MAVLINK::handle_param_request_read(const mavlink_message_t &msg)
     }
     
     mavlink_param_request_read_t packet;
-    mavlink_msg_param_request_read_decode(&msg, &packet);
+    mavlink_msg_param_request_read_decode(msg, &packet);
 
     /*
       we reserve some space for sending parameters if the client ever
@@ -239,10 +235,10 @@ void GCS_MAVLINK::handle_param_request_read(const mavlink_message_t &msg)
     param_requests.push(req);
 }
 
-void GCS_MAVLINK::handle_param_set(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_param_set(mavlink_message_t *msg)
 {
     mavlink_param_set_t packet;
-    mavlink_msg_param_set_decode(&msg, &packet);
+    mavlink_msg_param_set_decode(msg, &packet);
     enum ap_var_type var_type;
 
     // set parameter
@@ -252,23 +248,11 @@ void GCS_MAVLINK::handle_param_set(const mavlink_message_t &msg)
     key[AP_MAX_NAME_SIZE] = 0;
 
     // find existing param so we can get the old value
-    uint16_t parameter_flags = 0;
-    vp = AP_Param::find(key, &var_type, &parameter_flags);
+    vp = AP_Param::find(key, &var_type);
     if (vp == nullptr) {
         return;
     }
-
     float old_value = vp->cast_to_float(var_type);
-
-    if ((parameter_flags & AP_PARAM_FLAG_INTERNAL_USE_ONLY) || vp->is_read_only()) {
-        gcs().send_text(MAV_SEVERITY_WARNING, "Param write denied (%s)", key);
-        // echo back the incorrect value so that we fulfull the
-        // parameter state machine requirements:
-        send_parameter_value(key, var_type, packet.param_value);
-        // and then announce what the correct value is:
-        send_parameter_value(key, var_type, old_value);
-        return;
-    }
 
     // set the value
     vp->set_float(packet.param_value, var_type);
@@ -291,7 +275,6 @@ void GCS_MAVLINK::handle_param_set(const mavlink_message_t &msg)
     }
 }
 
-<<<<<<< HEAD
 // see if we should send a stream now. Called at 50Hz
 bool GCS_MAVLINK::stream_trigger(enum streams stream_num)
 {
@@ -334,20 +317,6 @@ bool GCS_MAVLINK::stream_trigger(enum streams stream_num)
     // count down at 50Hz
     stream_ticks[stream_num]--;
     return false;
-=======
-void GCS_MAVLINK::send_parameter_value(const char *param_name, ap_var_type param_type, float param_value)
-{
-    if (!HAVE_PAYLOAD_SPACE(chan, PARAM_VALUE)) {
-        return;
-    }
-    mavlink_msg_param_value_send(
-        chan,
-        param_name,
-        param_value,
-        mav_param_type(param_type),
-        AP_Param::count_parameters(),
-        -1);
->>>>>>> upstream/master
 }
 
 /*
@@ -355,7 +324,6 @@ void GCS_MAVLINK::send_parameter_value(const char *param_name, ap_var_type param
  */
 void GCS::send_parameter_value(const char *param_name, ap_var_type param_type, float param_value)
 {
-<<<<<<< HEAD
     const uint8_t mavlink_active = GCS_MAVLINK::active_channel_mask();
     for (uint8_t i=0; i<MAVLINK_COMM_NUM_BUFFERS; i++) {
         if ((1U<<i) & mavlink_active) {
@@ -397,23 +365,6 @@ void GCS_MAVLINK::send_queued_parameters(void)
     }
     if (stream_trigger(STREAM_PARAMS)) {
         send_message(MSG_NEXT_PARAM);
-=======
-    mavlink_param_value_t packet{};
-    const uint8_t to_copy = MIN(ARRAY_SIZE(packet.param_id), strlen(param_name));
-    memcpy(packet.param_id, param_name, to_copy);
-    packet.param_value = param_value;
-    packet.param_type = GCS_MAVLINK::mav_param_type(param_type);
-    packet.param_count = AP_Param::count_parameters();
-    packet.param_index = -1;
-
-    gcs().send_to_active_channels(MAVLINK_MSG_ID_PARAM_VALUE,
-                                  (const char *)&packet);
-
-    // also log to AP_Logger
-    AP_Logger *logger = AP_Logger::get_singleton();
-    if (logger != nullptr) {
-        logger->Write_Parameter(param_name, param_value);
->>>>>>> upstream/master
     }
 }
 
@@ -488,9 +439,9 @@ void GCS_MAVLINK::send_parameter_reply(void)
         reply.param_index);
 }
 
-void GCS_MAVLINK::handle_common_param_message(const mavlink_message_t &msg)
+void GCS_MAVLINK::handle_common_param_message(mavlink_message_t *msg)
 {
-    switch (msg.msgid) {
+    switch (msg->msgid) {
     case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:
         handle_param_request_list(msg);
         break;

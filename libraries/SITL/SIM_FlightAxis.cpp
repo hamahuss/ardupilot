@@ -72,8 +72,8 @@ static const struct {
 };
 
 
-FlightAxis::FlightAxis(const char *frame_str) :
-    Aircraft(frame_str)
+FlightAxis::FlightAxis(const char *home_str, const char *frame_str) :
+    Aircraft(home_str, frame_str)
 {
     use_time_sync = false;
     rate_hz = 250 / target_speedup;
@@ -430,26 +430,7 @@ void FlightAxis::update(const struct sitl_input &input)
     position -= position_offset;
 
     airspeed = state.m_airspeed_MPS;
-
-    /* for pitot airspeed we need the airspeed along the X axis. We
-       can't get that from m_airspeed_MPS, so instead we canculate it
-       from wind vector and ground speed
-     */
-    Vector3f m_wind_ef(-state.m_windY_MPS,-state.m_windX_MPS,-state.m_windZ_MPS);
-    Vector3f airspeed_3d_ef = m_wind_ef + velocity_ef;
-    Vector3f airspeed3d = dcm.mul_transpose(airspeed_3d_ef);
-
-    airspeed_pitot = MAX(airspeed3d.x,0);
-
-#if 0
-    printf("WIND: %.1f %.1f %.1f AS3D %.1f %.1f %.1f\n",
-           state.m_windX_MPS,
-           state.m_windY_MPS,
-           state.m_windZ_MPS,
-           airspeed3d.x,
-           airspeed3d.y,
-           airspeed3d.z);
-#endif
+    airspeed_pitot = state.m_airspeed_MPS;
 
     battery_voltage = state.m_batteryVoltage_VOLTS;
     battery_current = state.m_batteryCurrentDraw_AMPS;

@@ -2,10 +2,7 @@
 #include <AP_Math/AP_Math.h>
 #include <AP_Common/AP_Common.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
-<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
-=======
->>>>>>> upstream/master
 
 enum gmb_param_state_t {
     GMB_PARAMSTATE_NOT_YET_READ=0, // parameter has yet to be initialized
@@ -57,11 +54,7 @@ public:
     void set_param(gmb_param_t param, float value);
 
     void update();
-<<<<<<< HEAD
     void handle_param_value(mavlink_message_t *msg);
-=======
-    void handle_param_value(const mavlink_message_t &msg);
->>>>>>> upstream/master
 
     Vector3f get_accel_bias();
     Vector3f get_accel_gain();

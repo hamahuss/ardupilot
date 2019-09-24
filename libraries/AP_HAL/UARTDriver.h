@@ -45,20 +45,6 @@ public:
     // and write is discarded
     virtual size_t write_locked(const uint8_t *buffer, size_t size, uint32_t key) { return 0; }
     
-<<<<<<< HEAD
-=======
-    // control optional features
-    virtual bool set_options(uint8_t options) { return options==0; }
-    virtual uint8_t get_options(void) const { return 0; }
-
-    enum {
-        OPTION_RXINV=(1U<<0),  // invert RX line
-        OPTION_TXINV=(1U<<1),  // invert TX line
-        OPTION_HDPLEX=(1U<<2), // half-duplex (one-wire) mode
-        OPTION_SWAP=(1U<<3), // swap RX and TX pins
-    };
-
->>>>>>> upstream/master
     enum flow_control {
         FLOW_CONTROL_DISABLE=0, FLOW_CONTROL_ENABLE=1, FLOW_CONTROL_AUTO=2
     };

@@ -17,7 +17,6 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
 #include <AP_HAL/utility/OwnPtr.h>
-#include <AP_InternalError/AP_InternalError.h>
 #include "Util.h"
 #include "Scheduler.h"
 #include "Semaphores.h"
@@ -152,61 +151,27 @@ void SPIDevice::set_slowdown(uint8_t slowdown)
 /*
   low level transfer function
  */
-bool SPIDevice::do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len)
+void SPIDevice::do_transfer(const uint8_t *send, uint8_t *recv, uint32_t len)
 {
     bool old_cs_forced = cs_forced;
 
     if (!set_chip_select(true)) {
-        return false;
+        return;
     }
 
-<<<<<<< HEAD
     bus.bouncebuffer_setup(send, len, recv, len);
 
-=======
-    bool ret = true;
-
-#if defined(HAL_SPI_USE_POLLED)
-    for (uint16_t i=0; i<len; i++) {
-        uint8_t ret = spiPolledExchange(spi_devices[device_desc.bus].driver, send?send[i]:0);
-        if (recv) {
-            recv[i] = ret;
-        }
-    }
-#else
-    bus.bouncebuffer_setup(send, len, recv, len);
-    osalSysLock();
-    hal.util->persistent_data.spi_count++;
->>>>>>> upstream/master
     if (send == nullptr) {
-        spiStartReceiveI(spi_devices[device_desc.bus].driver, len, recv);
+        spiReceive(spi_devices[device_desc.bus].driver, len, recv);
     } else if (recv == nullptr) {
-        spiStartSendI(spi_devices[device_desc.bus].driver, len, send);
+        spiSend(spi_devices[device_desc.bus].driver, len, send);
     } else {
-        spiStartExchangeI(spi_devices[device_desc.bus].driver, len, send, recv);
+        spiExchange(spi_devices[device_desc.bus].driver, len, send, recv);
     }
-    // we allow SPI transfers to take a maximum of 20ms plus 32us per
-    // byte. This covers all use cases in ArduPilot. We don't ever
-    // expect this timeout to trigger unless there is a severe MCU
-    // error
-    const uint32_t timeout_us = 20000U + len * 32U;
-    msg_t msg = osalThreadSuspendTimeoutS(&spi_devices[device_desc.bus].driver->thread, TIME_MS2I(timeout_us));
-    osalSysUnlock();
-    if (msg == MSG_TIMEOUT) {
-        ret = false;
-        AP::internalerror().error(AP_InternalError::error_t::spi_fail);
-        spiAbort(spi_devices[device_desc.bus].driver);
-    }
-<<<<<<< HEAD
 
     bus.bouncebuffer_finish(send, recv, len);
     
-=======
-    bus.bouncebuffer_finish(send, recv, len);
-#endif
->>>>>>> upstream/master
     set_chip_select(old_cs_forced);
-    return ret;
 }
 
 bool SPIDevice::clock_pulse(uint32_t n)
@@ -260,7 +225,8 @@ bool SPIDevice::transfer(const uint8_t *send, uint32_t send_len,
     }
     if ((send_len == recv_len && send == recv) || !send || !recv) {
         // simplest cases, needed for DMA
-        return do_transfer(send, recv, recv_len?recv_len:send_len);
+        do_transfer(send, recv, recv_len?recv_len:send_len);
+        return true;
     }
     uint8_t buf[send_len+recv_len];
     if (send_len > 0) {
@@ -269,11 +235,11 @@ bool SPIDevice::transfer(const uint8_t *send, uint32_t send_len,
     if (recv_len > 0) {
         memset(&buf[send_len], 0, recv_len);
     }
-    bool ret = do_transfer(buf, buf, send_len+recv_len);
-    if (ret && recv_len > 0) {
+    do_transfer(buf, buf, send_len+recv_len);
+    if (recv_len > 0) {
         memcpy(recv, &buf[send_len], recv_len);
     }
-    return ret;
+    return true;
 }
 
 bool SPIDevice::transfer_fullduplex(const uint8_t *send, uint8_t *recv, uint32_t len)
@@ -281,11 +247,9 @@ bool SPIDevice::transfer_fullduplex(const uint8_t *send, uint8_t *recv, uint32_t
     bus.semaphore.assert_owner();
     uint8_t buf[len];
     memcpy(buf, send, len);
-    bool ret = do_transfer(buf, buf, len);
-    if (ret) {
-        memcpy(recv, buf, len);
-    }
-    return ret;
+    do_transfer(buf, buf, len);
+    memcpy(recv, buf, len);
+    return true;
 }
 
 AP_HAL::Semaphore *SPIDevice::get_semaphore()

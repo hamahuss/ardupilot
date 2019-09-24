@@ -19,7 +19,7 @@ const AP_Param::GroupInfo AC_WPNav::var_info[] = {
     // @DisplayName: Waypoint Radius
     // @Description: Defines the distance from a waypoint, that when crossed indicates the wp has been hit.
     // @Units: cm
-    // @Range: 5 1000
+    // @Range: 10 1000
     // @Increment: 1
     // @User: Standard
     AP_GROUPINFO("RADIUS",      1, AC_WPNav, _wp_radius_cm, WPNAV_WP_RADIUS),
@@ -96,7 +96,6 @@ AC_WPNav::AC_WPNav(const AP_InertialNav& inav, const AP_AHRS_View& ahrs, AC_PosC
 }
 
 
-<<<<<<< HEAD
 /// init_brake_target - initializes stop position from current position and velocity
 void AC_WPNav::init_brake_target(float accel_cmss)
 {
@@ -126,8 +125,6 @@ void AC_WPNav::update_brake(float ekfGndSpdLimit, float ekfNavVelGainScaler)
     _pos_control.update_xy_controller(ekfNavVelGainScaler);
 }
 
-=======
->>>>>>> upstream/master
 ///
 /// waypoint navigation
 ///
@@ -190,12 +187,7 @@ bool AC_WPNav::set_wp_destination(const Location_Class& destination)
     return set_wp_destination(dest_neu, terr_alt);
 }
 
-<<<<<<< HEAD
 bool AC_WPNav::get_wp_destination(Location_Class& destination) {
-=======
-bool AC_WPNav::get_wp_destination(Location& destination) const
-{
->>>>>>> upstream/master
     Vector3f dest = get_wp_destination();
     if (!AP::ahrs().get_origin(destination)) {
         return false;
@@ -305,7 +297,7 @@ void AC_WPNav::shift_wp_origin_to_current_pos()
     }
 
     // get current and target locations
-    const Vector3f &curr_pos = _inav.get_position();
+    const Vector3f curr_pos = _inav.get_position();
     const Vector3f pos_target = _pos_control.get_pos_target();
 
     // calculate difference between current position and target
@@ -343,7 +335,7 @@ bool AC_WPNav::advance_wp_target_along_track(float dt)
     bool reached_leash_limit = false;   // true when track has reached leash limit and we need to slow down the target point
 
     // get current location
-    const Vector3f &curr_pos = _inav.get_position();
+    Vector3f curr_pos = _inav.get_position();
 
     // calculate terrain adjustments
     float terr_offset = 0.0f;
@@ -492,7 +484,7 @@ bool AC_WPNav::advance_wp_target_along_track(float dt)
 float AC_WPNav::get_wp_distance_to_destination() const
 {
     // get current location
-    const Vector3f &curr = _inav.get_position();
+    Vector3f curr = _inav.get_position();
     return norm(_destination.x-curr.x,_destination.y-curr.y);
 }
 
@@ -624,19 +616,16 @@ bool AC_WPNav::set_spline_destination(const Location_Class& destination, bool st
         return false;
     }
 
-    Vector3f next_dest_neu; // left uninitialised for valgrind
-    if (seg_end_type == SEGMENT_END_STRAIGHT ||
-        seg_end_type == SEGMENT_END_SPLINE) {
-        // make altitude frames consistent
-        if (!next_destination.change_alt_frame(destination.get_alt_frame())) {
-            return false;
-        }
+    // make altitude frames consistent
+    if (!next_destination.change_alt_frame(destination.get_alt_frame())) {
+        return false;
+    }
 
-        // convert next destination to vector
-        bool next_dest_terr_alt;
-        if (!get_vector_NEU(next_destination, next_dest_neu, next_dest_terr_alt)) {
-            return false;
-        }
+    // convert next destination to vector
+    Vector3f next_dest_neu;
+    bool next_dest_terr_alt;
+    if (!get_vector_NEU(next_destination, next_dest_neu, next_dest_terr_alt)) {
+        return false;
     }
 
     // set target as vector from EKF origin
@@ -855,7 +844,7 @@ bool AC_WPNav::advance_spline_target_along_track(float dt)
         calculate_wp_leash_length();
 
         // get current location
-        const Vector3f &curr_pos = _inav.get_position();
+        Vector3f curr_pos = _inav.get_position();
 
         // get terrain altitude offset for origin and current position (i.e. change in terrain altitude from a position vs ekf origin)
         float terr_offset = 0.0f;

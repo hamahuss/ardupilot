@@ -18,27 +18,24 @@
 #include <inttypes.h>
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
+#include <AP_Math/AP_Math.h>
+#include <AP_Vehicle/AP_Vehicle.h>
 #include "GPS_detect_state.h"
 #include <AP_SerialManager/AP_SerialManager.h>
+#include <AP_RTC/AP_RTC.h>
 
 /**
    maximum number of GPS instances available on this platform. If more
    than 1 then redundant sensors may be available
  */
-#ifndef GPS_MAX_RECEIVERS
 #define GPS_MAX_RECEIVERS 2 // maximum number of physical GPS sensors allowed - does not include virtual GPS created by blending receiver data
-<<<<<<< HEAD
 #define GPS_MAX_INSTANCES  (GPS_MAX_RECEIVERS + 1) // maximum number of GPs instances including the 'virtual' GPS created by blending receiver data
-=======
-#endif
-#ifndef GPS_MAX_INSTANCES
-#define GPS_MAX_INSTANCES  (GPS_MAX_RECEIVERS + 1) // maximum number of GPS instances including the 'virtual' GPS created by blending receiver data
-#endif
-#if GPS_MAX_INSTANCES > GPS_MAX_RECEIVERS
->>>>>>> upstream/master
 #define GPS_BLENDED_INSTANCE GPS_MAX_RECEIVERS  // the virtual blended GPS is always the highest instance (2)
-#endif
+#define GPS_RTK_INJECT_TO_ALL 127
+#define GPS_MAX_RATE_MS 200 // maximum value of rate_ms (i.e. slowest update rate) is 5hz or 200ms
 #define GPS_UNKNOWN_DOP UINT16_MAX // set unknown DOP's to maximum value, which is also correct for MAVLink
+#define GPS_WORST_LAG_SEC 0.22f // worst lag value any GPS driver is expected to return, expressed in seconds
+#define GPS_MAX_DELTA_MS 245 // 200 ms (5Hz) + 45 ms buffer
 
 // the number of GPS leap seconds
 #define GPS_LEAPSECONDS_MILLIS 18000ULL
@@ -73,13 +70,8 @@ public:
     AP_GPS(const AP_GPS &other) = delete;
     AP_GPS &operator=(const AP_GPS&) = delete;
 
-<<<<<<< HEAD
     static AP_GPS &gps() {
         return *_singleton;
-=======
-    static AP_GPS *get_singleton() {
-        return _singleton;
->>>>>>> upstream/master
     }
 
     // GPS driver types
@@ -98,8 +90,7 @@ public:
         GPS_TYPE_GSOF  = 11,
         GPS_TYPE_ERB = 13,
         GPS_TYPE_MAV = 14,
-        GPS_TYPE_NOVA = 15,
-        GPS_TYPE_HEMI = 16, // hemisphere NMEA
+        GPS_TYPE_NOVA = 15
     };
 
     /// GPS status codes
@@ -145,7 +136,6 @@ public:
         Location location;                  ///< last fix location
         float ground_speed;                 ///< ground speed in m/sec
         float ground_course;                ///< ground course in degrees
-        float gps_yaw;                      ///< GPS derived yaw information, if available (degrees)
         uint16_t hdop;                      ///< horizontal dilution of precision in cm
         uint16_t vdop;                      ///< vertical dilution of precision in cm
         uint8_t num_sats;                   ///< Number of visible satellites
@@ -153,18 +143,10 @@ public:
         float speed_accuracy;               ///< 3D velocity RMS accuracy estimate in m/s
         float horizontal_accuracy;          ///< horizontal RMS accuracy estimate in m
         float vertical_accuracy;            ///< vertical RMS accuracy estimate in m
-<<<<<<< HEAD
         bool have_vertical_velocity:1;      ///< does GPS give vertical velocity? Set to true only once available.
         bool have_speed_accuracy:1;         ///< does GPS give speed accuracy? Set to true only once available.
         bool have_horizontal_accuracy:1;    ///< does GPS give horizontal position accuracy? Set to true only once available.
         bool have_vertical_accuracy:1;      ///< does GPS give vertical position accuracy? Set to true only once available.
-=======
-        bool have_vertical_velocity;      ///< does GPS give vertical velocity? Set to true only once available.
-        bool have_speed_accuracy;         ///< does GPS give speed accuracy? Set to true only once available.
-        bool have_horizontal_accuracy;    ///< does GPS give horizontal position accuracy? Set to true only once available.
-        bool have_vertical_accuracy;      ///< does GPS give vertical position accuracy? Set to true only once available.
-        bool have_gps_yaw;                ///< does GPS give yaw? Set to true only once available.
->>>>>>> upstream/master
         uint32_t last_gps_time_ms;          ///< the system time we got the last GPS timestamp, milliseconds
 
         // all the following fields must only all be filled by RTK capable backend drivers
@@ -189,7 +171,7 @@ public:
     void update(void);
 
     // Pass mavlink data to message handlers (for MAV type)
-    void handle_msg(const mavlink_message_t &msg);
+    void handle_msg(const mavlink_message_t *msg);
 
     // Accessor functions
 
@@ -294,23 +276,6 @@ public:
         return ground_course_cd(primary_instance);
     }
 
-    // yaw in degrees if available
-    bool gps_yaw_deg(uint8_t instance, float &yaw_deg, float &accuracy_deg) const {
-        if (!have_gps_yaw(instance)) {
-            return false;
-        }
-        yaw_deg = state[instance].gps_yaw;
-        // None of the GPS backends can provide this yet, so we hard
-        // code a fixed value of 10 degrees, which seems like a
-        // reasonable guess. Once a backend can provide a proper
-        // estimate we can implement it
-        accuracy_deg = 10;
-        return true;
-    }
-    bool gps_yaw_deg(float &yaw_deg, float &accuracy_deg) const {
-        return gps_yaw_deg(primary_instance, yaw_deg, accuracy_deg);
-    }
-
     // number of locked satellites
     uint8_t num_sats(uint8_t instance) const {
         return state[instance].num_sats;
@@ -385,14 +350,22 @@ public:
         return have_vertical_velocity(primary_instance);
     }
 
-    // return true if the GPS supports yaw
-    bool have_gps_yaw(uint8_t instance) const {
-        return state[instance].have_gps_yaw;
+    // return number of satellites used for RTK calculation
+    uint8_t rtk_num_sats(uint8_t instance) const {
+        return state[instance].rtk_num_sats;
     }
-    bool have_gps_yaw(void) const {
-        return have_gps_yaw(primary_instance);
+    uint8_t rtk_num_sats(void) const {
+        return rtk_num_sats(primary_instance);
     }
-    
+
+    // return age of last baseline correction in milliseconds
+    uint32_t rtk_age_ms(uint8_t instance) const {
+        return state[instance].rtk_age_ms;
+    }
+    uint32_t rtk_age_ms(void) const {
+        return rtk_age_ms(primary_instance);
+    }
+
     // the expected lag (in seconds) in the position and velocity readings from the gps
     // return true if the GPS hardware configuration is known or the lag parameter has been set manually
     bool get_lag(uint8_t instance, float &lag_sec) const;
@@ -420,9 +393,14 @@ public:
 
     void send_mavlink_gps_rtk(mavlink_channel_t chan, uint8_t inst);
 
-    // Returns true if there is an unconfigured GPS, and provides the instance number of the first non configured GPS
-    bool first_unconfigured_gps(uint8_t &instance) const WARN_IF_UNUSED;
+    // Returns the index of the first unconfigured GPS (returns GPS_ALL_CONFIGURED if all instances report as being configured)
+    uint8_t first_unconfigured_gps(void) const;
     void broadcast_first_configuration_failure_reason(void) const;
+
+    // return true if all GPS instances have finished configuration
+    bool all_configured(void) const {
+        return first_unconfigured_gps() == GPS_ALL_CONFIGURED;
+    }
 
     // pre-arm check that all GPSs are close to each other.  farthest distance between GPSs (in meters) is returned
     bool all_consistent(float &distance) const;
@@ -566,8 +544,8 @@ private:
     } *rtcm_buffer;
 
     // re-assemble GPS_RTCM_DATA message
-    void handle_gps_rtcm_data(const mavlink_message_t &msg);
-    void handle_gps_inject(const mavlink_message_t &msg);
+    void handle_gps_rtcm_data(const mavlink_message_t *msg);
+    void handle_gps_inject(const mavlink_message_t *msg);
 
     //Inject a packet of raw binary to a GPS
     void inject_data(uint8_t *data, uint16_t len);
@@ -578,7 +556,7 @@ private:
     Vector2f _NE_pos_offset_m[GPS_MAX_RECEIVERS]; // Filtered North,East position offset from GPS instance to blended solution in _output_state.location (m)
     float _hgt_offset_cm[GPS_MAX_RECEIVERS]; // Filtered height offset from GPS instance relative to blended solution in _output_state.location (cm)
     Vector3f _blended_antenna_offset; // blended antenna offset
-    float _blended_lag_sec; // blended receiver lag in seconds
+    float _blended_lag_sec = 0.001f * GPS_MAX_RATE_MS; // blended receiver lag in seconds
     float _blend_weights[GPS_MAX_RECEIVERS]; // blend weight for each GPS. The blend weights must sum to 1.0 across all instances.
     uint32_t _last_time_updated[GPS_MAX_RECEIVERS]; // the last value of state.last_gps_time_ms read for that GPS instance - used to detect new data.
     float _omega_lpf; // cutoff frequency in rad/sec of LPF applied to position offsets

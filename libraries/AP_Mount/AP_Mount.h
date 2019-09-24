@@ -21,14 +21,12 @@
 
 #include <AP_Math/AP_Math.h>
 #include <AP_Common/AP_Common.h>
-#include <AP_Common/Location.h>
+#include <AP_GPS/AP_GPS.h>
+#include <AP_AHRS/AP_AHRS.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
-<<<<<<< HEAD
 #include <RC_Channel/RC_Channel.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <DataFlash/DataFlash.h>
-=======
->>>>>>> upstream/master
 
 // maximum number of mounts
 #define AP_MOUNT_MAX_INSTANCES          1
@@ -75,7 +73,7 @@ public:
     };
 
     // init - detect and initialise all mounts
-    void init();
+    void init(const AP_SerialManager& serial_manager);
 
     // update - give mount opportunity to update servos.  should be called at 10hz or higher
     void update();
@@ -113,7 +111,6 @@ public:
     void set_roi_target(const struct Location &target_loc) { set_roi_target(_primary,target_loc); }
     void set_roi_target(uint8_t instance, const struct Location &target_loc);
 
-<<<<<<< HEAD
     // control - control the mount
     void control(int32_t pitch_or_lat, int32_t roll_or_lon, int32_t yaw_or_alt, enum MAV_MOUNT_MODE mount_mode) { control(_primary, pitch_or_lat, roll_or_lon, yaw_or_alt, mount_mode); }
     void control(uint8_t instance, int32_t pitch_or_lat, int32_t roll_or_lon, int32_t yaw_or_alt, enum MAV_MOUNT_MODE mount_mode);
@@ -131,12 +128,6 @@ public:
 
     // handle a GIMBAL_REPORT message
     void handle_gimbal_report(mavlink_channel_t chan, mavlink_message_t *msg);
-=======
-    // mavlink message handling:
-    MAV_RESULT handle_command_long(const mavlink_command_long_t &packet);
-    void handle_param_value(const mavlink_message_t &msg);
-    void handle_message(mavlink_channel_t chan, const mavlink_message_t &msg);
->>>>>>> upstream/master
 
     // send a GIMBAL_REPORT message to GCS
     void send_gimbal_report(mavlink_channel_t chan);
@@ -191,21 +182,4 @@ protected:
         MAV_MOUNT_MODE  _mode;              // current mode (see MAV_MOUNT_MODE enum)
         struct Location _roi_target;        // roi target location
     } state[AP_MOUNT_MAX_INSTANCES];
-<<<<<<< HEAD
-=======
-
-private:
-
-    void handle_gimbal_report(mavlink_channel_t chan, const mavlink_message_t &msg);
-    void handle_mount_configure(const mavlink_message_t &msg);
-    void handle_mount_control(const mavlink_message_t &msg);
-
-    MAV_RESULT handle_command_do_mount_configure(const mavlink_command_long_t &packet);
-    MAV_RESULT handle_command_do_mount_control(const mavlink_command_long_t &packet);
-
-};
-
-namespace AP {
-    AP_Mount *mount();
->>>>>>> upstream/master
 };

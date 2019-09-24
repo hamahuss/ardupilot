@@ -9,15 +9,11 @@ class AP_RangeFinder_uLanding : public AP_RangeFinder_Backend
 public:
     // constructor
 	AP_RangeFinder_uLanding(RangeFinder::RangeFinder_State &_state,
-<<<<<<< HEAD
                             AP_SerialManager &serial_manager,
-=======
-                            AP_RangeFinder_Params &_params,
->>>>>>> upstream/master
                             uint8_t serial_instance);
 
     // static detection function
-    static bool detect(uint8_t serial_instance);
+    static bool detect(AP_SerialManager &serial_manager, uint8_t serial_instance);
 
     // update state
     void update(void);

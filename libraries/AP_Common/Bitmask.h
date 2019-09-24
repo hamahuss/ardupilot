@@ -18,38 +18,22 @@
 
 #pragma once
 
-<<<<<<< HEAD
-=======
-#include <stdint.h>
-#include <string.h>
-
-#include <AP_InternalError/AP_InternalError.h>
-
-template<uint16_t num_bits>
->>>>>>> upstream/master
 class Bitmask {
 public:
-    Bitmask() :
+    Bitmask(uint16_t num_bits) :
         numbits(num_bits),
         numwords((num_bits+31)/32) {
+        bits = new uint32_t[numwords];
         clearall();
     }
-
-    Bitmask &operator=(const Bitmask&other) {
-        memcpy(bits, other.bits, sizeof(bits[0])*other.numwords);
-        return *this;
+    ~Bitmask(void) {
+        delete[] bits;
     }
 
-<<<<<<< HEAD
-=======
-    Bitmask(const Bitmask &other) = delete;
-
->>>>>>> upstream/master
     // set given bitnumber
     void set(uint16_t bit) {
         // ignore an invalid bit number
         if (bit >= numbits) {
-            AP::internalerror().error(AP_InternalError::error_t::bitmask_range);
             return;
         }
         uint16_t word = bit/32;
@@ -84,12 +68,6 @@ public:
     bool get(uint16_t bit) const {
         uint16_t word = bit/32;
         uint8_t ofs = bit & 0x1f;
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-        if (bit >= numbits) {
-            AP::internalerror().error(AP_InternalError::error_t::bitmask_range);
-            return false;
-        }
-#endif
         return (bits[word] & (1U << ofs)) != 0;
     }
 
@@ -126,5 +104,5 @@ public:
 private:
     uint16_t numbits;
     uint16_t numwords;
-    uint32_t bits[(num_bits+31)/32];
+    uint32_t *bits;
 };

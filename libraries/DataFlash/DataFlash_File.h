@@ -6,9 +6,7 @@
  */
 #pragma once
 
-#include <AP_Filesystem/AP_Filesystem.h>
-
-#if HAVE_FILESYSTEM_SUPPORT
+#if HAL_OS_POSIX_IO || HAL_OS_FATFS_IO
 
 #include <AP_HAL/utility/RingBuffer.h>
 #include "DataFlash_Backend.h"
@@ -69,9 +67,6 @@ private:
     int _write_fd;
     char *_write_filename;
     uint32_t _last_write_ms;
-#if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS
-    bool _need_rtc_update;
-#endif
     
     int _read_fd;
     uint16_t _read_fd_log_num;
@@ -79,7 +74,6 @@ private:
     uint32_t _write_offset;
     volatile bool _open_error;
     const char *_log_directory;
-    bool _last_write_failed;
 
     uint32_t _io_timer_heartbeat;
     bool io_thread_alive() const;
@@ -181,5 +175,4 @@ private:
 
 };
 
-#endif // HAVE_FILESYSTEM_SUPPORT
-
+#endif // HAL_OS_POSIX_IO

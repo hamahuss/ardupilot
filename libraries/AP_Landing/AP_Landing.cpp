@@ -19,7 +19,6 @@
 
 #include "AP_Landing.h"
 #include <GCS_MAVLink/GCS.h>
-#include <AP_AHRS/AP_AHRS.h>
 
 // table of user settable parameters
 const AP_Param::GroupInfo AP_Landing::var_info[] = {
@@ -421,7 +420,7 @@ bool AP_Landing::restart_landing_sequence()
             mission.set_current_cmd(current_index+1))
     {
         // if the next immediate command is MAV_CMD_NAV_CONTINUE_AND_CHANGE_ALT to climb, do it
-        gcs().send_text(MAV_SEVERITY_NOTICE, "Restarted landing sequence. Climbing to %dm", (signed)cmd.content.location.alt/100);
+        gcs().send_text(MAV_SEVERITY_NOTICE, "Restarted landing sequence. Climbing to %dm", cmd.content.location.alt/100);
         success =  true;
     }
     else if (do_land_start_index != 0 &&

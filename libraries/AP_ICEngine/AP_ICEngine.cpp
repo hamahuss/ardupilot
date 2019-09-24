@@ -100,20 +100,8 @@ const AP_Param::GroupInfo AP_ICEngine::var_info[] = {
     // @User: Standard
     // @Range: 0 100
     AP_GROUPINFO("START_PCT", 10, AP_ICEngine, start_percent, 5),
-<<<<<<< HEAD
     
     AP_GROUPEND    
-=======
-
-    // @Param: IDLE_PCT
-    // @DisplayName: Throttle percentage for engine idle
-    // @Description: This is the minimum percentage throttle output while running, this includes being disarmed, but not safe
-    // @User: Standard
-    // @Range: 0 100
-    AP_GROUPINFO("IDLE_PCT", 11, AP_ICEngine, idle_percent, 0),
-
-    AP_GROUPEND
->>>>>>> upstream/master
 };
 
 
@@ -217,7 +205,7 @@ void AP_ICEngine::update(void)
                 // reset initial height while disarmed
                 initial_height = -pos.z;
             }
-        } else if (idle_percent <= 0) { // check if we should idle
+        } else {
             // force ignition off when disarmed
             state = ICE_OFF;
         }
@@ -257,23 +245,13 @@ void AP_ICEngine::update(void)
 
 /*
   check for throttle override. This allows the ICE controller to force
-  the correct starting throttle when starting the engine and maintain idle when disarmed
+  the correct starting throttle when starting the engine
  */
 bool AP_ICEngine::throttle_override(uint8_t &percentage)
 {
     if (!enable) {
         return false;
     }
-
-    if (state == ICE_RUNNING &&
-        idle_percent > 0 &&
-        idle_percent < 100 &&
-        (int16_t)idle_percent > SRV_Channels::get_output_scaled(SRV_Channel::k_throttle))
-    {
-        percentage = (uint8_t)idle_percent;
-        return true;
-    }
-
     if (state == ICE_STARTING || state == ICE_START_DELAY) {
         percentage = (uint8_t)start_percent.get();
         return true;
