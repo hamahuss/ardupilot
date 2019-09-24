@@ -21,6 +21,7 @@
 
 #include <AP_Common/AP_Common.h>
 #include "AP_Mount.h"
+#include <RC_Channel/RC_Channel.h>
 
 class AP_Mount_Backend
 {
@@ -36,7 +37,7 @@ public:
     virtual ~AP_Mount_Backend(void) {}
 
     // init - performs any required initialisation for this instance
-    virtual void init(const AP_SerialManager& serial_manager) = 0;
+    virtual void init() = 0;
 
     // update mount position - should be called periodically
     virtual void update() = 0;
@@ -69,10 +70,17 @@ public:
     virtual void status_msg(mavlink_channel_t chan) {}
 
     // handle a GIMBAL_REPORT message
+<<<<<<< HEAD
     virtual void handle_gimbal_report(mavlink_channel_t chan, mavlink_message_t *msg) {}
 
     // handle a PARAM_VALUE message
     virtual void handle_param_value(mavlink_message_t *msg) {}
+=======
+    virtual void handle_gimbal_report(mavlink_channel_t chan, const mavlink_message_t &msg) {}
+
+    // handle a PARAM_VALUE message
+    virtual void handle_param_value(const mavlink_message_t &msg) {}
+>>>>>>> upstream/master
 
     // send a GIMBAL_REPORT message to the GCS
     virtual void send_gimbal_report(mavlink_channel_t chan) {}
@@ -82,9 +90,14 @@ protected:
     // update_targets_from_rc - updates angle targets (i.e. _angle_ef_target_rad) using input from receiver
     void update_targets_from_rc();
 
+<<<<<<< HEAD
     // angle_input, angle_input_rad - convert RC input into an earth-frame target angle
     int32_t angle_input(RC_Channel* rc, int16_t angle_min, int16_t angle_max);
     float angle_input_rad(RC_Channel* rc, int16_t angle_min, int16_t angle_max);
+=======
+    // angle_input_rad - convert RC input into an earth-frame target angle
+    float angle_input_rad(const RC_Channel* rc, int16_t angle_min, int16_t angle_max);
+>>>>>>> upstream/master
 
     // calc_angle_to_location - calculates the earth-frame roll, tilt and pan angles (and radians) to point at the given target
     void calc_angle_to_location(const struct Location &target, Vector3f& angles_to_target_rad, bool calc_tilt, bool calc_pan, bool relative_pan = true);

@@ -4,7 +4,12 @@
 #include "AP_NavEKF3_core.h"
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <GCS_MAVLink/GCS.h>
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+#include <AP_Logger/AP_Logger.h>
+#include <AP_GPS/AP_GPS.h>
+>>>>>>> upstream/master
 #include <new>
 
 /*
@@ -35,6 +40,7 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
+#define FLOW_USE_DEFAULT        1
 
 #elif APM_BUILD_TYPE(APM_BUILD_APMrover2)
 // rover defaults
@@ -59,6 +65,7 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
+#define FLOW_USE_DEFAULT        1
 
 #elif APM_BUILD_TYPE(APM_BUILD_ArduPlane)
 // plane defaults
@@ -80,9 +87,10 @@
 #define MAG_CAL_DEFAULT         0
 #define GLITCH_RADIUS_DEFAULT   25
 #define FLOW_MEAS_DELAY         10
-#define FLOW_M_NSE_DEFAULT      0.25f
-#define FLOW_I_GATE_DEFAULT     300
+#define FLOW_M_NSE_DEFAULT      0.15f
+#define FLOW_I_GATE_DEFAULT     500
 #define CHECK_SCALER_DEFAULT    100
+#define FLOW_USE_DEFAULT        2
 
 #else
 // build type not specified, use copter defaults
@@ -107,6 +115,7 @@
 #define FLOW_M_NSE_DEFAULT      0.25f
 #define FLOW_I_GATE_DEFAULT     300
 #define CHECK_SCALER_DEFAULT    100
+#define FLOW_USE_DEFAULT        1
 
 #endif // APM_BUILD_DIRECTORY
 
@@ -239,8 +248,8 @@ const AP_Param::GroupInfo NavEKF3::var_info[] = {
 
     // @Param: MAG_CAL
     // @DisplayName: Magnetometer default fusion mode
-    // @Description: This determines when the filter will use the 3-axis magnetometer fusion model that estimates both earth and body fixed magnetic field states and when it will use a simpler magnetic heading fusion model that does not use magnetic field states. The 3-axis magnetometer fusion is only suitable for use when the external magnetic field environment is stable. EK3_MAG_CAL = 0 uses heading fusion on ground, 3-axis fusion in-flight, and is the default setting for Plane users. EK3_MAG_CAL = 1 uses 3-axis fusion only when manoeuvring. EK3_MAG_CAL = 2 uses heading fusion at all times, is recommended if the external magnetic field is varying and is the default for rovers. EK3_MAG_CAL = 3 uses heading fusion on the ground and 3-axis fusion after the first in-air field and yaw reset has completed, and is the default for copters. EK3_MAG_CAL = 4 uses 3-axis fusion at all times. NOTE : Use of simple heading magnetometer fusion makes vehicle compass calibration and alignment errors harder for the EKF to detect which reduces the sensitivity of the Copter EKF failsafe algorithm. NOTE: The fusion mode can be forced to 2 for specific EKF cores using the EK3_MAG_MASK parameter.
-    // @Values: 0:When flying,1:When manoeuvring,2:Never,3:After first climb yaw reset,4:Always
+    // @Description: This determines when the filter will use the 3-axis magnetometer fusion model that estimates both earth and body fixed magnetic field states and when it will use a simpler magnetic heading fusion model that does not use magnetic field states. The 3-axis magnetometer fusion is only suitable for use when the external magnetic field environment is stable. EK3_MAG_CAL = 0 uses heading fusion on ground, 3-axis fusion in-flight, and is the default setting for Plane users. EK3_MAG_CAL = 1 uses 3-axis fusion only when manoeuvring. EK3_MAG_CAL = 2 uses heading fusion at all times, is recommended if the external magnetic field is varying and is the default for rovers. EK3_MAG_CAL = 3 uses heading fusion on the ground and 3-axis fusion after the first in-air field and yaw reset has completed, and is the default for copters. EK3_MAG_CAL = 4 uses 3-axis fusion at all times. EK3_MAG_CAL = 5 uses an external yaw sensor with simple heading fusion. NOTE : Use of simple heading magnetometer fusion makes vehicle compass calibration and alignment errors harder for the EKF to detect which reduces the sensitivity of the Copter EKF failsafe algorithm. NOTE: The fusion mode can be forced to 2 for specific EKF cores using the EK3_MAG_MASK parameter.
+    // @Values: 0:When flying,1:When manoeuvring,2:Never,3:After first climb yaw reset,4:Always,5:Use external yaw sensor
     // @User: Advanced
     // @RebootRequired: True
     AP_GROUPINFO("MAG_CAL", 14, NavEKF3, _magCal, MAG_CAL_DEFAULT),
@@ -576,6 +585,14 @@ const AP_Param::GroupInfo NavEKF3::var_info[] = {
     // @Units: m/s
     AP_GROUPINFO("WENC_VERR", 53, NavEKF3, _wencOdmVelErr, 0.1f),
 
+    // @Param: FLOW_USE
+    // @DisplayName: Optical flow use bitmask
+    // @Description: Controls if the optical flow data is fused into the 24-state navigation estimator OR the 1-state terrain height estimator.
+    // @User: Advanced
+    // @Values: 0:None,1:Navigation,2:Terrain
+    // @RebootRequired: True
+    AP_GROUPINFO("FLOW_USE", 54, NavEKF3, _flowUse, FLOW_USE_DEFAULT),
+
     AP_GROUPEND
 };
 
@@ -598,10 +615,13 @@ void NavEKF3::check_log_write(void)
         DataFlash_Class::instance()->Log_Write_Compass(*_ahrs->get_compass(), imuSampleTime_us);
         logging.log_compass = false;
     }
+<<<<<<< HEAD
     if (logging.log_gps) {
         DataFlash_Class::instance()->Log_Write_GPS(AP::gps().primary_sensor(), imuSampleTime_us);
         logging.log_gps = false;
     }
+=======
+>>>>>>> upstream/master
     if (logging.log_baro) {
         DataFlash_Class::instance()->Log_Write_Baro(imuSampleTime_us);
         logging.log_baro = false;
@@ -700,6 +720,9 @@ bool NavEKF3::InitialiseFilter(void)
     // Set the primary initially to be the lowest index
     primary = 0;
 
+    // invalidate shared origin
+    common_origin_valid = false;
+
     // initialise the cores. We return success only if all cores
     // initialise successfully
     bool ret = true;
@@ -766,7 +789,7 @@ void NavEKF3::UpdateFilter(void)
                 // If the primary core is still healthy,then switching is optional and will only be done if
                 // a core with a significantly lower error score can be found
                 float altErrorScore = core[coreIndex].errorScore();
-                if (altCoreAvailable && (!core[primary].healthy() || altErrorScore < lowestErrorScore)) {
+                if (altCoreAvailable && (!core[newPrimaryIndex].healthy() || altErrorScore < lowestErrorScore)) {
                     newPrimaryIndex = coreIndex;
                     lowestErrorScore = altErrorScore;
                 }
@@ -778,10 +801,62 @@ void NavEKF3::UpdateFilter(void)
             updateLaneSwitchPosResetData(newPrimaryIndex, primary);
             updateLaneSwitchPosDownResetData(newPrimaryIndex, primary);
             primary = newPrimaryIndex;
+            lastLaneSwitch_ms = AP_HAL::millis();
         }
     }
 
+    if (primary != 0 && core[0].healthy() && !hal.util->get_soft_armed()) {
+        // when on the ground and disarmed force the first lane. This
+        // avoids us ending with with a lottery for which IMU is used
+        // in each flight. Otherwise the alignment of the timing of
+        // the lane updates with the timing of GPS updates can lead to
+        // a lane other than the first one being used as primary for
+        // some flights. As different IMUs may have quite different
+        // noise characteristics this leads to inconsistent
+        // performance
+        primary = 0;
+    }
+    
     check_log_write();
+}
+
+/*
+  check if switching lanes will reduce the normalised
+  innovations. This is called when the vehicle code is about to
+  trigger an EKF failsafe, and it would like to avoid that by
+  using a different EKF lane
+*/
+void NavEKF3::checkLaneSwitch(void)
+{
+    uint32_t now = AP_HAL::millis();
+    if (lastLaneSwitch_ms != 0 && now - lastLaneSwitch_ms < 5000) {
+        // don't switch twice in 5 seconds
+        return;
+    }
+    float primaryErrorScore = core[primary].errorScore();
+    float lowestErrorScore = primaryErrorScore;
+    uint8_t newPrimaryIndex = primary;
+    for (uint8_t coreIndex=0; coreIndex<num_cores; coreIndex++) {
+        if (coreIndex != primary) {
+            // an alternative core is available for selection only if healthy and if states have been updated on this time step
+            bool altCoreAvailable = core[coreIndex].healthy();
+            float altErrorScore = core[coreIndex].errorScore();
+            if (altCoreAvailable && altErrorScore < lowestErrorScore && altErrorScore < 0.9) {
+                newPrimaryIndex = coreIndex;
+                lowestErrorScore = altErrorScore;
+            }
+        }
+    }
+
+    // update the yaw and position reset data to capture changes due to the lane switch
+    if (newPrimaryIndex != primary) {
+        updateLaneSwitchYawResetData(newPrimaryIndex, primary);
+        updateLaneSwitchPosResetData(newPrimaryIndex, primary);
+        updateLaneSwitchPosDownResetData(newPrimaryIndex, primary);
+        primary = newPrimaryIndex;
+        lastLaneSwitch_ms = now;
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "NavEKF3: lane switch %u", primary);
+    }
 }
 
 // Check basic filter health metrics and return a consolidated health status
@@ -791,6 +866,19 @@ bool NavEKF3::healthy(void) const
         return false;
     }
     return core[primary].healthy();
+}
+
+bool NavEKF3::all_cores_healthy(void) const
+{
+    if (!core) {
+        return false;
+    }
+    for (uint8_t i = 0; i < num_cores; i++) {
+        if (!core[i].healthy()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // returns the index of the primary core
@@ -1031,10 +1119,22 @@ bool NavEKF3::getOriginLLH(int8_t instance, struct Location &loc) const
 // Returns false if the filter has rejected the attempt to set the origin
 bool NavEKF3::setOriginLLH(const Location &loc)
 {
+    if (_fusionModeGPS != 3) {
+        // we don't allow setting of the EKF origin unless we are
+        // flying in non-GPS mode. This is to prevent accidental set
+        // of EKF origin with invalid position or height
+        gcs().send_text(MAV_SEVERITY_WARNING, "EKF3 refusing set origin");
+        return false;
+    }
     if (!core) {
         return false;
     }
-    return core[primary].setOriginLLH(loc);
+    bool ret = false;
+    for (uint8_t i=0; i<num_cores; i++) {
+        ret |= core[i].setOriginLLH(loc);
+    }
+    // return true if any core accepts the new origin
+    return ret;
 }
 
 // return estimated height above ground level
@@ -1131,6 +1231,16 @@ void NavEKF3::writeOptFlowMeas(uint8_t &rawFlowQuality, Vector2f &rawFlowRates, 
     if (core) {
         for (uint8_t i=0; i<num_cores; i++) {
             core[i].writeOptFlowMeas(rawFlowQuality, rawFlowRates, rawGyroRates, msecFlowMeas, posOffset);
+        }
+    }
+}
+
+// write yaw angle sensor measurements
+void NavEKF3::writeEulerYawAngle(float yawAngle, float yawAngleErr, uint32_t timeStamp_ms, uint8_t type)
+{
+    if (core) {
+        for (uint8_t i=0; i<num_cores; i++) {
+            core[i].writeEulerYawAngle(yawAngle, yawAngleErr, timeStamp_ms, type);
         }
     }
 }
@@ -1422,7 +1532,13 @@ const char *NavEKF3::prearm_failure_reason(void) const
     if (!core) {
         return nullptr;
     }
-    return core[primary].prearm_failure_reason();
+    for (uint8_t i = 0; i < num_cores; i++) {
+        const char * failure = core[primary].prearm_failure_reason();
+        if (failure != nullptr) {
+            return failure;
+        }
+    }
+    return nullptr;
 }
 
 // Returns the amount of vertical position change due to the last reset or core switch in metres

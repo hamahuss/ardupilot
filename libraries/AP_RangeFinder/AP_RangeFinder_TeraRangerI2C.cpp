@@ -102,7 +102,7 @@ bool AP_RangeFinder_TeraRangerI2C::init(void)
 
     dev->set_retries(1);
 
-    dev->register_periodic_callback(50000,
+    dev->register_periodic_callback(10000,
                                     FUNCTOR_BIND_MEMBER(&AP_RangeFinder_TeraRangerI2C::timer, void));
 
     return true;
@@ -155,7 +155,7 @@ bool AP_RangeFinder_TeraRangerI2C::process_raw_measure(uint16_t raw_distance, ui
 }
 
 /*
-  timer called at 20Hz
+  timer called at 100Hz, EVO sensors max freq is 100..240Hz
 */
 void AP_RangeFinder_TeraRangerI2C::timer(void)
 {
@@ -179,6 +179,7 @@ void AP_RangeFinder_TeraRangerI2C::timer(void)
 */
 void AP_RangeFinder_TeraRangerI2C::update(void)
 {
+<<<<<<< HEAD
     if (_sem->take(HAL_SEMAPHORE_BLOCK_FOREVER)) {
         if (accum.count > 0) {
             state.distance_cm = accum.sum / accum.count;
@@ -189,5 +190,17 @@ void AP_RangeFinder_TeraRangerI2C::update(void)
             set_status(RangeFinder::RangeFinder_NoData);
         }
         _sem->give();
+=======
+    WITH_SEMAPHORE(_sem);
+
+    if (accum.count > 0) {
+        state.distance_cm = accum.sum / accum.count;
+        state.last_reading_ms = AP_HAL::millis();
+        accum.sum = 0;
+        accum.count = 0;
+        update_status();        
+    } else if (AP_HAL::millis() - state.last_reading_ms > 200) {
+        set_status(RangeFinder::RangeFinder_NoData);
+>>>>>>> upstream/master
     }
 }

@@ -11,7 +11,10 @@
 
 #include <AP_AHRS/AP_AHRS.h>
 #include <AP_Param/AP_Param.h>
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+>>>>>>> upstream/master
 #include <AP_Math/AP_Math.h>
 #include "ExtendedKalmanFilter.h"
 #include "Variometer.h"

@@ -49,6 +49,7 @@ void AP_MotorsTailsitter::output_to_motors()
     if (!_flags.initialised_ok) {
         return;
     }
+<<<<<<< HEAD
     float throttle = _throttle;
     float throttle_left  = 0;
     float throttle_right = 0;
@@ -82,6 +83,24 @@ void AP_MotorsTailsitter::output_to_motors()
             limit.yaw = false;
             limit.throttle_lower = false;
             limit.throttle_upper = false;
+=======
+
+    switch (_spool_state) {
+        case SpoolState::SHUT_DOWN:
+            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleLeft, get_pwm_output_min());
+            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleRight, get_pwm_output_min());
+            break;
+        case SpoolState::GROUND_IDLE:
+            set_actuator_with_slew(_actuator[1], actuator_spin_up_to_ground_idle());
+            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleLeft, output_to_pwm(actuator_spin_up_to_ground_idle()));
+            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleRight, output_to_pwm(actuator_spin_up_to_ground_idle()));
+            break;
+        case SpoolState::SPOOLING_UP:
+        case SpoolState::THROTTLE_UNLIMITED:
+        case SpoolState::SPOOLING_DOWN:
+            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleLeft, output_to_pwm(thrust_to_actuator(_thrust_left)));
+            SRV_Channels::set_output_pwm(SRV_Channel::k_throttleRight, output_to_pwm(thrust_to_actuator(_thrust_right)));
+>>>>>>> upstream/master
             break;
         }
     }
@@ -104,19 +123,54 @@ void AP_MotorsTailsitter::output_to_motors()
 // calculate outputs to the motors
 void AP_MotorsTailsitter::output_armed_stabilizing()
 {
+<<<<<<< HEAD
     _aileron = -_yaw_in;
     _elevator = _pitch_in;
     _rudder = _roll_in;
     _throttle = get_throttle();
+=======
+    float   roll_thrust;                // roll thrust input value, +/- 1.0
+    float   pitch_thrust;               // pitch thrust input value, +/- 1.0
+    float   yaw_thrust;                 // yaw thrust input value, +/- 1.0
+    float   throttle_thrust;            // throttle thrust input value, 0.0 - 1.0
+    float   thrust_max;                 // highest motor value
+    float   thr_adj = 0.0f;             // the difference between the pilot's desired throttle and throttle_thrust_best_rpy
+
+    // apply voltage and air pressure compensation
+    const float compensation_gain = get_compensation_gain();
+    roll_thrust = (_roll_in + _roll_in_ff) * compensation_gain;
+    pitch_thrust = (_pitch_in + _pitch_in_ff) * compensation_gain;
+    yaw_thrust = (_yaw_in + _yaw_in_ff) * compensation_gain;
+    throttle_thrust = get_throttle() * compensation_gain;
+>>>>>>> upstream/master
 
     // sanity check throttle is above zero and below current limited throttle
     if (_throttle <= 0.0f) {
         _throttle = 0.0f;
         limit.throttle_lower = true;
     }
+<<<<<<< HEAD
     if (_throttle >= _throttle_thrust_max) {
         _throttle = _throttle_thrust_max;
         limit.throttle_upper = true;
+=======
+    if (throttle_thrust >= _throttle_thrust_max) {
+        throttle_thrust = _throttle_thrust_max;
+        limit.throttle_upper = true;
+    }
+
+    // calculate left and right throttle outputs
+    _thrust_left  = throttle_thrust + roll_thrust * 0.5f;
+    _thrust_right = throttle_thrust - roll_thrust * 0.5f;
+
+    // if max thrust is more than one reduce average throttle
+    thrust_max = MAX(_thrust_right,_thrust_left);
+    if (thrust_max > 1.0f) {
+        thr_adj = 1.0f - thrust_max;
+        limit.throttle_upper = true;
+        limit.roll = true;
+        limit.pitch = true;
+>>>>>>> upstream/master
     }
 
     _throttle = constrain_float(_throttle, 0.1, 1);

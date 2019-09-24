@@ -36,7 +36,13 @@
 #endif
 
 #include <AP_UAVCAN/AP_UAVCAN.h>
+<<<<<<< HEAD
 
+=======
+#include <AP_KDECAN/AP_KDECAN.h>
+#include <AP_ToshibaCAN/AP_ToshibaCAN.h>
+#include <AP_SerialManager/AP_SerialManager.h>
+>>>>>>> upstream/master
 extern const AP_HAL::HAL& hal;
 
 // table of user settable parameters
@@ -99,6 +105,12 @@ void AP_BoardConfig_CAN::setup_canbus(void)
 {
     // Create all drivers that we need
     bool initret = true;
+<<<<<<< HEAD
+=======
+#if !HAL_MINIMIZE_FEATURES
+    reset_slcan_serial();
+#endif
+>>>>>>> upstream/master
     for (uint8_t i = 0; i < MAX_NUMBER_OF_CAN_INTERFACES; i++) {
         // Check the driver number assigned to this physical interface
         uint8_t drv_num = _var_info_can[i]._driver_number;
@@ -118,7 +130,17 @@ void AP_BoardConfig_CAN::setup_canbus(void)
 
             // For this now existing driver (manager), start the physical interface
             if (hal.can_mgr[drv_num - 1] != nullptr) {
+<<<<<<< HEAD
                 initret &= hal.can_mgr[drv_num - 1]->begin(_var_info_can[i]._can_bitrate, i);
+=======
+                initret = initret && hal.can_mgr[drv_num - 1]->begin(_interfaces[i]._bitrate, i);
+                #if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS && !HAL_MINIMIZE_FEATURES
+                    if (_slcan._can_port == (i+1) && hal.can_mgr[drv_num - 1] != nullptr ) {
+                        ChibiOS_CAN::CanDriver* drv = (ChibiOS_CAN::CanDriver*)hal.can_mgr[drv_num - 1]->get_driver();
+                        ChibiOS_CAN::CanIface::slcan_router().init(drv->getIface(i), drv->getUpdateEvent());
+                    }
+                #endif
+>>>>>>> upstream/master
             } else {
                 printf("Failed to initialize can interface %d\n\r", i + 1);
             }
@@ -165,5 +187,26 @@ void AP_BoardConfig_CAN::setup_canbus(void)
         }
     }
 }
+<<<<<<< HEAD
+=======
+#if !HAL_MINIMIZE_FEATURES
+AP_HAL::UARTDriver *AP_BoardConfig_CAN::get_slcan_serial()
+{
+    if (_slcan._ser_port != -1) {
+        return AP::serialmanager().get_serial_by_id(_slcan._ser_port);
+    }
+    AP_HAL::UARTDriver *ser_port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_SLCAN, 0);
+    if (ser_port != nullptr) {
+        if (ser_port->is_initialized()) {
+            return ser_port;
+        }
+    }
+    return nullptr;
+}
+#endif
+AP_BoardConfig_CAN& AP::can() {
+    return *AP_BoardConfig_CAN::get_singleton();
+}
+>>>>>>> upstream/master
 #endif
 

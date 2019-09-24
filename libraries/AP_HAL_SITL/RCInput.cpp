@@ -2,6 +2,11 @@
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
 
 #include "RCInput.h"
+<<<<<<< HEAD
+=======
+#include <SITL/SITL.h>
+#include <AP_RCProtocol/AP_RCProtocol.h>
+>>>>>>> upstream/master
 
 using namespace HALSITL;
 
@@ -9,10 +14,19 @@ extern const AP_HAL::HAL& hal;
 
 void RCInput::init()
 {
+    AP::RC().init();
 }
 
 bool RCInput::new_input()
 {
+    if (!using_rc_protocol) {
+        if (AP::RC().new_input()) {
+            using_rc_protocol = true;
+        }
+    }
+    if (using_rc_protocol) {
+        return AP::RC().new_input();
+    }
     if (_sitlState->new_rc_input) {
         _sitlState->new_rc_input = false;
         return true;
@@ -22,7 +36,14 @@ bool RCInput::new_input()
 
 uint16_t RCInput::read(uint8_t ch)
 {
+<<<<<<< HEAD
     if (ch >= SITL_RC_INPUT_CHANNELS) {
+=======
+    if (using_rc_protocol) {
+        return AP::RC().read(ch);
+    }
+    if (ch >= num_channels()) {
+>>>>>>> upstream/master
         return 0;
     }
     return _sitlState->pwm_input[ch];
@@ -39,4 +60,19 @@ uint8_t RCInput::read(uint16_t* periods, uint8_t len)
     return len;
 }
 
+<<<<<<< HEAD
+=======
+uint8_t RCInput::num_channels()
+{
+    if (using_rc_protocol) {
+        return AP::RC().num_channels();
+    }
+    SITL::SITL *_sitl = AP::sitl();
+    if (_sitl) {
+        return MIN(_sitl->rc_chancount.get(), SITL_RC_INPUT_CHANNELS);
+    }
+    return SITL_RC_INPUT_CHANNELS;
+}
+
+>>>>>>> upstream/master
 #endif

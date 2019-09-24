@@ -7,6 +7,7 @@
 #include <DataFlash/DataFlash.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <GCS_MAVLink/GCS.h>
+#include <AP_GPS/AP_GPS.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -17,7 +18,7 @@ AP_Mount_SoloGimbal::AP_Mount_SoloGimbal(AP_Mount &frontend, AP_Mount::mount_sta
 {}
 
 // init - performs any required initialisation for this instance
-void AP_Mount_SoloGimbal::init(const AP_SerialManager& serial_manager)
+void AP_Mount_SoloGimbal::init()
 {
     _initialised = true;
     set_mode((enum MAV_MOUNT_MODE)_state._default_mode.get());
@@ -114,7 +115,11 @@ void AP_Mount_SoloGimbal::status_msg(mavlink_channel_t chan)
 /*
   handle a GIMBAL_REPORT message
  */
+<<<<<<< HEAD
 void AP_Mount_SoloGimbal::handle_gimbal_report(mavlink_channel_t chan, mavlink_message_t *msg)
+=======
+void AP_Mount_SoloGimbal::handle_gimbal_report(mavlink_channel_t chan, const mavlink_message_t &msg)
+>>>>>>> upstream/master
 {
     _gimbal.update_target(_angle_ef_target_rad);
     _gimbal.receive_feedback(chan,msg);
@@ -134,7 +139,11 @@ void AP_Mount_SoloGimbal::handle_gimbal_report(mavlink_channel_t chan, mavlink_m
     }
 }
 
+<<<<<<< HEAD
 void AP_Mount_SoloGimbal::handle_param_value(mavlink_message_t *msg)
+=======
+void AP_Mount_SoloGimbal::handle_param_value(const mavlink_message_t &msg)
+>>>>>>> upstream/master
 {
     _gimbal.handle_param_value(msg);
 }
@@ -142,7 +151,11 @@ void AP_Mount_SoloGimbal::handle_param_value(mavlink_message_t *msg)
 /*
   handle a GIMBAL_REPORT message
  */
+<<<<<<< HEAD
 void AP_Mount_SoloGimbal::handle_gimbal_torque_report(mavlink_channel_t chan, mavlink_message_t *msg)
+=======
+void AP_Mount_SoloGimbal::handle_gimbal_torque_report(mavlink_channel_t chan, const mavlink_message_t &msg)
+>>>>>>> upstream/master
 {
     _gimbal.disable_torque_report();
 }

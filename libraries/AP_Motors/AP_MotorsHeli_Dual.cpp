@@ -187,7 +187,7 @@ bool AP_MotorsHeli_Dual::init_outputs()
         }
 
         // set rotor servo range
-        _rotor.init_servo();
+        _main_rotor.init_servo();
 
     }
 
@@ -239,7 +239,7 @@ void AP_MotorsHeli_Dual::output_test(uint8_t motor_seq, int16_t pwm)
         break;
     case 7:
         // main rotor
-        rc_write(AP_MOTORS_HELI_DUAL_RSC, pwm);
+        rc_write(AP_MOTORS_HELI_RSC, pwm);
         break;
     default:
         // do nothing
@@ -250,21 +250,33 @@ void AP_MotorsHeli_Dual::output_test(uint8_t motor_seq, int16_t pwm)
 // set_desired_rotor_speed
 void AP_MotorsHeli_Dual::set_desired_rotor_speed(float desired_speed)
 {
-    _rotor.set_desired_speed(desired_speed);
+    _main_rotor.set_desired_speed(desired_speed);
+}
+
+// set_rotor_rpm - used for governor with speed sensor
+void AP_MotorsHeli_Dual::set_rpm(float rotor_rpm)
+{
+    _main_rotor.set_rotor_rpm(rotor_rpm);
 }
 
 // calculate_armed_scalars
 void AP_MotorsHeli_Dual::calculate_armed_scalars()
 {
-    float thrcrv[5];
-    for (uint8_t i = 0; i < 5; i++) {
-        thrcrv[i]=_rsc_thrcrv[i]*0.001f;
-    } 
-    _rotor.set_ramp_time(_rsc_ramp_time);
-    _rotor.set_runup_time(_rsc_runup_time);
-    _rotor.set_critical_speed(_rsc_critical*0.001f);
-    _rotor.set_idle_output(_rsc_idle_output*0.001f);
-    _rotor.set_throttle_curve(thrcrv, (uint16_t)_rsc_slewrate.get());
+    // Set rsc mode specific parameters
+    if (_main_rotor._rsc_mode.get() == ROTOR_CONTROL_MODE_OPEN_LOOP_POWER_OUTPUT || _main_rotor._rsc_mode.get() == ROTOR_CONTROL_MODE_CLOSED_LOOP_POWER_OUTPUT) {
+        _main_rotor.set_throttle_curve();
+    }
+    // keeps user from changing RSC mode while armed
+    if (_main_rotor._rsc_mode.get() != _main_rotor.get_control_mode()) {
+        _main_rotor.reset_rsc_mode_param();
+        _heliflags.save_rsc_mode = true;
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "RSC control mode change failed");
+    }
+    // saves rsc mode parameter when disarmed if it had been reset while armed
+    if (_heliflags.save_rsc_mode && !_flags.armed) {
+        _main_rotor._rsc_mode.save();
+        _heliflags.save_rsc_mode = false;
+    }
 }
 
 // calculate_scalars
@@ -294,7 +306,7 @@ void AP_MotorsHeli_Dual::calculate_scalars()
     calculate_roll_pitch_collective_factors();
 
     // set mode of main rotor controller and trigger recalculation of scalars
-    _rotor.set_control_mode(static_cast<RotorControlMode>(_rsc_mode.get()));
+    _main_rotor.set_control_mode(static_cast<RotorControlMode>(_main_rotor._rsc_mode.get()));
     calculate_armed_scalars();
 }
 
@@ -377,7 +389,17 @@ uint16_t AP_MotorsHeli_Dual::get_motor_mask()
     for (uint8_t i=0; i<AP_MOTORS_HELI_DUAL_NUM_SWASHPLATE_SERVOS; i++) {
         mask |= 1U << (AP_MOTORS_MOT_1+i);
     }
+<<<<<<< HEAD
     mask |= 1U << AP_MOTORS_HELI_DUAL_RSC;
+=======
+    if (_swashplate1.get_swash_type() == SWASHPLATE_TYPE_H4_90 || _swashplate1.get_swash_type() == SWASHPLATE_TYPE_H4_45) {
+        mask |= 1U << AP_MOTORS_MOT_7;
+    }
+    if (_swashplate2.get_swash_type() == SWASHPLATE_TYPE_H4_90 || _swashplate2.get_swash_type() == SWASHPLATE_TYPE_H4_45) {
+        mask |= 1U << AP_MOTORS_MOT_8;
+    }
+    mask |= 1U << AP_MOTORS_HELI_RSC;
+>>>>>>> upstream/master
     return mask;
 }
 
@@ -385,7 +407,7 @@ uint16_t AP_MotorsHeli_Dual::get_motor_mask()
 void AP_MotorsHeli_Dual::update_motor_control(RotorControlState state)
 {
     // Send state update to motors
-    _rotor.output(state);
+    _main_rotor.output(state);
 
     if (state == ROTOR_CONTROL_STOP) {
         // set engine run enable aux output to not run position to kill engine when disarmed
@@ -396,7 +418,7 @@ void AP_MotorsHeli_Dual::update_motor_control(RotorControlState state)
     }
 
     // Check if rotors are run-up
-    _heliflags.rotor_runup_complete = _rotor.is_runup_complete();
+    _heliflags.rotor_runup_complete = _main_rotor.is_runup_complete();
 }
 
 //
@@ -410,7 +432,8 @@ void AP_MotorsHeli_Dual::update_motor_control(RotorControlState state)
 void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float collective_in, float yaw_out)
 {
     // initialize limits flag
-    limit.roll_pitch = false;
+    limit.roll = false;
+    limit.pitch = false;
     limit.yaw = false;
     limit.throttle_lower = false;
     limit.throttle_upper = false;
@@ -418,22 +441,22 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
     if (_dual_mode == AP_MOTORS_HELI_DUAL_MODE_TRANSVERSE) {
         if (pitch_out < -_cyclic_max/4500.0f) {
             pitch_out = -_cyclic_max/4500.0f;
-            limit.roll_pitch = true;
+            limit.pitch = true;
         }
 
         if (pitch_out > _cyclic_max/4500.0f) {
             pitch_out = _cyclic_max/4500.0f;
-            limit.roll_pitch = true;
+            limit.pitch = true;
         }
     } else {
         if (roll_out < -_cyclic_max/4500.0f) {
             roll_out = -_cyclic_max/4500.0f;
-            limit.roll_pitch = true;
+            limit.roll = true;
         }
 
         if (roll_out > _cyclic_max/4500.0f) {
             roll_out = _cyclic_max/4500.0f;
-            limit.roll_pitch = true;
+            limit.roll = true;
         }
     }
 
@@ -476,8 +499,8 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
     }
 
     // ensure not below landed/landing collective
-    if (_heliflags.landing_collective && collective_out < (_land_collective_min*0.001f)) {
-        collective_out = _land_collective_min*0.001f;
+    if (_heliflags.landing_collective && collective_out < _collective_mid_pct) {
+        collective_out = _collective_mid_pct;
         limit.throttle_lower = true;
     }
 
@@ -503,7 +526,7 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
 
     // feed power estimate into main rotor controller
     // ToDo: add main rotor cyclic power?
-    _rotor.set_collective(fabsf(collective_out));
+    _main_rotor.set_collective(fabsf(collective_out));
 
     // swashplate servos
     float servo_out[AP_MOTORS_HELI_DUAL_NUM_SWASHPLATE_SERVOS];
@@ -521,9 +544,39 @@ void AP_MotorsHeli_Dual::move_actuators(float roll_out, float pitch_out, float c
         servo_out[i] = 2*servo_out[i] - 1;
     }
 
+<<<<<<< HEAD
     // actually move the servos.  PWM is sent based on nominal 1500 center.  servo output shifts center based on trim value.
     for (uint8_t i=0; i<AP_MOTORS_HELI_DUAL_NUM_SWASHPLATE_SERVOS; i++) {
         rc_write_swash(i, servo_out[i]);
+=======
+    // write to servo for 4 servo of 4 servo swashplate
+    if (_swashplate1.get_swash_type() == SWASHPLATE_TYPE_H4_90 || _swashplate1.get_swash_type() == SWASHPLATE_TYPE_H4_45) {
+        rc_write_swash(AP_MOTORS_MOT_7, _servo_out[CH_7]);
+    }
+    // write to servo for 4 servo of 4 servo swashplate
+    if (_swashplate2.get_swash_type() == SWASHPLATE_TYPE_H4_90 || _swashplate2.get_swash_type() == SWASHPLATE_TYPE_H4_45) {
+        rc_write_swash(AP_MOTORS_MOT_8, _servo_out[CH_8]);
+    }
+
+    switch (_spool_state) {
+        case SpoolState::SHUT_DOWN:
+            // sends minimum values out to the motors
+            update_motor_control(ROTOR_CONTROL_STOP);
+            break;
+        case SpoolState::GROUND_IDLE:
+            // sends idle output to motors when armed. rotor could be static or turning (autorotation)
+            update_motor_control(ROTOR_CONTROL_IDLE);
+            break;
+        case SpoolState::SPOOLING_UP:
+        case SpoolState::THROTTLE_UNLIMITED:
+            // set motor output based on thrust requests
+            update_motor_control(ROTOR_CONTROL_ACTIVE);
+            break;
+        case SpoolState::SPOOLING_DOWN:
+            // sends idle output to motors and wait for rotor to stop
+            update_motor_control(ROTOR_CONTROL_IDLE);
+            break;
+>>>>>>> upstream/master
     }
 }
 

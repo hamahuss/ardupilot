@@ -21,13 +21,11 @@
   Tom Pittenger, November 2015
 */
 
+#include <AP_HAL/AP_HAL.h>
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
 #include <AP_Common/Location.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
-#include <AP_AHRS/AP_AHRS.h>
-
-#include <AP_Buffer/AP_Buffer.h>
 
 class AP_ADSB {
 public:
@@ -78,7 +76,7 @@ public:
     bool next_sample(adsb_vehicle_t &obstacle);
 
     // mavlink message handler
-    void handle_message(const mavlink_channel_t chan, const mavlink_message_t* msg);
+    void handle_message(const mavlink_channel_t chan, const mavlink_message_t &msg);
 
 private:
     // initialize _vehicle_list
@@ -113,12 +111,12 @@ private:
     uint8_t get_encoded_callsign_null_char(void);
 
     // add or update vehicle_list from inbound mavlink msg
-    void handle_vehicle(const mavlink_message_t* msg);
+    void handle_vehicle(const mavlink_message_t &msg);
 
     // handle ADS-B transceiver report for ping2020
-    void handle_transceiver_report(mavlink_channel_t chan, const mavlink_message_t* msg);
+    void handle_transceiver_report(mavlink_channel_t chan, const mavlink_message_t &msg);
 
-    void handle_out_cfg(const mavlink_message_t* msg);
+    void handle_out_cfg(const mavlink_message_t &msg);
 
     AP_Int8     _enabled;
 
@@ -177,7 +175,7 @@ private:
     float       furthest_vehicle_distance;
 
     static const uint8_t max_samples = 30;
-    AP_Buffer<adsb_vehicle_t, max_samples> samples;
+    ObjectBuffer<adsb_vehicle_t> samples{max_samples};
 
     void push_sample(adsb_vehicle_t &vehicle);
 

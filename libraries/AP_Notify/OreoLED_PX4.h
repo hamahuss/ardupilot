@@ -45,7 +45,11 @@ public:
     bool healthy() const { return _overall_health; }
 
     // handle a LED_CONTROL message, by default device ignore message
+<<<<<<< HEAD:libraries/AP_Notify/OreoLED_PX4.h
     void handle_led_control(mavlink_message_t *msg);
+=======
+    void handle_led_control(const mavlink_message_t &msg) override;
+>>>>>>> upstream/master:libraries/AP_Notify/OreoLED_I2C.h
 
 private:
     // update_timer - called by scheduler and updates PX4 driver with commands

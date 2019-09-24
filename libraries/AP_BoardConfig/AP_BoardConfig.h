@@ -127,7 +127,10 @@ public:
         return instance?instance->pwm_count.get():4;
     }
 
+<<<<<<< HEAD
 #if AP_FEATURE_SAFETY_BUTTON
+=======
+>>>>>>> upstream/master
     enum board_safety_button_option {
         BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_OFF=1,
         BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_ON=2,
@@ -138,7 +141,6 @@ public:
     uint16_t get_safety_button_options(void) {
         return uint16_t(state.safety_option.get());
     }
-#endif
 
     // return the value of BRD_SAFETY_MASK
     uint16_t get_safety_mask(void) const {
@@ -155,13 +157,33 @@ public:
     }
 #endif
 
+<<<<<<< HEAD
+=======
+    enum board_options {
+        BOARD_OPTION_WATCHDOG = (1 << 0),
+    };
+
+    // return true if watchdog enabled
+    static bool watchdog_enabled(void) {
+        return _singleton?(_singleton->_options & BOARD_OPTION_WATCHDOG)!=0:false;
+    }
+
+    // handle press of safety button. Return true if safety state
+    // should be toggled
+    bool safety_button_handle_pressed(uint8_t press_count);
+
+>>>>>>> upstream/master
 private:
     static AP_BoardConfig *instance;
     
     AP_Int16 vehicleSerialNumber;
     AP_Int8 pwm_count;
+<<<<<<< HEAD
     
 #if AP_FEATURE_BOARD_DETECT || defined(AP_FEATURE_BRD_PWM_COUNT_PARAM) || AP_FEATURE_SAFETY_BUTTON
+=======
+
+>>>>>>> upstream/master
     struct {
         AP_Int8 safety_enable;
         AP_Int16 safety_option;
@@ -174,7 +196,6 @@ private:
         AP_Int8 board_type;
         AP_Int8 io_enable;
     } state;
-#endif
 
 #if AP_FEATURE_BOARD_DETECT
     static enum px4_board_type px4_configured_board;
@@ -191,6 +212,7 @@ private:
     void board_setup_drivers(void);
     bool spi_check_register(const char *devname, uint8_t regnum, uint8_t value, uint8_t read_flag = 0x80);
     void validate_board_type(void);
+    void check_cubeblack(void);
     void board_autodetect(void);
 
 #endif // AP_FEATURE_BOARD_DETECT
@@ -222,7 +244,15 @@ private:
     // real-time-clock; private because access is via the singleton
     AP_RTC rtc;
 
+#ifdef HAL_GPIO_PWM_VOLT_PIN
+    AP_Int8 _pwm_volt_sel;
+#endif
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS
     AP_Int8 _sdcard_slowdown;
 #endif
+
+    AP_Int16 _boot_delay_ms;
+
+    AP_Int32 _options;
 };

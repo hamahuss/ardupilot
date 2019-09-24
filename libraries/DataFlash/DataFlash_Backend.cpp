@@ -369,5 +369,34 @@ bool DataFlash_Backend::Log_Write_MessageF(const char *fmt, ...)
     hal.util->vsnprintf(msg, sizeof(msg), fmt, ap);
     va_end(ap);
 
+<<<<<<< HEAD:libraries/DataFlash/DataFlash_Backend.cpp
     return Log_Write_Message(msg);
+=======
+    return Write_Message(msg);
+}
+
+// Write rally points
+bool AP_Logger_Backend::Write_RallyPoint(uint8_t total,
+                                         uint8_t sequence,
+                                         const RallyLocation &rally_point)
+{
+    const struct log_Rally pkt_rally{
+        LOG_PACKET_HEADER_INIT(LOG_RALLY_MSG),
+        time_us         : AP_HAL::micros64(),
+        total           : total,
+        sequence        : sequence,
+        latitude        : rally_point.lat,
+        longitude       : rally_point.lng,
+        altitude        : rally_point.alt
+    };
+    return WriteBlock(&pkt_rally, sizeof(pkt_rally));
+}
+
+// Write rally points
+void AP_Logger_Backend::Write_Rally()
+{
+    LoggerMessageWriter_WriteAllRallyPoints writer;
+    writer.set_logger_backend(this);
+    writer.process();
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_Backend.cpp
 }

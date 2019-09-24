@@ -2,6 +2,8 @@
 
 #include <float.h>
 
+#include <AP_InternalError/AP_InternalError.h>
+
 /*
  * is_equal(): Integer implementation, provided for convenience and
  * compatibility with old code. Expands to the same as comparing the values
@@ -30,7 +32,12 @@ is_equal(const Arithmetic1 v_1, const Arithmetic2 v_2)
         return fabs(v_1 - v_2) < std::numeric_limits<double>::epsilon();
     }
 #endif
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wabsolute-value"
+    // clang doesn't realise we catch the double case above and warns
+    // about loss of precision here.
     return fabsf(v_1 - v_2) < std::numeric_limits<float>::epsilon();
+#pragma clang diagnostic pop
 }
 
 template bool is_equal<int>(const int v_1, const int v_2);
@@ -76,7 +83,7 @@ template float safe_sqrt<float>(const float v);
 template float safe_sqrt<double>(const double v);
 
 /*
-  linear interpolation based on a variable in a range
+ * linear interpolation based on a variable in a range
  */
 float linear_interpolate(float low_output, float high_output,
                          float var_value,
@@ -92,61 +99,83 @@ float linear_interpolate(float low_output, float high_output,
     return low_output + p * (high_output - low_output);
 }
 
+/* cubic "expo" curve generator
+ * alpha range: [0,1] min to max expo
+ * input range: [-1,1]
+ */
+float expo_curve(float alpha, float x)
+{
+    return (1.0f - alpha) * x + alpha * x * x * x;
+}
+
+/* throttle curve generator
+ * thr_mid: output at mid stick
+ * alpha: expo coefficient
+ * thr_in: [0-1]
+ */
+float throttle_curve(float thr_mid, float alpha, float thr_in)
+{
+    float alpha2 = alpha + 1.25 * (1.0f - alpha) * (0.5f - thr_mid) / 0.5f;
+    alpha2 = constrain_float(alpha2, 0.0f, 1.0f);
+    float thr_out = 0.0f;
+    if (thr_in < 0.5f) {
+        float t = linear_interpolate(-1.0f, 0.0f, thr_in, 0.0f, 0.5f);
+        thr_out = linear_interpolate(0.0f, thr_mid, expo_curve(alpha, t), -1.0f, 0.0f);
+    } else {
+        float t = linear_interpolate(0.0f, 1.0f, thr_in, 0.5f, 1.0f);
+        thr_out = linear_interpolate(thr_mid, 1.0f, expo_curve(alpha2, t), 0.0f, 1.0f);
+    }
+    return thr_out;
+}
+
 template <typename T>
-float wrap_180(const T angle, float unit_mod)
+T wrap_180(const T angle, T unit_mod)
 {
     auto res = wrap_360(angle, unit_mod);
-    if (res > 180.f * unit_mod) {
-        res -= 360.f * unit_mod;
+    if (res > T(180) * unit_mod) {
+        res -= T(360) * unit_mod;
     }
     return res;
 }
 
-template float wrap_180<int>(const int angle, float unit_mod);
-template float wrap_180<short>(const short angle, float unit_mod);
+template int wrap_180<int>(const int angle, int unit_mod);
+template short wrap_180<short>(const short angle, short unit_mod);
 template float wrap_180<float>(const float angle, float unit_mod);
-template float wrap_180<double>(const double angle, float unit_mod);
+#ifdef ALLOW_DOUBLE_MATH_FUNCTIONS
+template double wrap_180<double>(const double angle, double unit_mod);
+#endif
 
-template <typename T>
-auto wrap_180_cd(const T angle) -> decltype(wrap_180(angle, 100.f))
+float wrap_360(const float angle, float unit_mod)
 {
-    return wrap_180(angle, 100.f);
-}
-
-template auto wrap_180_cd<float>(const float angle) -> decltype(wrap_180(angle, 100.f));
-template auto wrap_180_cd<int>(const int angle) -> decltype(wrap_180(angle, 100.f));
-template auto wrap_180_cd<long>(const long angle) -> decltype(wrap_180(angle, 100.f));
-template auto wrap_180_cd<short>(const short angle) -> decltype(wrap_180(angle, 100.f));
-template auto wrap_180_cd<double>(const double angle) -> decltype(wrap_360(angle, 100.f));
-
-template <typename T>
-float wrap_360(const T angle, float unit_mod)
-{
-    const float ang_360 = 360.f * unit_mod;
-    float res = fmodf(static_cast<float>(angle), ang_360);
+    const auto ang_360 = float(360) * unit_mod;
+    auto res = fmodf(angle, ang_360);
     if (res < 0) {
         res += ang_360;
     }
     return res;
 }
 
-template float wrap_360<int>(const int angle, float unit_mod);
-template float wrap_360<short>(const short angle, float unit_mod);
-template float wrap_360<long>(const long angle, float unit_mod);
-template float wrap_360<float>(const float angle, float unit_mod);
-template float wrap_360<double>(const double angle, float unit_mod);
-
-template <typename T>
-auto wrap_360_cd(const T angle) -> decltype(wrap_360(angle, 100.f))
+#ifdef ALLOW_DOUBLE_MATH_FUNCTIONS
+double wrap_360(const double angle, double unit_mod)
 {
-    return wrap_360(angle, 100.f);
+    const auto ang_360 = double(360) * unit_mod;
+    auto res = fmod(angle, ang_360);
+    if (res < 0) {
+        res += ang_360;
+    }
+    return res;
 }
+#endif
 
-template auto wrap_360_cd<float>(const float angle) -> decltype(wrap_360(angle, 100.f));
-template auto wrap_360_cd<int>(const int angle) -> decltype(wrap_360(angle, 100.f));
-template auto wrap_360_cd<long>(const long angle) -> decltype(wrap_360(angle, 100.f));
-template auto wrap_360_cd<short>(const short angle) -> decltype(wrap_360(angle, 100.f));
-template auto wrap_360_cd<double>(const double angle) -> decltype(wrap_360(angle, 100.f));
+int wrap_360(const int angle, int unit_mod)
+{
+    const int ang_360 = 360 * unit_mod;
+    int res = angle % ang_360;
+    if (res < 0) {
+        res += ang_360;
+    }
+    return res;
+}
 
 template <typename T>
 float wrap_PI(const T radian)
@@ -185,6 +214,7 @@ T constrain_value(const T amt, const T low, const T high)
     // errors through any function that uses constrain_value(). The normal
     // float semantics already handle -Inf and +Inf
     if (isnan(amt)) {
+        AP::internalerror().error(AP_InternalError::error_t::constraining_nan);
         return (low + high) / 2;
     }
 

@@ -98,5 +98,4 @@ private:
     uint8_t num_instances:2;
 
     void detect_instance(uint8_t instance);
-    void update_instance(uint8_t instance);
 };

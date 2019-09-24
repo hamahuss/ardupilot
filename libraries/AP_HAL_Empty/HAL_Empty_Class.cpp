@@ -21,6 +21,7 @@ static RCOutput rcoutDriver;
 static Scheduler schedulerInstance;
 static Util utilInstance;
 static OpticalFlow opticalFlowDriver;
+static Flash flashDriver;
 
 HAL_Empty::HAL_Empty() :
     AP_HAL::HAL(
@@ -31,6 +32,7 @@ HAL_Empty::HAL_Empty() :
         nullptr,            /* no uartE */
         nullptr,            /* no uartF */
         nullptr,            /* no uartG */
+        nullptr,            /* no uartH */
         &spiDeviceManager,
         &analogIn,
         &storageDriver,
@@ -40,8 +42,13 @@ HAL_Empty::HAL_Empty() :
         &rcoutDriver,
         &schedulerInstance,
         &utilInstance,
+<<<<<<< HEAD
         &opticalFlowDriver),
     _member(new EmptyPrivateMember(123))
+=======
+        &opticalFlowDriver,
+        &flashDriver)
+>>>>>>> upstream/master
 {}
 
 void HAL_Empty::run(int argc, char* const argv[], Callbacks* callbacks) const

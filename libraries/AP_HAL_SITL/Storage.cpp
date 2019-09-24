@@ -7,7 +7,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+<<<<<<< HEAD
 #include "Storage.h"
+=======
+#include <stdio.h>
+
+>>>>>>> upstream/master
 using namespace HALSITL;
 
 void EEPROMStorage::_eeprom_open(void)

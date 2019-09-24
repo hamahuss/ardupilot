@@ -31,9 +31,25 @@
 #include <uavcan/equipment/esc/RawCommand.hpp>
 #include <uavcan/equipment/indication/LightsCommand.hpp>
 #include <uavcan/equipment/indication/SingleLightCommand.hpp>
+#include <uavcan/equipment/indication/BeepCommand.hpp>
 #include <uavcan/equipment/indication/RGB565.hpp>
+#include <ardupilot/indication/SafetyState.hpp>
+#include <ardupilot/indication/Button.hpp>
 
+<<<<<<< HEAD
 #include <uavcan/equipment/power/BatteryInfo.hpp>
+=======
+#include <AP_Baro/AP_Baro_UAVCAN.h>
+#include <AP_RangeFinder/AP_RangeFinder_UAVCAN.h>
+#include <AP_GPS/AP_GPS_UAVCAN.h>
+#include <AP_BattMonitor/AP_BattMonitor_UAVCAN.h>
+#include <AP_Compass/AP_Compass_UAVCAN.h>
+#include <AP_Airspeed/AP_Airspeed_UAVCAN.h>
+#include <SRV_Channel/SRV_Channel.h>
+#include <AP_OpticalFlow/AP_OpticalFlow_HereFlow.h>
+
+#define LED_DELAY_US 50000
+>>>>>>> upstream/master
 
 extern const AP_HAL::HAL& hal;
 
@@ -362,6 +378,13 @@ static void (*battery_info_st_cb_arr[2])(const uavcan::ReceivedDataStructure<uav
 static uavcan::Publisher<uavcan::equipment::actuator::ArrayCommand>* act_out_array[MAX_NUMBER_OF_CAN_DRIVERS];
 static uavcan::Publisher<uavcan::equipment::esc::RawCommand>* esc_raw[MAX_NUMBER_OF_CAN_DRIVERS];
 static uavcan::Publisher<uavcan::equipment::indication::LightsCommand>* rgb_led[MAX_NUMBER_OF_CAN_DRIVERS];
+static uavcan::Publisher<uavcan::equipment::indication::BeepCommand>* buzzer[MAX_NUMBER_OF_CAN_DRIVERS];
+static uavcan::Publisher<ardupilot::indication::SafetyState>* safety_state[MAX_NUMBER_OF_CAN_DRIVERS];
+
+// subscribers
+// handler SafteyButton
+UC_REGISTRY_BINDER(ButtonCb, ardupilot::indication::Button);
+static uavcan::Subscriber<ardupilot::indication::Button, ButtonCb> *safety_button_listener[MAX_NUMBER_OF_CAN_DRIVERS];
 
 AP_UAVCAN::AP_UAVCAN() :
     _node_allocator(
@@ -497,6 +520,7 @@ bool AP_UAVCAN::try_init(void)
         return false;
     }
 
+<<<<<<< HEAD
     uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength> *magnetic;
     magnetic = new uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength>(*node);
     const int magnetic_start_res = magnetic->start(magnetic_cb_arr[_uavcan_i]);
@@ -504,6 +528,20 @@ bool AP_UAVCAN::try_init(void)
         debug_uavcan(1, "UAVCAN Compass subscriber start problem\n\r");
         return false;
     }
+=======
+    //Start Servers
+#ifdef HAS_UAVCAN_SERVERS
+    _servers.init(*_node);
+#endif
+    // Roundup all subscribers from supported drivers
+    AP_GPS_UAVCAN::subscribe_msgs(this);
+    AP_Compass_UAVCAN::subscribe_msgs(this);
+    AP_Baro_UAVCAN::subscribe_msgs(this);
+    AP_BattMonitor_UAVCAN::subscribe_msgs(this);
+    AP_Airspeed_UAVCAN::subscribe_msgs(this);
+    AP_OpticalFlow_HereFlow::subscribe_msgs(this);
+    AP_RangeFinder_UAVCAN::subscribe_msgs(this);
+>>>>>>> upstream/master
 
     uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength2> *magnetic2;
     magnetic2 = new uavcan::Subscriber<uavcan::equipment::ahrs::MagneticFieldStrength2>(*node);
@@ -549,6 +587,19 @@ bool AP_UAVCAN::try_init(void)
     rgb_led[_uavcan_i]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));
     rgb_led[_uavcan_i]->setPriority(uavcan::TransferPriority::OneHigherThanLowest);
 
+    buzzer[driver_index] = new uavcan::Publisher<uavcan::equipment::indication::BeepCommand>(*_node);
+    buzzer[driver_index]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));
+    buzzer[driver_index]->setPriority(uavcan::TransferPriority::OneHigherThanLowest);
+
+    safety_state[driver_index] = new uavcan::Publisher<ardupilot::indication::SafetyState>(*_node);
+    safety_state[driver_index]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));
+    safety_state[driver_index]->setPriority(uavcan::TransferPriority::OneHigherThanLowest);
+
+    safety_button_listener[driver_index] = new uavcan::Subscriber<ardupilot::indication::Button, ButtonCb>(*_node);
+    if (safety_button_listener[driver_index]) {
+        safety_button_listener[driver_index]->start(ButtonCb(this, &handle_button));
+    }
+
     _led_conf.devices_count = 0;
 
     /*
@@ -566,7 +617,54 @@ bool AP_UAVCAN::try_init(void)
 
 void AP_UAVCAN::SRV_sem_take()
 {
+<<<<<<< HEAD
     SRV_sem->take_blocking();
+=======
+    while (true) {
+        if (!_initialized) {
+            hal.scheduler->delay_microseconds(1000);
+            continue;
+        }
+
+        const int error = _node->spin(uavcan::MonotonicDuration::fromMSec(1));
+
+        if (error < 0) {
+            hal.scheduler->delay_microseconds(100);
+            continue;
+        }
+
+        if (_SRV_armed) {
+            bool sent_servos = false;
+
+            if (_servo_bm > 0) {
+                // if we have any Servos in bitmask
+                uint32_t now = AP_HAL::micros();
+                const uint32_t servo_period_us = 1000000UL / unsigned(_servo_rate_hz.get());
+                if (now - _SRV_last_send_us >= servo_period_us) {
+                    _SRV_last_send_us = now;
+                    SRV_send_actuator();
+                    sent_servos = true;
+                    for (uint8_t i = 0; i < UAVCAN_SRV_NUMBER; i++) {
+                        _SRV_conf[i].servo_pending = false;
+                    }
+                }
+            }
+
+            // if we have any ESC's in bitmask
+            if (_esc_bm > 0 && !sent_servos) {
+                SRV_send_esc();
+            }
+
+            for (uint8_t i = 0; i < UAVCAN_SRV_NUMBER; i++) {
+                _SRV_conf[i].esc_pending = false;
+            }
+        }
+
+        led_out_send();
+        buzzer_send();
+        safety_state_send();
+    }
+>>>>>>> upstream/master
 }
 
 void AP_UAVCAN::SRV_sem_give()
@@ -1417,12 +1515,82 @@ bool AP_UAVCAN::led_write(uint8_t led_index, uint8_t red, uint8_t green, uint8_t
     return true;
 }
 
+<<<<<<< HEAD
 AP_UAVCAN *AP_UAVCAN::get_uavcan(uint8_t iface)
 {
     if (iface >= MAX_NUMBER_OF_CAN_INTERFACES || !hal.can_mgr[iface]) {
         return nullptr;
     }
     return hal.can_mgr[iface]->get_UAVCAN();
+=======
+// buzzer send
+void AP_UAVCAN::buzzer_send()
+{
+    uavcan::equipment::indication::BeepCommand msg;
+    WITH_SEMAPHORE(_buzzer.sem);
+    uint8_t mask = (1U << _driver_index);
+    if ((_buzzer.pending_mask & mask) == 0) {
+        return;
+    }
+    _buzzer.pending_mask &= ~mask;
+    msg.frequency = _buzzer.frequency;
+    msg.duration = _buzzer.duration;
+    buzzer[_driver_index]->broadcast(msg);
+}
+
+// buzzer support
+void AP_UAVCAN::set_buzzer_tone(float frequency, float duration_s)
+{
+    WITH_SEMAPHORE(_buzzer.sem);
+    _buzzer.frequency = frequency;
+    _buzzer.duration = duration_s;
+    _buzzer.pending_mask = 0xFF;
+}
+
+// SafetyState send
+void AP_UAVCAN::safety_state_send()
+{
+    ardupilot::indication::SafetyState msg;
+    uint32_t now = AP_HAL::millis();
+    if (now - _last_safety_state_ms < 500) {
+        // update at 2Hz
+        return;
+    }
+    _last_safety_state_ms = now;
+    switch (hal.util->safety_switch_state()) {
+    case AP_HAL::Util::SAFETY_ARMED:
+        msg.status = ardupilot::indication::SafetyState::STATUS_SAFETY_OFF;
+        break;
+    case AP_HAL::Util::SAFETY_DISARMED:
+        msg.status = ardupilot::indication::SafetyState::STATUS_SAFETY_ON;
+        break;
+    default:
+        // nothing to send
+        return;
+    }
+    safety_state[_driver_index]->broadcast(msg);
+}
+
+/*
+  handle Button message
+ */
+void AP_UAVCAN::handle_button(AP_UAVCAN* ap_uavcan, uint8_t node_id, const ButtonCb &cb)
+{
+    switch (cb.msg->button) {
+    case ardupilot::indication::Button::BUTTON_SAFETY: {
+        AP_BoardConfig *brdconfig = AP_BoardConfig::get_singleton();
+        if (brdconfig && brdconfig->safety_button_handle_pressed(cb.msg->press_time)) {
+            AP_HAL::Util::safety_state state = hal.util->safety_switch_state();
+            if (state == AP_HAL::Util::SAFETY_ARMED) {
+                hal.rcout->force_safety_on();
+            } else {
+                hal.rcout->force_safety_off();
+            }
+        }
+        break;
+    }
+    }
+>>>>>>> upstream/master
 }
 
 #endif // HAL_WITH_UAVCAN

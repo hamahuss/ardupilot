@@ -20,8 +20,11 @@ public:
     float voltage_average_ratiometric() {
         return voltage_average();
     }
+<<<<<<< HEAD
     void set_stop_pin(uint8_t pin) {}
     void set_settle_time(uint16_t settle_time_ms) {}
+=======
+>>>>>>> upstream/master
 
 private:
     SITL_State *_sitlState;

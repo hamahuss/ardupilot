@@ -22,6 +22,12 @@
 #include <AP_Math/AP_Math.h>
 #include <stdio.h>
 
+#ifdef HAL_NO_GCS
+#define GCS_SEND_TEXT(severity, format, args...)
+#else
+#define GCS_SEND_TEXT(severity, format, args...) gcs().send_text(severity, format, ##args)
+#endif
+
 #define REG_COMPANY_ID      0x00
 #define REG_DEVICE_ID       0x01
 #define REG_ST1             0x10
@@ -68,6 +74,7 @@ AP_Compass_Backend *AP_Compass_AK09916::probe(Compass &compass,
 }
 
 
+<<<<<<< HEAD
 /*
   probe for AK09916 connected via an ICM20948
  */
@@ -76,6 +83,54 @@ AP_Compass_Backend *AP_Compass_AK09916::probe_ICM20948(Compass &compass,
                                                        AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev_icm,
                                                        bool force_external,
                                                        enum Rotation rotation)
+=======
+        if (!dev_icm->write_register(REG_ICM_PWR_MGMT_1, 0x00)) {
+            goto fail;
+        }
+        hal.scheduler->delay(10);
+        
+        // see if ICM20948 is sleeping
+        if (!dev_icm->read_registers(REG_ICM_PWR_MGMT_1, &rval, 1)) {
+            goto fail;
+        }
+        if ((rval & 0x40) == 0) {
+            break;
+        }
+    } while (retries--);
+    
+    if (rval & 0x40) {
+        // it didn't come out of sleep
+        goto fail;
+    }
+
+    // initially force i2c bypass off
+    dev_icm->write_register(REG_ICM_INT_PIN_CFG, 0x00);
+    hal.scheduler->delay(1);
+
+    // now check if a AK09916 shows up on the bus. If it does then
+    // we have both a real AK09916 and a ICM20948 with an embedded
+    // AK09916. In that case we will fail the driver load and use
+    // the main AK09916 driver
+    if (dev->read_registers(REG_COMPANY_ID, (uint8_t *)&whoami, 2)) {
+        // a device is replying on the AK09916 I2C address, don't
+        // load the ICM20948
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO, "ICM20948: AK09916 bus conflict\n");
+        goto fail;
+    }
+
+    // now force bypass on
+    dev_icm->write_register(REG_ICM_INT_PIN_CFG, 0x02);
+    hal.scheduler->delay(1);
+    dev->get_semaphore()->give();
+    return probe(std::move(dev), force_external, rotation);
+fail:
+    dev->get_semaphore()->give();
+    return nullptr;
+}
+
+AP_Compass_Backend *AP_Compass_AK09916::probe_ICM20948(uint8_t inv2_instance,
+                                                     enum Rotation rotation)
+>>>>>>> upstream/master
 {
     if (!dev || !dev_icm) {
         return nullptr;
@@ -106,6 +161,7 @@ AP_Compass_AK09916::AP_Compass_AK09916(Compass &compass,
 {
 }
 
+<<<<<<< HEAD
 bool AP_Compass_AK09916::init()
 {
     if (!dev->get_semaphore()->take(HAL_SEMAPHORE_BLOCK_FOREVER)) {
@@ -175,6 +231,37 @@ bool AP_Compass_AK09916::init()
     }
 
     dev->setup_checked_registers(2);
+=======
+    if (!bus_sem || !_bus->get_semaphore()->take(HAL_SEMAPHORE_BLOCK_FOREVER)) {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO,"AK09916: Unable to get bus semaphore\n");
+        return false;
+    }
+
+    if (!_bus->configure()) {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO,"AK09916: Could not configure the bus\n");
+        goto fail;
+    }
+
+    if (!_reset()) {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO,"AK09916: Reset Failed\n");
+        goto fail;
+    }
+
+    if (!_check_id()) {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO,"AK09916: Wrong id\n");
+        goto fail;
+    }
+
+    if (!_setup_mode()) {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO,"AK09916: Could not setup mode\n");
+        goto fail;
+    }
+
+    if (!_bus->start_measurements()) {
+        GCS_SEND_TEXT(MAV_SEVERITY_INFO,"AK09916: Could not start measurements\n");
+        goto fail;
+    }
+>>>>>>> upstream/master
 
     dev->write_register(REG_CNTL2, 0x08, true); // continuous 100Hz
     dev->write_register(REG_CNTL3, 0x00, true);

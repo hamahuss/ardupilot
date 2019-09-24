@@ -23,7 +23,10 @@
 #include <AP_Param/AP_Param.h>
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <AP_SpdHgtControl/AP_SpdHgtControl.h>
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+>>>>>>> upstream/master
 #include <AP_Landing/AP_Landing.h>
 #include <AP_Soaring/AP_Soaring.h>
 
@@ -171,6 +174,11 @@ private:
     AP_Int8  _pitch_min;
     AP_Int8  _land_pitch_max;
     AP_Float _maxSinkRate_approach;
+    AP_Int32 _options;
+
+    enum {
+        OPTION_GLIDER_ONLY=(1<<0),
+    };
 
     // temporary _pitch_max_limit. Cleared on each loop. Clear when >= 90
     int8_t _pitch_max_limit = 90;
@@ -226,9 +234,8 @@ private:
     float _TASmax;
     float _TASmin;
 
-    // Current and last true airspeed demand
+    // Current true airspeed demand
     float _TAS_dem;
-    float _TAS_dem_last;
 
     // Equivalent airspeed demand
     float _EAS_dem;
@@ -318,6 +325,8 @@ private:
     float _path_proportion;
 
     float _distance_beyond_land_wp;
+
+    float _land_pitch_min = -90;
 
     // internal variables to be logged
     struct {

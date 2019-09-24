@@ -90,7 +90,15 @@ bool SoftSigReader::attach_capture_timer(ICUDriver* icu_drv, icuchannel_t chan, 
 void SoftSigReader::_irq_handler(void* self, uint32_t flags)
 {
     SoftSigReader* sig_reader = (SoftSigReader*)self;
+<<<<<<< HEAD
     sig_reader->sigbuf.push(sig_reader->signal, sig_reader->_bounce_buf_size);
+=======
+    // we need to restart the DMA as quickly as possible to prevent losing pulses, so we
+    // make a fixed length copy to a 2nd buffer. On the F100 this reduces the time with DMA
+    // disabled from 20us to under 1us
+    stm32_cacheBufferInvalidate(sig_reader->signal, SOFTSIG_BOUNCE_BUF_SIZE*4);
+    memcpy(sig_reader->signal2, sig_reader->signal, SOFTSIG_BOUNCE_BUF_SIZE*4);
+>>>>>>> upstream/master
     //restart the DMA transfers
     dmaStreamSetMemory0(sig_reader->dma, sig_reader->signal);
     dmaStreamSetTransactionSize(sig_reader->dma, sig_reader->_bounce_buf_size);

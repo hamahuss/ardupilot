@@ -15,6 +15,7 @@
 
 #include "AP_GPS.h"
 #include "GPS_Backend.h"
+#include <AP_Logger/AP_Logger.h>
 
 #define GPS_BACKEND_DEBUGGING 0
 
@@ -158,16 +159,30 @@ void AP_GPS_Backend::_detection_message(char *buffer, const uint8_t buflen) cons
 
 void AP_GPS_Backend::broadcast_gps_type() const
 {
+<<<<<<< HEAD
     char buffer[64];
+=======
+#ifndef HAL_NO_GCS
+    char buffer[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1];
+>>>>>>> upstream/master
     _detection_message(buffer, sizeof(buffer));
-    gcs().send_text(MAV_SEVERITY_INFO, buffer);
+    gcs().send_text(MAV_SEVERITY_INFO, "%s", buffer);
+#endif
 }
 
 void AP_GPS_Backend::Write_DataFlash_Log_Startup_messages() const
 {
+<<<<<<< HEAD
     char buffer[64];
     _detection_message(buffer, sizeof(buffer));
     DataFlash_Class::instance()->Log_Write_Message(buffer);
+=======
+#ifndef HAL_NO_LOGGING
+    char buffer[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1];
+    _detection_message(buffer, sizeof(buffer));
+    AP::logger().Write_Message(buffer);
+#endif
+>>>>>>> upstream/master
 }
 
 bool AP_GPS_Backend::should_df_log() const
@@ -178,6 +193,7 @@ bool AP_GPS_Backend::should_df_log() const
 
 void AP_GPS_Backend::send_mavlink_gps_rtk(mavlink_channel_t chan)
 {
+#ifndef HAL_NO_GCS
     const uint8_t instance = state.instance;
     // send status
     switch (instance) {
@@ -214,5 +230,6 @@ void AP_GPS_Backend::send_mavlink_gps_rtk(mavlink_channel_t chan)
                                  state.rtk_iar_num_hypotheses);
             break;
     }
+#endif
 }
 

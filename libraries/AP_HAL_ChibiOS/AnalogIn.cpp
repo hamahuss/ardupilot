@@ -30,11 +30,10 @@ extern AP_IOMCU iomcu;
 #include "hwdef/common/stm32_util.h"
 
 #ifndef CHIBIOS_ADC_MAVLINK_DEBUG
+#include <GCS_MAVLink/GCS_MAVLink.h>
 // this allows the first 6 analog channels to be reported by mavlink for debugging purposes
 #define CHIBIOS_ADC_MAVLINK_DEBUG 0
 #endif
-
-#include <GCS_MAVLink/GCS_MAVLink.h>
 
 #define ANLOGIN_DEBUGGING 0
 
@@ -191,9 +190,15 @@ void AnalogSource::_add_value(float v, float vcc5V)
  */
 void AnalogIn::adccallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
+<<<<<<< HEAD
     if (buffer != samples) {
         return;
     }
+=======
+    const adcsample_t *buffer = samples;
+
+    stm32_cacheBufferInvalidate(buffer, sizeof(adcsample_t)*ADC_DMA_BUF_DEPTH*ADC_GRP1_NUM_CHANNELS);
+>>>>>>> upstream/master
     for (uint8_t i = 0; i < ADC_DMA_BUF_DEPTH; i++) {
         for (uint8_t j = 0; j < ADC_GRP1_NUM_CHANNELS; j++) { 
             sample_sum[j] += *buffer++;
@@ -285,6 +290,11 @@ void AnalogIn::_timer_tick(void)
             _board_voltage = buf_adc[i] * pin_config[i].scaling;
         }
 #endif
+#ifdef FMU_SERVORAIL_ADC_CHAN
+        if (pin_config[i].channel == FMU_SERVORAIL_ADC_CHAN) {
+           _servorail_voltage = buf_adc[i] * pin_config[i].scaling;
+        }
+#endif
     }
 
 #if HAL_WITH_IO_MCU
@@ -356,10 +366,19 @@ void AnalogIn::update_power_flags(void)
     if (!palReadLine(HAL_GPIO_PIN_VDD_SERVO_VALID)) {
         flags |= MAV_POWER_STATUS_SERVO_VALID;
     }
+#elif defined(HAL_GPIO_PIN_VDD_BRICK2_VALID)
+    // some boards defined BRICK2 instead of servo valid
+    if (!palReadLine(HAL_GPIO_PIN_VDD_BRICK2_VALID)) {
+        flags |= MAV_POWER_STATUS_SERVO_VALID;
+    }
 #endif
-    
+
 #ifdef HAL_GPIO_PIN_VBUS
 	if (palReadLine(HAL_GPIO_PIN_VBUS)) {
+        flags |= MAV_POWER_STATUS_USB_CONNECTED;
+    }
+#elif defined(HAL_GPIO_PIN_nVBUS)
+    if (!palReadLine(HAL_GPIO_PIN_nVBUS)) {
         flags |= MAV_POWER_STATUS_USB_CONNECTED;
     }
 #endif

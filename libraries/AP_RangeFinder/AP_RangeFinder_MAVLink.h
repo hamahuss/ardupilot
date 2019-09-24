@@ -20,7 +20,11 @@ public:
     void update(void);
 
     // Get update from mavlink
+<<<<<<< HEAD
     void handle_msg(mavlink_message_t *msg);
+=======
+    void handle_msg(const mavlink_message_t &msg) override;
+>>>>>>> upstream/master
 
 protected:
 

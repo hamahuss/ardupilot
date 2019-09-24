@@ -21,6 +21,7 @@
 #include "Display.h"
 #include "ExternalLED.h"
 #include "PCA9685LED_I2C.h"
+#include "NeoPixel.h"
 #include "NCP5623.h"
 #include "OreoLED_PX4.h"
 #include "RCOutputRGBLed.h"
@@ -31,6 +32,7 @@
 #include "DiscoLED.h"
 #include "Led_Sysfs.h"
 #include "UAVCAN_RGB_LED.h"
+#include "SITL_SFML_LED.h"
 #include <stdio.h>
 #include "AP_BoardLED2.h"
 
@@ -123,16 +125,22 @@ const AP_Param::GroupInfo AP_Notify::var_info[] = {
 
 
     // @Param: LED_OVERRIDE
+<<<<<<< HEAD
     // @DisplayName: Setup for MAVLink LED override
     // @Description: This sets up the board RGB LED for override by MAVLink. Normal notify LED control is disabled
     // @Values: 0:Disable,1:Enable
+=======
+    // @DisplayName: Specifies colour source for the RGBLed
+    // @Description: Specifies the source for the colours and brightness for the LED.  OutbackChallenge conforms to the MedicalExpress (https://uavchallenge.org/medical-express/) rules, essentially "Green" is disarmed (safe-to-approach), "Red" is armed (not safe-to-approach). Traffic light is a simplified color set, red when armed, yellow when the safety switch is not surpressing outputs (but disarmed), and green when outputs are surpressed and disarmed, the LED will blink faster if disarmed and failing arming checks.
+    // @Values: 0:Standard,1:MAVLink,2:OutbackChallenge,3:TrafficLight
+>>>>>>> upstream/master
     // @User: Advanced
     AP_GROUPINFO("LED_OVERRIDE", 2, AP_Notify, _rgb_led_override, 0),
 
     // @Param: DISPLAY_TYPE
     // @DisplayName: Type of on-board I2C display
     // @Description: This sets up the type of on-board I2C display. Disabled by default.
-    // @Values: 0:Disable,1:ssd1306,2:sh1106
+    // @Values: 0:Disable,1:ssd1306,2:sh1106,10:SITL
     // @User: Advanced
     AP_GROUPINFO("DISPLAY_TYPE", 3, AP_Notify, _display_type, 0),
 
@@ -157,10 +165,29 @@ const AP_Param::GroupInfo AP_Notify::var_info[] = {
     // @Param: LED_TYPES
     // @DisplayName: LED Driver Types
     // @Description: Controls what types of LEDs will be enabled
-    // @Bitmask: 0:Build in LED, 1:Internal ToshibaLED, 2:External ToshibaLED, 3:External PCA9685, 4:Oreo LED, 5:UAVCAN, 6:NCP5623 External, 7:NCP5623 Internal
+    // @Bitmask: 0:Build in LED, 1:Internal ToshibaLED, 2:External ToshibaLED, 3:External PCA9685, 4:Oreo LED, 5:UAVCAN, 6:NCP5623 External, 7:NCP5623 Internal, 8:NeoPixel
     // @User: Advanced
     AP_GROUPINFO("LED_TYPES", 6, AP_Notify, _led_type, BUILD_DEFAULT_LED_TYPE),
 
+<<<<<<< HEAD
+=======
+#if !defined(HAL_BUZZER_PIN)
+    // @Param: BUZZ_ON_LVL
+    // @DisplayName: Buzzer-on pin logic level
+    // @Description: Specifies pin level that indicates buzzer should play
+    // @Values: 0:LowIsOn,1:HighIsOn
+    // @User: Advanced
+    AP_GROUPINFO("BUZZ_ON_LVL", 7, AP_Notify, _buzzer_level, 1),
+#endif
+
+    // @Param: BUZZ_VOLUME
+    // @DisplayName: Buzzer volume
+    // @Description: Enable or disable the buzzer.
+    // @Range: 0 100
+    // @Units: %
+    AP_GROUPINFO("BUZZ_VOLUME", 8, AP_Notify, _buzzer_volume, 100),
+    
+>>>>>>> upstream/master
     AP_GROUPEND
 };
 
@@ -256,7 +283,13 @@ void AP_Notify::add_backends(void)
             case Notify_LED_PCA9685LED_I2C_External:
                 ADD_BACKEND(new PCA9685LED_I2C());
                 break;
+<<<<<<< HEAD
 #endif
+=======
+            case Notify_LED_NeoPixel:
+                ADD_BACKEND(new NeoPixel());
+                break;
+>>>>>>> upstream/master
             case Notify_LED_OreoLED:
                 // OreoLED's are PX4-v3 build only
 #if (CONFIG_HAL_BOARD == HAL_BOARD_PX4) && (CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_PX4_V3)
@@ -311,9 +344,17 @@ void AP_Notify::add_backends(void)
     ADD_BACKEND(new AP_ToneAlarm());
   #endif
 
+<<<<<<< HEAD
 // F4Light noise makers
 #elif CONFIG_HAL_BOARD == HAL_BOARD_F4LIGHT
     ADD_BACKEND(new Buzzer());
+=======
+#elif CONFIG_HAL_BOARD == HAL_BOARD_SITL
+    ADD_BACKEND(new AP_ToneAlarm());
+#ifdef WITH_SITL_RGBLED
+    ADD_BACKEND(new SITL_SFML_LED());
+#endif
+>>>>>>> upstream/master
 #endif // Noise makers
 
 }
@@ -343,7 +384,7 @@ void AP_Notify::update(void)
 }
 
 // handle a LED_CONTROL message
-void AP_Notify::handle_led_control(mavlink_message_t *msg)
+void AP_Notify::handle_led_control(const mavlink_message_t &msg)
 {
     for (uint8_t i = 0; i < _num_devices; i++) {
         if (_devices[i] != nullptr) {
@@ -353,11 +394,20 @@ void AP_Notify::handle_led_control(mavlink_message_t *msg)
 }
 
 // handle a PLAY_TUNE message
-void AP_Notify::handle_play_tune(mavlink_message_t *msg)
+void AP_Notify::handle_play_tune(const mavlink_message_t &msg)
 {
     for (uint8_t i = 0; i < _num_devices; i++) {
         if (_devices[i] != nullptr) {
             _devices[i]->handle_play_tune(msg);
+        }
+    }
+}
+
+void AP_Notify::play_tune(const char *tune)
+{
+    for (uint8_t i = 0; i < _num_devices; i++) {
+        if (_devices[i] != nullptr) {
+            _devices[i]->play_tune(tune);
         }
     }
 }
@@ -375,3 +425,12 @@ void AP_Notify::send_text(const char *str)
     _send_text[sizeof(_send_text)-1] = 0;
     _send_text_updated_millis = AP_HAL::millis();
 }
+
+namespace AP {
+
+AP_Notify &notify()
+{
+    return *AP_Notify::get_singleton();
+}
+
+};

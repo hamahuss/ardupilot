@@ -22,7 +22,16 @@
 
 #include "SITL.h"
 #include <AP_Terrain/AP_Terrain.h>
+<<<<<<< HEAD
 
+=======
+#include "SIM_Sprayer.h"
+#include "SIM_Gripper_Servo.h"
+#include "SIM_Gripper_EPM.h"
+#include "SIM_Parachute.h"
+#include "SIM_Precland.h"
+#include <Filter/Filter.h>
+>>>>>>> upstream/master
 
 namespace SITL {
 
@@ -33,7 +42,10 @@ class Aircraft {
     friend class Gripper_Servo;
 
 public:
-    Aircraft(const char *home_str, const char *frame_str);
+    Aircraft(const char *frame_str);
+
+    // called directly after constructor:
+    virtual void set_start_location(const Location &start_loc, const float start_yaw);
 
     /*
       structure passed in giving servo positions as PWM values in
@@ -76,6 +88,8 @@ public:
      */
     virtual void update(const struct sitl_input &input) = 0;
 
+    void update_model(const struct sitl_input &input);
+
     /* fill a sitl_fdm structure from the simulator state */
     void fill_fdm(struct sitl_fdm &fdm);
 
@@ -84,9 +98,6 @@ public:
 
     /* return normal distribution random numbers */
     static double rand_normal(double mean, double stddev);
-
-    /* parse a home location string */
-    static bool parse_home(const char *home_str, Location &loc, float &yaw_degrees);
 
     // get frame rate of model in Hz
     float get_rate_hz(void) const { return rate_hz; }
@@ -113,6 +124,11 @@ public:
 
     virtual float gross_mass() const { return mass; }
 
+    virtual void set_config(const char* config) {
+        config_ = config;
+    }
+
+
     const Location &get_location() const { return location; }
 
     const Vector3f &get_position() const { return position; }
@@ -124,6 +140,7 @@ public:
 protected:
     SITL *sitl;
     Location home;
+    bool home_is_set;
     Location location;
 
     float ground_level;
@@ -172,11 +189,17 @@ protected:
     const char *frame;
     bool use_time_sync = true;
     float last_speedup = -1.0f;
+    const char *config_ = "";
 
     // allow for AHRS_ORIENTATION
     AP_Int8 *ahrs_orientation;
+<<<<<<< HEAD
     
     enum {
+=======
+
+    enum GroundBehaviour {
+>>>>>>> upstream/master
         GROUND_BEHAVIOR_NONE = 0,
         GROUND_BEHAVIOR_NO_MOVEMENT,
         GROUND_BEHAVIOR_FWD_ONLY,
@@ -187,9 +210,6 @@ protected:
 
     AP_Terrain *terrain;
     float ground_height_difference() const;
-
-    const float FEET_TO_METERS = 0.3048f;
-    const float KNOTS_TO_METERS_PER_SECOND = 0.51444f;
 
     virtual bool on_ground() const;
 
@@ -234,7 +254,17 @@ protected:
 
     // extrapolate sensors by a given delta time in seconds
     void extrapolate_sensors(float delta_time);
+<<<<<<< HEAD
     
+=======
+
+    // update external payload/sensor dynamic
+    void update_external_payload(const struct sitl_input &input);
+
+    void add_shove_forces(Vector3f &rot_accel, Vector3f &body_accel);
+    void add_twist_forces(Vector3f &rot_accel);
+
+>>>>>>> upstream/master
 private:
     uint64_t last_time_us = 0;
     uint32_t frame_counter = 0;

@@ -20,6 +20,7 @@
  */
 #include "AP_Airspeed_SDP3X.h"
 #include <GCS_MAVLink/GCS.h>
+#include <AP_Baro/AP_Baro.h>
 
 #include <stdio.h>
 
@@ -197,6 +198,7 @@ void AP_Airspeed_SDP3X::_timer()
  */
 float AP_Airspeed_SDP3X::_correct_pressure(float press)
 {
+<<<<<<< HEAD
     float temperature;
     AP_Baro *baro = AP_Baro::get_instance();
 
@@ -205,6 +207,9 @@ float AP_Airspeed_SDP3X::_correct_pressure(float press)
     }
 
     float sign = 1;
+=======
+    float sign = 1.0f;
+>>>>>>> upstream/master
     
     // fix for tube order
     AP_Airspeed::pitot_tube_order tube_order = get_tube_order();
@@ -228,7 +233,17 @@ float AP_Airspeed_SDP3X::_correct_pressure(float press)
         return 0;
     }
 
-    get_temperature(temperature);
+    AP_Baro *baro = AP_Baro::get_singleton();
+
+    if (baro == nullptr) {
+        return press;
+    }
+
+    float temperature;
+    if (!get_temperature(temperature)) {
+        return press;
+    }
+
     float rho_air = baro->get_pressure() / (ISA_GAS_CONSTANT * (temperature + C_TO_KELVIN));
 
     /*

@@ -8,9 +8,12 @@
 
 #include <AP_Math/AP_Math.h>
 #include <AP_Common/AP_Common.h>
+<<<<<<< HEAD
 #include <AP_GPS/AP_GPS.h>
 #include <GCS_MAVLink/GCS.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
+=======
+>>>>>>> upstream/master
 #include <RC_Channel/RC_Channel.h>
 #include "AP_Mount_Backend.h"
 
@@ -25,6 +28,7 @@ public:
     AP_Mount_SToRM32(AP_Mount &frontend, AP_Mount::mount_state &state, uint8_t instance);
 
     // init - performs any required initialisation for this instance
+<<<<<<< HEAD
     virtual void init(const AP_SerialManager& serial_manager) {}
 
     // update mount position - should be called periodically
@@ -38,6 +42,21 @@ public:
 
     // status_msg - called to allow mounts to send their status to GCS using the MOUNT_STATUS message
     virtual void status_msg(mavlink_channel_t chan);
+=======
+    void init() override {}
+
+    // update mount position - should be called periodically
+    void update() override;
+
+    // has_pan_control - returns true if this mount can control it's pan (required for multicopters)
+    bool has_pan_control() const override;
+
+    // set_mode - sets mount's mode
+    void set_mode(enum MAV_MOUNT_MODE mode) override;
+
+    // send_mount_status - called to allow mounts to send their status to GCS using the MOUNT_STATUS message
+    void send_mount_status(mavlink_channel_t chan) override;
+>>>>>>> upstream/master
 
 private:
 

@@ -113,16 +113,24 @@ for FrSky SPort Passthrough
 
 class AP_Frsky_Telem {
 public:
+<<<<<<< HEAD
     AP_Frsky_Telem(AP_AHRS &ahrs, const AP_BattMonitor &battery, const RangeFinder &rng);
+=======
+    AP_Frsky_Telem();
+>>>>>>> upstream/master
 
     /* Do not allow copies */
     AP_Frsky_Telem(const AP_Frsky_Telem &other) = delete;
     AP_Frsky_Telem &operator=(const AP_Frsky_Telem&) = delete;
 
     // init - perform required initialisation
+<<<<<<< HEAD
     void init(const AP_SerialManager &serial_manager,
               const uint8_t mav_type,
               const uint32_t *ap_valuep = nullptr);
+=======
+    bool init();
+>>>>>>> upstream/master
 
     // add statustext message to FrSky lib message queue
     void queue_message(MAV_SEVERITY severity, const char *text);
@@ -141,17 +149,19 @@ public:
     // functioning correctly
     void update_sensor_status_flags(uint32_t error_mask) { _ap.sensor_status_flags = error_mask; }
 
+<<<<<<< HEAD
     static ObjectArray<mavlink_statustext_t> _statustext_queue;
 
     void set_frame_string(const char *string) { _frame_string = string; }
 
+=======
+>>>>>>> upstream/master
 private:
     AP_AHRS &_ahrs;
     const AP_BattMonitor &_battery;
     const RangeFinder &_rng;
     AP_HAL::UARTDriver *_port;                  // UART used to send data to FrSky receiver
     AP_SerialManager::SerialProtocol _protocol; // protocol used - detected using SerialManager's SERIAL#_PROTOCOL parameter
-    bool _initialised_uart;
     uint16_t _crc;
 
     const char *_frame_string;
@@ -172,6 +182,9 @@ private:
     uint32_t check_sensor_status_timer;
     uint32_t check_ekf_status_timer;
     uint8_t _paramID;
+
+    ObjectArray<mavlink_statustext_t> _statustext_queue;
+
     
     struct
     {
@@ -232,7 +245,7 @@ private:
     // main transmission function when protocol is FrSky D
     void send_D(void);
     // tick - main call to send updates to transmitter (called by scheduler at 1kHz)
-    void tick(void);
+    void loop(void);
 
     // methods related to the nuts-and-bolts of sending data
     void calc_crc(uint8_t byte);

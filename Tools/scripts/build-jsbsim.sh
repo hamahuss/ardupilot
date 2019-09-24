@@ -18,4 +18,10 @@ else
     ./autogen.sh
     make -j2
 fi
+
+if [[ ! -n $(echo $PATH | grep jsbsim) ]]; then
+    echo "Add the JSBSim executable to your PATH using - export PATH=\$PATH:~/jsbsim/build/src"
+    echo "Add the above command to ~/.bashrc to automatically set the path everytime a new terminal is launched"
+fi
+
 echo "---------- $0 end ----------"

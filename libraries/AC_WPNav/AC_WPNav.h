@@ -18,7 +18,7 @@
 #define WPNAV_WP_SPEED_MIN               20.0f      // minimum horizontal speed between waypoints in cm/s
 #define WPNAV_WP_TRACK_SPEED_MIN         50.0f      // minimum speed along track of the target point the vehicle is chasing in cm/s (used as target slows down before reaching destination)
 #define WPNAV_WP_RADIUS                 200.0f      // default waypoint radius in cm
-#define WPNAV_WP_RADIUS_MIN              10.0f      // minimum waypoint radius in cm
+#define WPNAV_WP_RADIUS_MIN               5.0f      // minimum waypoint radius in cm
 
 #define WPNAV_WP_SPEED_UP               250.0f      // default maximum climb velocity
 #define WPNAV_WP_SPEED_DOWN             150.0f      // default maximum descent velocity
@@ -51,12 +51,10 @@ public:
     /// provide pointer to terrain database
     void set_terrain(AP_Terrain* terrain_ptr) { _terrain = terrain_ptr; }
 
-    /// provide pointer to avoidance library
-    void set_avoidance(AC_Avoid* avoid_ptr) { _avoid = avoid_ptr; }
-
     /// provide rangefinder altitude
     void set_rangefinder_alt(bool use, bool healthy, float alt_cm) { _rangefinder_available = use; _rangefinder_healthy = healthy; _rangefinder_alt_cm = alt_cm; }
 
+<<<<<<< HEAD
     ///
     /// brake controller
     ///
@@ -65,6 +63,10 @@ public:
     ///
     /// update_brake - run the brake controller - should be called at 400hz
     void update_brake(float ekfGndSpdLimit, float ekfNavVelGainScaler);
+=======
+    // return true if range finder may be used for terrain following
+    bool rangefinder_used() const { return _rangefinder_use && _rangefinder_healthy; }
+>>>>>>> upstream/master
 
     ///
     /// waypoint controller
@@ -99,6 +101,9 @@ public:
     /// get origin using position vector (distance from ekf origin in cm)
     const Vector3f &get_wp_origin() const { return _origin; }
 
+    /// true if origin.z and destination.z are alt-above-terrain, false if alt-above-ekf-origin
+    bool origin_and_destination_are_terrain_alt() const { return _terrain_alt; }
+
     /// set_wp_destination waypoint using location class
     ///     returns false if conversion from location to vector from ekf origin cannot be calculated
     bool set_wp_destination(const Location_Class& destination);
@@ -106,7 +111,15 @@ public:
     // returns wp location using location class.
     // returns false if unable to convert from target vector to global
     // coordinates
+<<<<<<< HEAD
     bool get_wp_destination(Location_Class& destination);
+=======
+    bool get_wp_destination(Location& destination) const;
+
+    // returns object avoidance adjusted destination which is always the same as get_wp_destination
+    // having this function unifies the AC_WPNav_OA and AC_WPNav interfaces making vehicle code simpler
+    virtual bool get_oa_wp_destination(Location& destination) const { return get_wp_destination(destination); }
+>>>>>>> upstream/master
 
     /// set_wp_destination waypoint using position vector (distance from ekf origin in cm)
     ///     terrain_alt should be true if destination.z is a desired altitude above terrain
@@ -118,7 +131,7 @@ public:
     /// set_wp_origin_and_destination - set origin and destination waypoints using position vectors (distance from ekf origin in cm)
     ///     terrain_alt should be true if origin.z and destination.z are desired altitudes above terrain (false if these are alt-above-ekf-origin)
     ///     returns false on failure (likely caused by missing terrain data)
-    bool set_wp_origin_and_destination(const Vector3f& origin, const Vector3f& destination, bool terrain_alt = false);
+    virtual bool set_wp_origin_and_destination(const Vector3f& origin, const Vector3f& destination, bool terrain_alt = false);
 
     /// shift_wp_origin_to_current_pos - shifts the origin and destination so the origin starts at the current position
     ///     used to reset the position just before takeoff
@@ -131,19 +144,19 @@ public:
     void get_wp_stopping_point(Vector3f& stopping_point) const;
 
     /// get_wp_distance_to_destination - get horizontal distance to destination in cm
-    float get_wp_distance_to_destination() const;
+    virtual float get_wp_distance_to_destination() const;
 
     /// get_bearing_to_destination - get bearing to next waypoint in centi-degrees
-    int32_t get_wp_bearing_to_destination() const;
+    virtual int32_t get_wp_bearing_to_destination() const;
 
     /// reached_destination - true when we have come within RADIUS cm of the waypoint
-    bool reached_wp_destination() const { return _flags.reached_destination; }
+    virtual bool reached_wp_destination() const { return _flags.reached_destination; }
 
     /// set_fast_waypoint - set to true to ignore the waypoint radius and consider the waypoint 'reached' the moment the intermediate point reaches it
     void set_fast_waypoint(bool fast) { _flags.fast_waypoint = fast; }
 
     /// update_wpnav - run the wp controller - should be called at 100hz or higher
-    bool update_wpnav();
+    virtual bool update_wpnav();
 
     // check_wp_leash_length - check recalc_wp_leash flag and calls calculate_wp_leash_length() if necessary
     //  should be called after _pos_control.update_xy_controller which may have changed the position controller leash lengths
@@ -205,8 +218,8 @@ public:
     ///
 
     /// get desired roll, pitch which should be fed into stabilize controllers
-    int32_t get_roll() const { return _pos_control.get_roll(); }
-    int32_t get_pitch() const { return _pos_control.get_pitch(); }
+    float get_roll() const { return _pos_control.get_roll(); }
+    float get_pitch() const { return _pos_control.get_pitch(); }
 
     /// advance_wp_target_along_track - move target location along track from origin to destination
     bool advance_wp_target_along_track(float dt);
@@ -269,8 +282,12 @@ protected:
     const AP_AHRS_View&     _ahrs;
     AC_PosControl&          _pos_control;
     const AC_AttitudeControl& _attitude_control;
+<<<<<<< HEAD
     AP_Terrain              *_terrain = nullptr;
     AC_Avoid                *_avoid = nullptr;
+=======
+    AP_Terrain              *_terrain;
+>>>>>>> upstream/master
 
     // parameters
     AP_Float    _wp_speed_cms;          // maximum horizontal speed in cm/s during missions

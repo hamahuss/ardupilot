@@ -133,35 +133,25 @@ void AP_RSSI::init()
 // 0.0 represents weakest signal, 1.0 represents maximum signal.
 float AP_RSSI::read_receiver_rssi()
 {
-    // Default to 0 RSSI
-    float receiver_rssi = 0.0f;  
-
-    switch (rssi_type) {
-        case RssiType::RSSI_DISABLED:
-            receiver_rssi = 0.0f;
-            break;
-        case RssiType::RSSI_ANALOG_PIN:
-            receiver_rssi = read_pin_rssi();
-            break;
-        case RssiType::RSSI_RC_CHANNEL_VALUE:
-            receiver_rssi = read_channel_rssi();
-            break;
-        case RssiType::RSSI_RECEIVER: {
+    switch (RssiType(rssi_type.get())) {
+        case RssiType::TYPE_DISABLED:
+            return 0.0f;
+        case RssiType::ANALOG_PIN:
+            return read_pin_rssi();
+        case RssiType::RC_CHANNEL_VALUE:
+            return read_channel_rssi();
+        case RssiType::RECEIVER: {
             int16_t rssi = RC_Channels::get_receiver_rssi();
             if (rssi != -1) {
-                receiver_rssi = rssi / 255.0;
+                return rssi / 255.0;
             }
-            break;
+            return 0.0f;
         }
-        case RssiType::RSSI_PWM_PIN:
-            receiver_rssi = read_pwm_pin_rssi();
-            break;
-        default :   
-            receiver_rssi = 0.0f;
-            break;
-    }    
-                  
-    return receiver_rssi;
+        case RssiType::PWM_PIN:
+            return read_pwm_pin_rssi();
+    }
+    // should never get to here
+    return 0.0f;
 }
 
 // Read the receiver RSSI value as an 8-bit integer
@@ -191,6 +181,49 @@ float AP_RSSI::read_channel_rssi()
     return channel_rssi;    
 }
 
+<<<<<<< HEAD
+=======
+void AP_RSSI::check_pwm_pin_rssi()
+{
+    if (rssi_analog_pin == pwm_state.last_rssi_analog_pin) {
+        return;
+    }
+
+    // detach last one
+    if (pwm_state.last_rssi_analog_pin) {
+        if (!hal.gpio->detach_interrupt(pwm_state.last_rssi_analog_pin)) {
+            gcs().send_text(MAV_SEVERITY_WARNING,
+                            "RSSI: Failed to detach from pin %u",
+                            pwm_state.last_rssi_analog_pin);
+            // ignore this failure or the user may be stuck
+        }
+    }
+
+    pwm_state.last_rssi_analog_pin = rssi_analog_pin;
+
+    if (!rssi_analog_pin) {
+        // don't need to install handler
+        return;
+    }
+
+    // install interrupt handler on rising and falling edge
+    hal.gpio->pinMode(rssi_analog_pin, HAL_GPIO_INPUT);
+    if (!hal.gpio->attach_interrupt(
+            rssi_analog_pin,
+            FUNCTOR_BIND_MEMBER(&AP_RSSI::irq_handler,
+                                void,
+                                uint8_t,
+                                bool,
+                                uint32_t),
+            AP_HAL::GPIO::INTERRUPT_BOTH)) {
+        // failed to attach interrupt
+        gcs().send_text(MAV_SEVERITY_WARNING,
+                        "RSSI: Failed to attach to pin %u",
+                        (unsigned int)rssi_analog_pin);
+        return;
+    }
+}
+>>>>>>> upstream/master
 
 // read the PWM value from a pin
 float AP_RSSI::read_pwm_pin_rssi()

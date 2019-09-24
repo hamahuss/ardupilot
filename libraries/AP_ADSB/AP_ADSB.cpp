@@ -27,6 +27,14 @@
 #include <limits.h>
 #include <AP_Vehicle/AP_Vehicle.h>
 #include <GCS_MAVLink/GCS.h>
+<<<<<<< HEAD
+=======
+#include <AP_Logger/AP_Logger.h>
+#include <AP_GPS/AP_GPS.h>
+#include <AP_Baro/AP_Baro.h>
+#include <AP_AHRS/AP_AHRS.h>
+
+>>>>>>> upstream/master
 
 #define VEHICLE_TIMEOUT_MS              5000   // if no updates in this time, drop it from the list
 #define ADSB_VEHICLE_LIST_SIZE_DEFAULT  25
@@ -249,7 +257,7 @@ void AP_ADSB::update(void)
         }
         out_state.cfg.ICAO_id_param_prev = out_state.cfg.ICAO_id_param;
         set_callsign("PING", true);
-        gcs().send_text(MAV_SEVERITY_INFO, "ADSB: Using ICAO_id %d and Callsign %s", out_state.cfg.ICAO_id, out_state.cfg.callsign);
+        gcs().send_text(MAV_SEVERITY_INFO, "ADSB: Using ICAO_id %d and Callsign %s", (int)out_state.cfg.ICAO_id, out_state.cfg.callsign);
         out_state.last_config_ms = 0; // send now
     }
 
@@ -351,7 +359,7 @@ bool AP_ADSB::find_index(const adsb_vehicle_t &vehicle, uint16_t *index) const
  * Update the vehicle list. If the vehicle is already in the
  * list then it will update it, otherwise it will be added.
  */
-void AP_ADSB::handle_vehicle(const mavlink_message_t* packet)
+void AP_ADSB::handle_vehicle(const mavlink_message_t &packet)
 {
     if (in_state.vehicle_list == nullptr) {
         // We are only null when disabled. Updating is inhibited.
@@ -360,6 +368,7 @@ void AP_ADSB::handle_vehicle(const mavlink_message_t* packet)
 
     uint16_t index = in_state.list_size + 1; // initialize with invalid index
     adsb_vehicle_t vehicle {};
+<<<<<<< HEAD
     mavlink_msg_adsb_vehicle_decode(packet, &vehicle.info);
     Location_Class vehicle_loc = Location_Class(AP_ADSB::get_location(vehicle));
     bool my_loc_is_zero = _my_loc.is_zero();
@@ -367,6 +376,17 @@ void AP_ADSB::handle_vehicle(const mavlink_message_t* packet)
     bool out_of_range = in_state.list_radius > 0 && !my_loc_is_zero && my_loc_distance_to_vehicle > in_state.list_radius;
     bool is_tracked_in_list = find_index(vehicle, &index);
     uint32_t now = AP_HAL::millis();
+=======
+    mavlink_msg_adsb_vehicle_decode(&packet, &vehicle.info);
+    const Location vehicle_loc = AP_ADSB::get_location(vehicle);
+    const bool my_loc_is_zero = _my_loc.is_zero();
+    const float my_loc_distance_to_vehicle = _my_loc.get_distance(vehicle_loc);
+    const bool is_special = is_special_vehicle(vehicle.info.ICAO_address);
+    const bool out_of_range = in_state.list_radius > 0 && !my_loc_is_zero && my_loc_distance_to_vehicle > in_state.list_radius && !is_special;
+    const bool out_of_range_alt = in_state.list_altitude > 0 && !my_loc_is_zero && abs(vehicle_loc.alt - _my_loc.alt) > in_state.list_altitude*100 && !is_special;
+    const bool is_tracked_in_list = find_index(vehicle, &index);
+    const uint32_t now = AP_HAL::millis();
+>>>>>>> upstream/master
 
     // note the last time the receiver got a packet from the aircraft
     vehicle.last_update_ms = now - (vehicle.info.tslc * 1000);
@@ -651,10 +671,10 @@ uint8_t AP_ADSB::get_encoded_callsign_null_char()
  * This allows a GCS to send cfg info through the autopilot to the ADSB hardware.
  * This is done indirectly by reading and storing the packet and then another mechanism sends it out periodically
  */
-void AP_ADSB::handle_out_cfg(const mavlink_message_t* msg)
+void AP_ADSB::handle_out_cfg(const mavlink_message_t &msg)
 {
     mavlink_uavionix_adsb_out_cfg_t packet {};
-    mavlink_msg_uavionix_adsb_out_cfg_decode(msg, &packet);
+    mavlink_msg_uavionix_adsb_out_cfg_decode(&msg, &packet);
 
     out_state.cfg.was_set_externally = true;
 
@@ -674,7 +694,7 @@ void AP_ADSB::handle_out_cfg(const mavlink_message_t* msg)
     // guard against string with non-null end char
     char c = out_state.cfg.callsign[MAVLINK_MSG_UAVIONIX_ADSB_OUT_CFG_FIELD_CALLSIGN_LEN-1];
     out_state.cfg.callsign[MAVLINK_MSG_UAVIONIX_ADSB_OUT_CFG_FIELD_CALLSIGN_LEN-1] = 0;
-    gcs().send_text(MAV_SEVERITY_INFO, "ADSB: Using ICAO_id %d and Callsign %s", out_state.cfg.ICAO_id, out_state.cfg.callsign);
+    gcs().send_text(MAV_SEVERITY_INFO, "ADSB: Using ICAO_id %d and Callsign %s", (int)out_state.cfg.ICAO_id, out_state.cfg.callsign);
     out_state.cfg.callsign[MAVLINK_MSG_UAVIONIX_ADSB_OUT_CFG_FIELD_CALLSIGN_LEN-1] = c;
 
     // send now
@@ -719,10 +739,10 @@ void AP_ADSB::send_configure(const mavlink_channel_t chan)
  * we determine which channel is on so we don't have to send out_state to all channels
  */
 
-void AP_ADSB::handle_transceiver_report(const mavlink_channel_t chan, const mavlink_message_t* msg)
+void AP_ADSB::handle_transceiver_report(const mavlink_channel_t chan, const mavlink_message_t &msg)
 {
     mavlink_uavionix_adsb_transceiver_health_report_t packet {};
-    mavlink_msg_uavionix_adsb_transceiver_health_report_decode(msg, &packet);
+    mavlink_msg_uavionix_adsb_transceiver_health_report_decode(&msg, &packet);
 
     if (out_state.chan != chan) {
         gcs().send_text(MAV_SEVERITY_DEBUG, "ADSB: Found transceiver on channel %d", chan);
@@ -804,17 +824,17 @@ void AP_ADSB::set_callsign(const char* str, const bool append_icao)
 
 void AP_ADSB::push_sample(adsb_vehicle_t &vehicle)
 {
-    samples.push_back(vehicle);
+    samples.push(vehicle);
 }
 
 bool AP_ADSB::next_sample(adsb_vehicle_t &vehicle)
 {
-    return samples.pop_front(vehicle);
+    return samples.pop(vehicle);
 }
 
-void AP_ADSB::handle_message(const mavlink_channel_t chan, const mavlink_message_t* msg)
+void AP_ADSB::handle_message(const mavlink_channel_t chan, const mavlink_message_t &msg)
 {
-    switch (msg->msgid) {
+    switch (msg.msgid) {
     case MAVLINK_MSG_ID_ADSB_VEHICLE:
         handle_vehicle(msg);
         break;

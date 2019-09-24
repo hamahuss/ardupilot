@@ -492,5 +492,10 @@ DMA_PRIORITY USART6*
 # list of files to put in ROMFS. For fmuv3 we need an IO firmware so
 # we can automatically update the IOMCU firmware on boot. The format
 # is "ROMFS ROMFS-filename source-filename". Paths are relative to the
+<<<<<<< HEAD
 # ardupilot root
 ROMFS io_firmware.bin Tools/IO_Firmware/fmuv2_IO.bin
+=======
+# ardupilot root.
+ROMFS io_firmware.bin Tools/IO_Firmware/iofirmware_lowpolh.bin
+>>>>>>> upstream/master

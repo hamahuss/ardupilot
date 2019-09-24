@@ -16,9 +16,14 @@
 
 #include <AP_Common/AP_Common.h>
 #include <AP_HAL/AP_HAL.h>
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+#include <AP_Common/Location.h>
+#include <AP_Filesystem/AP_Filesystem.h>
+>>>>>>> upstream/master
 
-#if (HAL_OS_POSIX_IO || HAL_OS_FATFS_IO) && defined(HAL_BOARD_TERRAIN_DIRECTORY)
+#if HAVE_FILESYSTEM_SUPPORT && defined(HAL_BOARD_TERRAIN_DIRECTORY)
 #define AP_TERRAIN_AVAILABLE 1
 #else
 #define AP_TERRAIN_AVAILABLE 0
@@ -27,7 +32,6 @@
 #if AP_TERRAIN_AVAILABLE
 
 #include <AP_Param/AP_Param.h>
-#include <AP_AHRS/AP_AHRS.h>
 #include <AP_Mission/AP_Mission.h>
 #include <AP_Rally/AP_Rally.h>
 
@@ -82,6 +86,8 @@ public:
     AP_Terrain(const AP_Terrain &other) = delete;
     AP_Terrain &operator=(const AP_Terrain&) = delete;
 
+    static AP_Terrain *get_singleton(void) { return singleton; }
+
     enum TerrainStatus {
         TerrainStatusDisabled  = 0, // not enabled
         TerrainStatusUnhealthy = 1, // no terrain data for current location
@@ -101,9 +107,9 @@ public:
 
     // handle terrain data and reports from GCS
     void send_terrain_report(mavlink_channel_t chan, const Location &loc, bool extrapolate);
-    void handle_data(mavlink_channel_t chan, mavlink_message_t *msg);
-    void handle_terrain_check(mavlink_channel_t chan, mavlink_message_t *msg);
-    void handle_terrain_data(mavlink_message_t *msg);
+    void handle_data(mavlink_channel_t chan, const mavlink_message_t &msg);
+    void handle_terrain_check(mavlink_channel_t chan, const mavlink_message_t &msg);
+    void handle_terrain_data(const mavlink_message_t &msg);
 
     /*
       find the terrain height in meters above sea level for a location
@@ -419,5 +425,7 @@ private:
 
     // status
     enum TerrainStatus system_status = TerrainStatusDisabled;
+
+    static AP_Terrain *singleton;
 };
 #endif // AP_TERRAIN_AVAILABLE

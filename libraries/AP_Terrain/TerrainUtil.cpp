@@ -25,15 +25,7 @@
 
 #if AP_TERRAIN_AVAILABLE
 
-#include <assert.h>
-#include <stdio.h>
-#if HAL_OS_POSIX_IO
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#endif
-#include <sys/types.h>
-#include <errno.h>
+#include <AP_Filesystem/AP_Filesystem.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -79,7 +71,7 @@ void AP_Terrain::calculate_grid_info(const Location &loc, struct grid_info &info
     ref.lng = info.lon_degrees*10*1000*1000L;
 
     // find offset from reference
-    Vector2f offset = location_diff(ref, loc);
+    const Vector2f offset = ref.get_distance_NE(loc);
 
     // get indices in terms of grid_spacing elements
     uint32_t idx_x = offset.x / grid_spacing;

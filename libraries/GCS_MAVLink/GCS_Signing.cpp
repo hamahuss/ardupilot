@@ -63,11 +63,11 @@ bool GCS_MAVLINK::signing_key_load(struct SigningKey &key)
 /*
   handle a setup_signing message
  */
-void GCS_MAVLINK::handle_setup_signing(const mavlink_message_t *msg)
+void GCS_MAVLINK::handle_setup_signing(const mavlink_message_t &msg)
 {
     // decode
     mavlink_setup_signing_t packet;
-    mavlink_msg_setup_signing_decode(msg, &packet);
+    mavlink_msg_setup_signing_decode(&msg, &packet);
 
     struct SigningKey key;
     key.magic = SIGNING_KEY_MAGIC;
@@ -138,6 +138,7 @@ void GCS_MAVLINK::load_signing_key(void)
     for (uint8_t i=0; i<sizeof(key.secret_key); i++) {
         if (signing.secret_key[i] != 0) {
             all_zero = false;
+            break;
         }
     }
     

@@ -71,10 +71,17 @@ public:
     virtual void flush(void) { }
 #endif
 
+<<<<<<< HEAD:libraries/DataFlash/DataFlash_Backend.h
      // for Dataflash_MAVlink
     virtual void remote_log_block_status_msg(mavlink_channel_t chan,
                                              mavlink_message_t* msg) { }
     // end for Dataflash_MAVlink
+=======
+     // for Logger_MAVlink
+    virtual void remote_log_block_status_msg(const mavlink_channel_t chan,
+                                             const mavlink_message_t &msg) { }
+    // end for Logger_MAVlink
+>>>>>>> upstream/master:libraries/AP_Logger/AP_Logger_Backend.h
 
    virtual void periodic_tasks();
 

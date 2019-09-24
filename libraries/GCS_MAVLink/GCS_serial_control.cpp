@@ -20,17 +20,21 @@
 
 #include <AP_HAL/AP_HAL.h>
 #include "GCS.h"
+<<<<<<< HEAD
 #include <DataFlash/DataFlash.h>
+=======
+#include <AP_GPS/AP_GPS.h>
+>>>>>>> upstream/master
 
 extern const AP_HAL::HAL& hal;
 
 /**
    handle a SERIAL_CONTROL message
  */
-void GCS_MAVLINK::handle_serial_control(const mavlink_message_t *msg)
+void GCS_MAVLINK::handle_serial_control(const mavlink_message_t &msg)
 {
     mavlink_serial_control_t packet;
-    mavlink_msg_serial_control_decode(msg, &packet);
+    mavlink_msg_serial_control_decode(&msg, &packet);
 
     AP_HAL::UARTDriver *port = nullptr;
     AP_HAL::BetterStream *stream = nullptr;

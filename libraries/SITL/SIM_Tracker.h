@@ -27,12 +27,17 @@ namespace SITL {
  */
 class Tracker : public Aircraft {
 public:
+<<<<<<< HEAD
     Tracker(const char *home_str, const char *frame_str);
     void update(const struct sitl_input &input);
+=======
+    Tracker(const char *frame_str);
+    void update(const struct sitl_input &input) override;
+>>>>>>> upstream/master
 
     /* static object creator */
-    static Aircraft *create(const char *home_str, const char *frame_str) {
-        return new Tracker(home_str, frame_str);
+    static Aircraft *create(const char *frame_str) {
+        return new Tracker(frame_str);
     }
 
 private:

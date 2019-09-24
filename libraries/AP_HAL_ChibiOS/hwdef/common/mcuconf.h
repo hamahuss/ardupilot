@@ -35,6 +35,7 @@
 // include generated config
 #include "hwdef.h"
 
+<<<<<<< HEAD
 #pragma once
 /*
  * STM32F4xx drivers configuration.
@@ -285,6 +286,16 @@
  */
 #ifndef STM32_PWM_USE_ADVANCED
 #define STM32_PWM_USE_ADVANCED              FALSE
+=======
+#if defined(STM32F1)
+#include "stm32f1_mcuconf.h"
+#elif defined(STM32F4) || defined(STM32F7)
+#include "stm32f47_mcuconf.h"
+#elif defined(STM32H7)
+#include "stm32h7_mcuconf.h"
+#else
+#error "Unsupported MCU"
+>>>>>>> upstream/master
 #endif
 #define STM32_PWM_TIM1_IRQ_PRIORITY         7
 #define STM32_PWM_TIM2_IRQ_PRIORITY         7

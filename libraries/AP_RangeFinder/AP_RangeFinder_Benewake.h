@@ -15,12 +15,16 @@ public:
 
     // constructor
     AP_RangeFinder_Benewake(RangeFinder::RangeFinder_State &_state,
+<<<<<<< HEAD
                             AP_SerialManager &serial_manager,
+=======
+                            AP_RangeFinder_Params &_params,
+>>>>>>> upstream/master
                             uint8_t serial_instance,
                             benewake_model_type model);
 
     // static detection function
-    static bool detect(AP_SerialManager &serial_manager, uint8_t serial_instance);
+    static bool detect(uint8_t serial_instance);
 
     // update state
     void update(void);

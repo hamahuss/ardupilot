@@ -45,7 +45,7 @@ public:
     static AP_Compass_Backend *probe(Compass &compass,
                                      AP_HAL::OwnPtr<AP_HAL::I2CDevice> dev,
 									 bool force_external,
-                                     enum Rotation rotation = ROTATION_NONE);
+                                     enum Rotation rotation);
 
     void read() override;
 

@@ -47,7 +47,27 @@
 #define AP_UAVCAN_MAX_LED_DEVICES 4
 #define AP_UAVCAN_LED_DELAY_MILLISECONDS 50
 
+<<<<<<< HEAD
 class AP_UAVCAN {
+=======
+// fwd-declare callback classes
+class ButtonCb;
+
+/*
+    Frontend Backend-Registry Binder: Whenever a message of said DataType_ from new node is received,
+    the Callback will invoke registery to register the node as separate backend.
+*/
+#define UC_REGISTRY_BINDER(ClassName_, DataType_) \
+	class ClassName_ : public AP_UAVCAN::RegistryBinder<DataType_> { \
+        typedef void (*CN_Registry)(AP_UAVCAN*, uint8_t, const ClassName_&); \
+	    public: \
+	        ClassName_() : RegistryBinder() {} \
+	        ClassName_(AP_UAVCAN* uc,  CN_Registry ffunc) : \
+				RegistryBinder(uc, (Registry)ffunc) {} \
+	}
+
+class AP_UAVCAN : public AP_HAL::CANProtocol {
+>>>>>>> upstream/master
 public:
     AP_UAVCAN();
     ~AP_UAVCAN();
@@ -75,8 +95,13 @@ public:
     // If node is not found and there are free space, locate a new one
     AP_GPS::GPS_State *find_gps_node(uint8_t node);
 
+<<<<<<< HEAD
     // Updates all listeners of specified node
     void update_gps_state(uint8_t node);
+=======
+    // buzzer
+    void set_buzzer_tone(float frequency, float duration_s);
+>>>>>>> upstream/master
 
     struct Baro_Info {
         float pressure;
@@ -251,7 +276,17 @@ private:
         }
     };
 
+<<<<<<< HEAD
     uavcan::HeapBasedPoolAllocator<UAVCAN_NODE_POOL_BLOCK_SIZE, AP_UAVCAN::RaiiSynchronizer> _node_allocator;
+=======
+    // buzzer
+    void buzzer_send();
+
+    // SafetyState
+    void safety_state_send();
+    
+    uavcan::PoolAllocator<UAVCAN_NODE_POOL_SIZE, UAVCAN_NODE_POOL_BLOCK_SIZE, AP_UAVCAN::RaiiSynchronizer> _node_allocator;
+>>>>>>> upstream/master
 
     AP_Int8 _uavcan_node;
     AP_Int32 _servo_bm;
@@ -275,10 +310,28 @@ public:
     void SRV_push_servos(void);
     bool led_write(uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue);
 
+<<<<<<< HEAD
     void set_parent_can_mgr(AP_HAL::CANManager* parent_can_mgr)
     {
         _parent_can_mgr = parent_can_mgr;
     }
+=======
+    HAL_Semaphore _led_out_sem;
+
+    // buzzer
+    struct {
+        HAL_Semaphore sem;
+        float frequency;
+        float duration;
+        uint8_t pending_mask; // mask of interfaces to send to
+    } _buzzer;
+
+    // safety status send state
+    uint32_t _last_safety_state_ms;
+
+    // safety button handling
+    static void handle_button(AP_UAVCAN* ap_uavcan, uint8_t node_id, const ButtonCb &cb);
+>>>>>>> upstream/master
 };
 
 #endif /* AP_UAVCAN_H_ */

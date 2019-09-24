@@ -4,7 +4,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Param/AP_Param.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
-#include <AP_Baro/AP_Baro.h>
+#include <AP_Math/AP_Math.h>
 
 class AP_Airspeed_Backend;
 
@@ -101,6 +101,7 @@ public:
     }
     float get_differential_pressure(void) const { return get_differential_pressure(primary); }
 
+<<<<<<< HEAD
     // return the current calibration offset
     float get_offset(uint8_t i) const {
         return param[i].offset;
@@ -125,6 +126,8 @@ public:
     }
     float get_EAS2TAS(void) const { return get_EAS2TAS(primary); }
 
+=======
+>>>>>>> upstream/master
     // update airspeed ratio calibration
     void update_calibration(const Vector3f &vground, int16_t max_airspeed_allowed_during_cal);
 
@@ -162,6 +165,12 @@ public:
         TYPE_I2C_MS5525_ADDRESS_1=4,
         TYPE_I2C_MS5525_ADDRESS_2=5,
         TYPE_I2C_SDP3X=6,
+<<<<<<< HEAD
+=======
+        TYPE_I2C_DLVR_5IN=7,
+        TYPE_UAVCAN=8,
+        TYPE_I2C_DLVR_10IN=9,
+>>>>>>> upstream/master
     };
 
     // get current primary sensor
@@ -193,7 +202,6 @@ private:
         float	last_pressure;
         float   filtered_pressure;
         float	corrected_pressure;
-        float   EAS2TAS;
         bool	healthy:1;
         bool	hil_set:1;
         float   hil_pressure;
@@ -220,8 +228,43 @@ private:
     // return the differential pressure in Pascal for the last airspeed reading for the requested instance
     // returns 0 if the sensor is not enabled
     float get_pressure(uint8_t i);
+    // return the current corrected pressure
+    float get_corrected_pressure(uint8_t i) const {
+        return state[i].corrected_pressure;
+    }
+    float get_corrected_pressure(void) const {
+        return get_corrected_pressure(primary);
+    }
+    // get the failure health probability
+    float get_health_failure_probability(uint8_t i) const {
+        return state[i].failures.health_probability;
+    }
+    float get_health_failure_probability(void) const {
+        return get_health_failure_probability(primary);
+    }
+
     void update_calibration(uint8_t i, float raw_pressure);
     void update_calibration(uint8_t i, const Vector3f &vground, int16_t max_airspeed_allowed_during_cal);
+<<<<<<< HEAD
 
     AP_Airspeed_Backend *sensor[AIRSPEED_MAX_SENSORS];
+=======
+    void send_airspeed_calibration(const Vector3f &vg);
+    // return the current calibration offset
+    float get_offset(uint8_t i) const {
+        return param[i].offset;
+    }
+    float get_offset(void) const { return get_offset(primary); }
+
+    void check_sensor_failures();
+    void check_sensor_ahrs_wind_max_failures(uint8_t i);
+
+    AP_Airspeed_Backend *sensor[AIRSPEED_MAX_SENSORS];
+
+    void Log_Airspeed();
+};
+
+namespace AP {
+    AP_Airspeed *airspeed();
+>>>>>>> upstream/master
 };

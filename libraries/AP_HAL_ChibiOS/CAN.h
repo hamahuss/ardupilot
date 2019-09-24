@@ -26,11 +26,21 @@
 #include <uavcan/uavcan.hpp>
 #include <uavcan/time.hpp>
 
+<<<<<<< HEAD
 #include <uavcan_stm32/thread.hpp>
 #include <uavcan_stm32/clock.hpp>
 #include <uavcan_stm32/can.hpp>
 
 #include <AP_UAVCAN/AP_UAVCAN.h>
+=======
+#include "CANThread.h"
+#include "CANClock.h"
+#if defined(STM32H7XX)
+#include "CANFDIface.h"
+#else
+#include "CANIface.h"
+#endif
+>>>>>>> upstream/master
 
 #define MAX_NUMBER_OF_CAN_INTERFACES    2
 #define MAX_NUMBER_OF_CAN_DRIVERS       2

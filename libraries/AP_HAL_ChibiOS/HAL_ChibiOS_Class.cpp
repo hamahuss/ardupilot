@@ -26,6 +26,12 @@
 #include "sdcard.h"
 #include "hwdef/common/usbcfg.h"
 #include "hwdef/common/stm32_util.h"
+#include "hwdef/common/watchdog.h"
+#include <AP_BoardConfig/AP_BoardConfig.h>
+#include <AP_InternalError/AP_InternalError.h>
+#ifndef HAL_BOOTLOADER_BUILD
+#include <AP_Logger/AP_Logger.h>
+#endif
 
 #include <hwdef.h>
 
@@ -37,6 +43,7 @@ static HAL_UARTD_DRIVER;
 static HAL_UARTE_DRIVER;
 static HAL_UARTF_DRIVER;
 static HAL_UARTG_DRIVER;
+static HAL_UARTH_DRIVER;
 #else
 static Empty::UARTDriver uartADriver;
 static Empty::UARTDriver uartBDriver;
@@ -45,9 +52,10 @@ static Empty::UARTDriver uartDDriver;
 static Empty::UARTDriver uartEDriver;
 static Empty::UARTDriver uartFDriver;
 static Empty::UARTDriver uartGDriver;
+static Empty::UARTDriver uartHDriver;
 #endif
 
-#if HAL_USE_I2C == TRUE
+#if HAL_USE_I2C == TRUE && defined(HAL_I2C_DEVICE_LIST)
 static ChibiOS::I2CDeviceManager i2cDeviceManager;
 #else
 static Empty::I2CDeviceManager i2cDeviceManager;
@@ -83,6 +91,12 @@ static ChibiOS::Scheduler schedulerInstance;
 static ChibiOS::Util utilInstance;
 static Empty::OpticalFlow opticalFlowDriver;
 
+#ifndef HAL_NO_FLASH_SUPPORT
+static ChibiOS::Flash flashDriver;
+#else
+static Empty::Flash flashDriver;
+#endif
+
 
 #if HAL_WITH_IO_MCU
 HAL_UART_IO_DRIVER;
@@ -99,6 +113,7 @@ HAL_ChibiOS::HAL_ChibiOS() :
         &uartEDriver,
         &uartFDriver,
         &uartGDriver,
+        &uartHDriver,
         &i2cDeviceManager,
         &spiDeviceManager,
         &analogIn,
@@ -110,6 +125,7 @@ HAL_ChibiOS::HAL_ChibiOS() :
         &schedulerInstance,
         &utilInstance,
         &opticalFlowDriver,
+        &flashDriver,
         nullptr
         )
 {}
@@ -142,7 +158,14 @@ thread_t* get_main_thread()
 }
 
 static AP_HAL::HAL::Callbacks* g_callbacks;
+<<<<<<< HEAD
 static THD_FUNCTION(main_loop,arg)
+=======
+
+static AP_HAL::Util::PersistentData last_persistent_data;
+
+static void main_loop()
+>>>>>>> upstream/master
 {
     daemon_task = chThdGetSelfX();
 
@@ -153,7 +176,10 @@ static THD_FUNCTION(main_loop,arg)
 #endif
 
     ChibiOS::Shared_DMA::init();
+<<<<<<< HEAD
 
+=======
+>>>>>>> upstream/master
     peripheral_power_enable();
         
     hal.uartA->begin(115200);
@@ -174,9 +200,47 @@ static THD_FUNCTION(main_loop,arg)
      */
     hal_chibios_set_priority(APM_STARTUP_PRIORITY);
 
+    if (stm32_was_watchdog_reset()) {
+        // load saved watchdog data
+        stm32_watchdog_load((uint32_t *)&utilInstance.persistent_data, (sizeof(utilInstance.persistent_data)+3)/4);
+        last_persistent_data = utilInstance.persistent_data;
+    }
+
     schedulerInstance.hal_initialized();
 
     g_callbacks->setup();
+
+#ifdef IOMCU_FW
+    stm32_watchdog_init();
+#elif !defined(HAL_BOOTLOADER_BUILD)
+    // setup watchdog to reset if main loop stops
+    if (AP_BoardConfig::watchdog_enabled()) {
+        stm32_watchdog_init();
+    }
+
+#ifndef HAL_NO_LOGGING
+    if (hal.util->was_watchdog_reset()) {
+        AP::internalerror().error(AP_InternalError::error_t::watchdog_reset);
+        const AP_HAL::Util::PersistentData &pd = last_persistent_data;
+        AP::logger().WriteCritical("WDOG", "TimeUS,Task,IErr,IErrCnt,MavMsg,MavCmd,SemLine,FL,FT,FA,FP,ICSR", "QbIIHHHHHIBI",
+                                   AP_HAL::micros64(),
+                                   pd.scheduler_task,
+                                   pd.internal_errors,
+                                   pd.internal_error_count,
+                                   pd.last_mavlink_msgid,
+                                   pd.last_mavlink_cmd,
+                                   pd.semaphore_line,
+                                   pd.fault_line,
+                                   pd.fault_type,
+                                   pd.fault_addr,
+                                   pd.fault_thd_prio,
+                                   pd.fault_icsr);
+    }
+#endif // HAL_NO_LOGGING
+#endif // IOMCU_FW
+
+    schedulerInstance.watchdog_pat();
+
     hal.scheduler->system_initialized();
 
     thread_running = true;
@@ -201,6 +265,11 @@ static THD_FUNCTION(main_loop,arg)
         if (!schedulerInstance.check_called_boost()) {
             hal.scheduler->delay_microseconds(250);
         }
+<<<<<<< HEAD
+=======
+#endif
+        schedulerInstance.watchdog_pat();
+>>>>>>> upstream/master
     }
     thread_running = false;
 }
