@@ -4,6 +4,7 @@
 #include <DataFlash/DataFlash.h>
 #include <AP_NavEKF2/AP_NavEKF2.h>
 #include <AP_NavEKF2/AP_NavEKF2_core.h>
+#include <AP_Notify/AP_Notify.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -193,7 +194,13 @@ const AP_Param::GroupInfo AC_PosControl::var_info[] = {
 
 
 
-
+    // @Param: _VELXY_D_FILT
+    // @DisplayName: Velocity (horizontal) input filter
+    // @Description: Velocity (horizontal) input filter.  This filter (in hz) is applied to the input for P and I terms
+    // @Range: 0 100
+    // @Units: Hz
+    // @User: Advanced
+	AP_GROUPINFO("_Voter",  9, AC_PosControl, _use_voter, 0.0f),
 
     AP_GROUPEND
 };
@@ -894,12 +901,13 @@ void AC_PosControl::write_log()
                                            (double)accel_x,
                                            (double)accel_y);
 
-    DataFlash_Class::instance()->Log_Write("P12", "TimeUS,PX1,PX2,PY1,PY2", "Qffff",
+    DataFlash_Class::instance()->Log_Write("P12", "TimeUS,PX1,PX2,PY1,PY2,fm", "QffffQ",
                                            AP_HAL::micros64(),
                                            (double)pos1.x,
                                            (double)pos2.x,
                                            (double)pos1.y,
-                                           (double)pos2.y);
+                                           (double)pos2.y,
+										   AP_Notify::flags.flight_mode);
 
      calculate_virtual_inputs();
      thrust = _uts;
@@ -926,6 +934,9 @@ void AC_PosControl::write_log()
 	 accyh = _ddyh;
 	 vyh = _dyh;
 	 yh = _yh;
+	 uint64_t i;
+	 if(!_detected_gps1_fault) i=0;
+	 else i = 1;
 
 
     DataFlash_Class::instance()->Log_Write("IN", "TimeUS,uts,trs,tps,tys,ut,tr,tp,ty ", "Qffffffff",
@@ -961,7 +972,7 @@ void AC_PosControl::write_log()
 
 
 
-    DataFlash_Class::instance()->Log_Write("VTD", "TimeUS,sd1,sd2,sd3,d1,d2,dm,dv", "Qfffffff",
+    DataFlash_Class::instance()->Log_Write("VTD", "TimeUS,sd1,sd2,sd3,d1,d2,dm,dv,i", "QfffffffQ",
                                             AP_HAL::micros64(),
                                             (double)_s_d_kf1_kf2,
 											(double)_s_d_kf1_mod,
@@ -969,7 +980,8 @@ void AC_PosControl::write_log()
 											(double)_dkf1,
 											(double)_dkf2,
 											(double)_dmod,
-											(double)_dv);
+											(double)_dv,
+											i);
 
 }
 
@@ -1089,20 +1101,48 @@ void AC_PosControl::observer()
     _inav.get_position12(pos1,pos2);
 
 
+
+    if(_s_x_kf1_kf2==0 && (_s_x_kf1_mod<_s_x_kf2_mod) && _detected_gps1_fault==false)
+    {
+    	_gps1_faulty = true;
+    	_detected_gps1_fault =true;
+    }
+
+    	if(!_gps1_faulty )
+    	{
     	_prev_ddx = _ddxh;
-    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.1*1*sign((pos1.x+pos2.x)/2 - _xh);
+    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*3*sign((pos1.x+pos2.x)/2 - _xh);
     	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh);
     	_prev_dx = _xhd;
-    	_xhd = _dxh +  1.5*sqrt(1) * sqrt(absf((pos1.x+pos2.x)/2 - _xh)) * sign((pos1.x+pos2.x)/2 - _xh);
+    	_xhd = _dxh +  2*sqrt(3) * sqrt(absf((pos1.x+pos2.x)/2 - _xh)) * sign((pos1.x+pos2.x)/2 - _xh);
     	_xh = _xh + (float)(dt*(_prev_dx + _xhd)*0.5f);
 
 
     	_prev_ddy = _ddyh;
-    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.1*1*sign((pos1.y+pos2.y)/2 - _yh);
+    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*3*sign((pos1.y+pos2.y)/2 - _yh);
     	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh);
     	_prev_dy = _yhd;
-    	_yhd = _dyh +  1.5*sqrt(1) * sqrt(absf((pos1.y+pos2.y)/2 - _yh)) * sign((pos1.y+pos2.y)/2 - _yh);
+    	_yhd = _dyh +  2*sqrt(3) * sqrt(absf((pos1.y+pos2.y)/2 - _yh)) * sign((pos1.y+pos2.y)/2 - _yh);
     	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
+    	}
+
+    	else
+    	{
+    	_prev_ddx = _ddxh;
+    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.3*2.5*sign(pos2.x - _xh);
+    	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh);
+    	_prev_dx = _xhd;
+    	_xhd = _dxh +  1.5*sqrt(2.5) * sqrt(absf(pos2.x - _xh)) * sign(pos2.x - _xh);
+    	_xh = _xh + (float)(dt*(_prev_dx + _xhd)*0.5f);
+
+
+    	_prev_ddy = _ddyh;
+    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.3*2.5*sign(pos2.y - _yh);
+    	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh);
+    	_prev_dy = _yhd;
+    	_yhd = _dyh +  1.5*sqrt(2.5) * sqrt(absf(pos2.y - _yh)) * sign(pos2.y - _yh);
+    	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
+    	}
 }
 
 
@@ -1115,10 +1155,42 @@ void AC_PosControl::voter()
     float e_y_kf1_kf2, e_y_kf1_mod, e_y_kf2_mod;
     float e_d_kf1_kf2, e_d_kf1_mod, e_d_kf2_mod;
 
-    _dkf1 = norm(pos1.x, pos1.y);
-    _dkf2 = norm(pos2.x, pos2.y);
-    _dmod = norm(_xh, _yh);
 
+    if(_gps1_faulty && _use_voter == 1)
+	{
+	    _dkf1 = norm((pos2.x+_xh)/2, (pos2.y+_yh)/2);
+	    _dkf2 = norm(pos2.x, pos2.y);
+	    _dmod = norm(_xh, _yh);
+    e_x_kf1_kf2 = absf((pos2.x+_xh)/2 - pos2.x);
+    e_x_kf1_mod = absf((pos2.x+_xh)/2 - _xh);
+    e_x_kf2_mod = absf(pos2.x - _xh);
+    e_y_kf1_kf2 = absf((pos2.y+_yh)/2 - pos2.y);
+    e_y_kf1_mod = absf((pos2.y+_yh)/2 - _yh);
+    e_y_kf2_mod = absf(pos2.y - _yh);
+    e_d_kf1_kf2 = absf(_dkf1 - _dkf2);
+    e_d_kf1_mod = absf(_dkf1 - _dmod);
+	e_d_kf2_mod = absf(_dkf2 - _dmod);
+
+    _s_x_kf1_kf2 = calculate_indicator(e_x_kf1_kf2, 0.5, 4);
+    _s_x_kf1_mod = calculate_indicator(e_x_kf1_mod, 0.5, 4);
+    _s_x_kf2_mod = calculate_indicator(e_x_kf2_mod, 0.5, 4);
+    _s_y_kf1_kf2 = calculate_indicator(e_y_kf1_kf2, 0.5, 4);
+	_s_y_kf1_mod = calculate_indicator(e_y_kf1_mod, 0.5, 4);
+	_s_y_kf2_mod = calculate_indicator(e_y_kf2_mod, 0.5, 4);
+    _s_d_kf1_kf2 = calculate_indicator(e_d_kf1_kf2, 0.5, 4);
+	_s_d_kf1_mod = calculate_indicator(e_d_kf1_mod, 0.5, 4);
+	_s_d_kf2_mod = calculate_indicator(e_d_kf2_mod, 0.5, 4);
+
+	_xv = voter_output(_s_x_kf1_kf2, _s_x_kf1_mod, _s_x_kf2_mod, (pos2.x+_xh)/2, pos2.x, _xh);
+	_yv = voter_output(_s_y_kf1_kf2, _s_y_kf1_mod, _s_y_kf2_mod, (pos2.y+_yh)/2, pos2.y, _yh);
+	_dv = voter_output(_s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod, _dkf1, _dkf2, _dmod);
+	}
+
+    else
+	{
+	    _dkf1 = norm(pos1.x, pos1.y);
+	    _dkf2 = norm(pos2.x, pos2.y);
+	    _dmod = norm(_xh, _yh);
     e_x_kf1_kf2 = absf(pos1.x - pos2.x);
     e_x_kf1_mod = absf(pos1.x - _xh);
     e_x_kf2_mod = absf(pos2.x - _xh);
@@ -1129,19 +1201,27 @@ void AC_PosControl::voter()
     e_d_kf1_mod = absf(_dkf1 - _dmod);
 	e_d_kf2_mod = absf(_dkf2 - _dmod);
 
-    _s_x_kf1_kf2 = calculate_indicator(e_x_kf1_kf2, 0.5, 6);
-    _s_x_kf1_mod = calculate_indicator(e_x_kf1_mod, 0.5, 6);
-    _s_x_kf2_mod = calculate_indicator(e_x_kf2_mod, 0.5, 6);
-    _s_y_kf1_kf2 = calculate_indicator(e_y_kf1_kf2, 0.5, 6);
-	_s_y_kf1_mod = calculate_indicator(e_y_kf1_mod, 0.5, 6);
-	_s_y_kf2_mod = calculate_indicator(e_y_kf2_mod, 0.5, 6);
-    _s_d_kf1_kf2 = calculate_indicator(e_d_kf1_kf2, 0.5, 6);
-	_s_d_kf1_mod = calculate_indicator(e_d_kf1_mod, 0.5, 6);
-	_s_d_kf2_mod = calculate_indicator(e_d_kf2_mod, 0.5, 6);
+    _s_x_kf1_kf2 = calculate_indicator(e_x_kf1_kf2, 0.5, 4);
+    _s_x_kf1_mod = calculate_indicator(e_x_kf1_mod, 0.5, 4);
+    _s_x_kf2_mod = calculate_indicator(e_x_kf2_mod, 0.5, 4);
+    _s_y_kf1_kf2 = calculate_indicator(e_y_kf1_kf2, 0.5, 4);
+	_s_y_kf1_mod = calculate_indicator(e_y_kf1_mod, 0.5, 4);
+	_s_y_kf2_mod = calculate_indicator(e_y_kf2_mod, 0.5, 4);
+    _s_d_kf1_kf2 = calculate_indicator(e_d_kf1_kf2, 0.5, 4);
+	_s_d_kf1_mod = calculate_indicator(e_d_kf1_mod, 0.5, 4);
+	_s_d_kf2_mod = calculate_indicator(e_d_kf2_mod, 0.5, 4);
 
 	_xv = voter_output(_s_x_kf1_kf2, _s_x_kf1_mod, _s_x_kf2_mod, pos1.x, pos2.x, _xh);
 	_yv = voter_output(_s_y_kf1_kf2, _s_y_kf1_mod, _s_y_kf2_mod, pos1.y, pos2.y, _yh);
 	_dv = voter_output(_s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod, _dkf1, _dkf2, _dmod);
+	}
+
+
+
+
+
+
+
 }
 
 float AC_PosControl::calculate_indicator(float d, float a, float n)
@@ -1223,7 +1303,19 @@ void AC_PosControl::desired_vel_to_pos(float nav_dt)
 ///     converts desired accelerations provided in lat/lon frame to roll/pitch angles
 void AC_PosControl::run_xy_controller(float dt, float ekfNavVelGainScaler)
 {
-    Vector3f curr_pos = _inav.get_position();
+	Vector3f curr_pos = _inav.get_position();
+
+
+//	Vector2f curr_pos, curr_pos1;
+//    _inav.get_position12(curr_pos,curr_pos1);
+//    curr_pos.x = curr_pos.x*100;
+
+	if(_use_voter == 1)
+	{
+    curr_pos.x = _xv*100;
+    curr_pos.y = _yv*100;
+	}
+
     float kP = ekfNavVelGainScaler * _p_pos_xy.kP(); // scale gains to compensate for noisy optical flow measurement in the EKF
 
     // avoid divide by zero

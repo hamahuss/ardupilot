@@ -460,6 +460,9 @@ protected:
 
     uint32_t _log_gps_bit = -1;
     bool _fault{false};
+    bool fault_counter{false};
+    uint32_t t_fault;
+    uint8_t flight_mode;
 
 private:
     static AP_GPS *_singleton;

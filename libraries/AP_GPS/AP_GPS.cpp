@@ -37,6 +37,8 @@
 #include "GPS_Backend.h"
 #include <RC_Channel/RC_Channel.h>
 
+
+
 #if HAL_WITH_UAVCAN
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
 #include <AP_UAVCAN/AP_UAVCAN.h>
@@ -704,15 +706,33 @@ void AP_GPS::update(void)
 //    }
 
 
-		if(_fault)
-	    {
-	//		state[1].location.lat = faulty_state.location.lat;
-	//		state[1].location.lng = faulty_state.location.lng;
-	//		state[1].location.alt = faulty_state.location.alt;
-	//		state[1].status = NO_GPS;
-		    		state[0].location.lat+=1e2*sinf(t_now*1e-3);
-	//	    		state[1].location.lng+=1e2;
-	    }
+//		if(_fault)
+//	    {
+//	//		state[1].location.lat = faulty_state.location.lat;
+//	//		state[1].location.lng = faulty_state.location.lng;
+//	//		state[1].location.alt = faulty_state.location.alt;
+//	//		state[1].status = NO_GPS;
+//		    		state[0].location.lat+=1e2*sinf(t_now*1e-3);
+//	//	    		state[1].location.lng+=1e2;
+//	    }
+
+	flight_mode = AP_Notify::flags.flight_mode;
+	if(flight_mode==3 && fault_counter==false && AP_Notify::flags.armed)
+	{
+		fault_counter=true;
+		t_fault = AP_HAL::millis();
+		AP_Notify::flags.gps_fault = true;
+	}
+
+			if((t_now - t_fault)/1000 >17 && (t_now - t_fault)/1000 <30 && fault_counter==true)
+		    {
+		//		state[1].location.lat = faulty_state.location.lat;
+		//		state[1].location.lng = faulty_state.location.lng;
+		//		state[1].location.alt = faulty_state.location.alt;
+		//		state[1].status = NO_GPS;
+			    		state[0].location.lat+=600*sinf((t_now - t_fault)*1e-3);
+		//	    		state[1].location.lng+=1e2;
+		    }
 
 
     // calculate number of instances

@@ -383,6 +383,7 @@ protected:
     AC_P        _p_pos_xy;
     AC_PID_2D   _pid_vel_xy;
     AP_Int8 	_inject;
+    AP_Int8 	_use_voter;
 
     // internal variables
     float       _dt;                    // time difference (in seconds) between calls from the main program
@@ -446,6 +447,9 @@ protected:
 
 
     float _xv, _yv, _dv, _dkf1, _dkf2, _dmod;
+    bool _gps1_faulty{false};
+    bool _detected_gps1_fault{false};
+
 
     float calculate_indicator(float d, float a, float n);
     float voter_output(float s1, float s2, float s3, float x1, float x2, float x3);
