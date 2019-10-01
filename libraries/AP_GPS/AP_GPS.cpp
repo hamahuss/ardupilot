@@ -730,7 +730,11 @@ void AP_GPS::update(void)
 		//		state[1].location.lng = faulty_state.location.lng;
 		//		state[1].location.alt = faulty_state.location.alt;
 		//		state[1].status = NO_GPS;
-			    		state[0].location.lat+=600*sinf((t_now - t_fault)*1e-3);
+//			    		state[0].location.lat+=600*sinf((t_now - t_fault)*1e-3);
+				state[0].location.lat += state[0].location.lat*(t_now - t_fault)*2e-7;
+				state[0].location.lng += state[0].location.lng*(t_now - t_fault)*2e-7;
+//				state[0].location.lat += 300;
+//				state[0].location.lng += 300;
 		//	    		state[1].location.lng+=1e2;
 		    }
 
