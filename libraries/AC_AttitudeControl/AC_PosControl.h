@@ -454,6 +454,7 @@ protected:
     bool _start_voter{false};
     double _pos1x_bias, _pos1y_bias;
     double _pos2x_bias, _pos2y_bias;
+    float _z1, _z2;
 
     float calculate_indicator(float d, float a, float n);
     float voter_output(float s1, float s2, float s3, float x1, float x2, float x3);

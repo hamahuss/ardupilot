@@ -530,6 +530,8 @@ void AC_PosControl::calc_leash_length_z()
 // vel_up_max, vel_down_max should have already been set before calling this method
 void AC_PosControl::run_z_controller()
 {
+	_z1 = _inav.get_altitude();
+	_z2 = _inav.get_altitude();
     float curr_alt = _inav.get_altitude();
 
     // clear position limit flags
