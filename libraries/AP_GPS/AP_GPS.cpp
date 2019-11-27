@@ -692,51 +692,41 @@ void AP_GPS::update(void)
 		        update_instance(i);
 	}
 
-//	uint16_t radio_in;
-//	radio_in = RC_Channels::get_radio_in(7);
-	uint32_t t_now = AP_HAL::millis();
-//	if(radio_in>1700)
-//    {
-////		state[1].location.lat = faulty_state.location.lat;
-////		state[1].location.lng = faulty_state.location.lng;
-////		state[1].location.alt = faulty_state.location.alt;
-////		state[1].status = NO_GPS;
-//	    		state[0].location.lat+=1e2*sinf(t_now*1e-3);
-////	    		state[1].location.lng+=1e2;
-//    }
+
+	// simulation
+//	uint32_t t_now = AP_HAL::millis();
+//	flight_mode = AP_Notify::flags.flight_mode;
+//	if(flight_mode==3 && fault_counter==false && AP_Notify::flags.armed)
+//	{
+//		fault_counter=true;
+//		t_fault = AP_HAL::millis();
+//		AP_Notify::flags.gps_fault = true;
+//	}
+//	if((t_now - t_fault)/1000 >17 && (t_now - t_fault)/1000 <30 && fault_counter==true)
+//			    {
+//	//				state[0].location.lat += state[0].location.lat*(t_now - t_fault)*2e-7;
+//	//				state[0].location.lng += state[0].location.lng*(t_now - t_fault)*2e-7;
+//					state[0].location.lat += 500;
+//					state[0].location.lng += 500;
+//			    }
 
 
-//		if(_fault)
-//	    {
-//	//		state[1].location.lat = faulty_state.location.lat;
-//	//		state[1].location.lng = faulty_state.location.lng;
-//	//		state[1].location.alt = faulty_state.location.alt;
-//	//		state[1].status = NO_GPS;
-//		    		state[0].location.lat+=1e2*sinf(t_now*1e-3);
-//	//	    		state[1].location.lng+=1e2;
-//	    }
+//	// real
 
-	flight_mode = AP_Notify::flags.flight_mode;
-	if(flight_mode==3 && fault_counter==false && AP_Notify::flags.armed)
-	{
-		fault_counter=true;
-		t_fault = AP_HAL::millis();
-		AP_Notify::flags.gps_fault = true;
-	}
+	uint16_t radio_in;
+	radio_in = RC_Channels::get_radio_in(7);
 
-			if((t_now - t_fault)/1000 >17 && (t_now - t_fault)/1000 <30 && fault_counter==true)
+		if(radio_in > 1700)
 		    {
-		//		state[1].location.lat = faulty_state.location.lat;
-		//		state[1].location.lng = faulty_state.location.lng;
-		//		state[1].location.alt = faulty_state.location.alt;
-		//		state[1].status = NO_GPS;
-//			    		state[0].location.lat+=600*sinf((t_now - t_fault)*1e-3);
-				state[0].location.lat += state[0].location.lat*(t_now - t_fault)*2e-7;
-				state[0].location.lng += state[0].location.lng*(t_now - t_fault)*2e-7;
-//				state[0].location.lat += 300;
-//				state[0].location.lng += 300;
+//				state[0].location.lat += state[0].location.lat*(t_now - t_fault)*2e-7;
+//				state[0].location.lng += state[0].location.lng*(t_now - t_fault)*2e-7;
+				state[0].location.lat += 500;
+				state[0].location.lng += 500;
 		//	    		state[1].location.lng+=1e2;
 		    }
+
+
+
 
 
     // calculate number of instances

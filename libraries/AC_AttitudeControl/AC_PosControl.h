@@ -449,7 +449,11 @@ protected:
     float _xv, _yv, _dv, _dkf1, _dkf2, _dmod;
     bool _gps1_faulty{false};
     bool _detected_gps1_fault{false};
-
+    bool _initialize_filter{false};
+    uint64_t counter_filter;
+    bool _start_voter{false};
+    double _pos1x_bias, _pos1y_bias;
+    double _pos2x_bias, _pos2y_bias;
 
     float calculate_indicator(float d, float a, float n);
     float voter_output(float s1, float s2, float s3, float x1, float x2, float x3);

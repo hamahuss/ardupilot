@@ -884,6 +884,15 @@ void AC_PosControl::write_log()
 
     lean_angles_to_accel(accel_x, accel_y);
 
+    uint64_t p;
+    if(AP_Notify::flags.gps_fusion) p=1;
+    else p=0;
+
+    pos1.x = pos1.x - _pos1x_bias;
+    pos1.y = pos1.y - _pos1y_bias;
+    pos2.x = pos2.x - _pos2x_bias;
+    pos2.y = pos2.y - _pos2y_bias;
+
 
     DataFlash_Class::instance()->Log_Write("PSC", "TimeUS,TPX,TPY,PX,PY,TVX,TVY,VX,VY,TAX,TAY,AX,AY",
                                            "smmmmnnnnoooo", "FBBBBBBBBBBBB", "Qffffffffffff",
@@ -901,13 +910,15 @@ void AC_PosControl::write_log()
                                            (double)accel_x,
                                            (double)accel_y);
 
-    DataFlash_Class::instance()->Log_Write("P12", "TimeUS,PX1,PX2,PY1,PY2,fm", "QffffQ",
+    DataFlash_Class::instance()->Log_Write("P12", "TimeUS,PX1,PX2,PY1,PY2,fm,b1,b2", "QffffQff",
                                            AP_HAL::micros64(),
                                            (double)pos1.x,
                                            (double)pos2.x,
                                            (double)pos1.y,
                                            (double)pos2.y,
-										   AP_Notify::flags.flight_mode);
+										   p,
+										   (double)_pos1x_bias,
+										   (double)_pos1y_bias);
 
      calculate_virtual_inputs();
      thrust = _uts;
@@ -937,6 +948,10 @@ void AC_PosControl::write_log()
 	 uint64_t i;
 	 if(!_detected_gps1_fault) i=0;
 	 else i = 1;
+
+	 uint64_t k;
+	 if(!_start_voter) k=0;
+	 else k=1;
 
 
     DataFlash_Class::instance()->Log_Write("IN", "TimeUS,uts,trs,tps,tys,ut,tr,tp,ty ", "Qffffffff",
@@ -972,7 +987,7 @@ void AC_PosControl::write_log()
 
 
 
-    DataFlash_Class::instance()->Log_Write("VTD", "TimeUS,sd1,sd2,sd3,d1,d2,dm,dv,i", "QfffffffQ",
+    DataFlash_Class::instance()->Log_Write("VTD", "TimeUS,sd1,sd2,sd3,d1,d2,dm,dv,i,sto", "QfffffffQQ",
                                             AP_HAL::micros64(),
                                             (double)_s_d_kf1_kf2,
 											(double)_s_d_kf1_mod,
@@ -981,7 +996,8 @@ void AC_PosControl::write_log()
 											(double)_dkf2,
 											(double)_dmod,
 											(double)_dv,
-											i);
+											i,
+											k);
 
 }
 
@@ -1100,8 +1116,30 @@ void AC_PosControl::observer()
     Vector2f pos2;
     _inav.get_position12(pos1,pos2);
 
+    if(AP_Notify::flags.gps_fusion && !_initialize_filter)
+    	{
+    	counter_filter = AP_HAL::micros64();
+    	_initialize_filter = true;
+    	}
+
+    if(_initialize_filter && ((now_us - counter_filter)* 1.0e-6f>10) && !_start_voter)
+    {
+    	_pos1x_bias = pos1.x;
+    	_pos1y_bias = pos1.y;
+    	_pos2x_bias = pos2.x;
+    	_pos2y_bias = pos2.y;
+    	_start_voter = true;
+    }
+
+    pos1.x = pos1.x - _pos1x_bias;
+    pos1.y = pos1.y - _pos1y_bias;
+    pos2.x = pos2.x - _pos2x_bias;
+    pos2.y = pos2.y - _pos2y_bias;
 
 
+
+    if (_start_voter)
+    {
     if(_s_x_kf1_kf2==0 && (_s_x_kf1_mod<_s_x_kf2_mod) && _detected_gps1_fault==false)
     {
     	_gps1_faulty = true;
@@ -1111,25 +1149,25 @@ void AC_PosControl::observer()
     	if(!_gps1_faulty )
     	{
     	_prev_ddx = _ddxh;
-    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*3*sign((pos1.x+pos2.x)/2 - _xh);
+    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*3*sign((0.3*pos1.x+1.7*pos2.x)/2 - _xh);
     	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh);
     	_prev_dx = _xhd;
-    	_xhd = _dxh +  2*sqrt(3) * sqrt(absf((pos1.x+pos2.x)/2 - _xh)) * sign((pos1.x+pos2.x)/2 - _xh);
+    	_xhd = _dxh +  2*sqrt(3) * sqrt(absf((0.3*pos1.x+1.7*pos2.x)/2 - _xh)) * sign((0.3*pos1.x+1.7*pos2.x)/2 - _xh);
     	_xh = _xh + (float)(dt*(_prev_dx + _xhd)*0.5f);
 
 
     	_prev_ddy = _ddyh;
-    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*3*sign((pos1.y+pos2.y)/2 - _yh);
+    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*3*sign((0.3*pos1.y+1.7*pos2.y)/2 - _yh);
     	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh);
     	_prev_dy = _yhd;
-    	_yhd = _dyh +  2*sqrt(3) * sqrt(absf((pos1.y+pos2.y)/2 - _yh)) * sign((pos1.y+pos2.y)/2 - _yh);
+    	_yhd = _dyh +  2*sqrt(3) * sqrt(absf((0.3*pos1.y+1.7*pos2.y)/2 - _yh)) * sign((0.3*pos1.y+1.7*pos2.y)/2 - _yh);
     	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
     	}
 
     	else
     	{
     	_prev_ddx = _ddxh;
-    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.3*2.5*sign(pos2.x - _xh);
+    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*2.5*sign(pos2.x - _xh);
     	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh);
     	_prev_dx = _xhd;
     	_xhd = _dxh +  1.5*sqrt(2.5) * sqrt(absf(pos2.x - _xh)) * sign(pos2.x - _xh);
@@ -1137,17 +1175,20 @@ void AC_PosControl::observer()
 
 
     	_prev_ddy = _ddyh;
-    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.3*2.5*sign(pos2.y - _yh);
+    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*2.5*sign(pos2.y - _yh);
     	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh);
     	_prev_dy = _yhd;
     	_yhd = _dyh +  1.5*sqrt(2.5) * sqrt(absf(pos2.y - _yh)) * sign(pos2.y - _yh);
     	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
     	}
+    }
 }
 
 
 void AC_PosControl::voter()
 {
+
+
     Vector2f pos1;
     Vector2f pos2;
     _inav.get_position12(pos1,pos2);
@@ -1156,6 +1197,13 @@ void AC_PosControl::voter()
     float e_d_kf1_kf2, e_d_kf1_mod, e_d_kf2_mod;
 
 
+    pos1.x = pos1.x - _pos1x_bias;
+    pos1.y = pos1.y - _pos1y_bias;
+    pos2.x = pos2.x - _pos2x_bias;
+    pos2.y = pos2.y - _pos2y_bias;
+
+    if (_start_voter)
+    {
     if(_gps1_faulty && _use_voter == 1)
 	{
 	    _dkf1 = norm((pos2.x+_xh)/2, (pos2.y+_yh)/2);
@@ -1216,11 +1264,7 @@ void AC_PosControl::voter()
 	_dv = voter_output(_s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod, _dkf1, _dkf2, _dmod);
 	}
 
-
-
-
-
-
+    }
 
 }
 
@@ -1310,10 +1354,16 @@ void AC_PosControl::run_xy_controller(float dt, float ekfNavVelGainScaler)
 //    _inav.get_position12(curr_pos,curr_pos1);
 //    curr_pos.x = curr_pos.x*100;
 
-	if(_use_voter == 1)
+    Vector2f pos1;
+    Vector2f pos2;
+    _inav.get_position12(pos1,pos2);
+
+	if(_gps1_faulty && _use_voter == 1)
 	{
-    curr_pos.x = _xv*100;
-    curr_pos.y = _yv*100;
+//    curr_pos.x = _xv*100;
+//    curr_pos.y = _yv*100;
+		curr_pos.x = pos2.x;
+		curr_pos.y = pos2.y;
 	}
 
     float kP = ekfNavVelGainScaler * _p_pos_xy.kP(); // scale gains to compensate for noisy optical flow measurement in the EKF

@@ -299,33 +299,33 @@ void NavEKF2_core::setAidingMode()
             break;
 
         case AID_ABSOLUTE: {
-            bool canUseGPS = ((frontend->_fusionModeGPS) != 3 && readyToUseGPS() && !gpsInhibit);
-            bool canUseRangeBeacon = readyToUseRangeBeacon();
-            bool canUseExtNav = readyToUseExtNav();
-            // We have commenced aiding and GPS usage is allowed
-            if (canUseGPS) {
-                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u is using GPS",(unsigned)imu_index);
-            }
-            posTimeout = false;
-            velTimeout = false;
-            // We have commenced aiding and range beacon usage is allowed
-            if (canUseRangeBeacon) {
-                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u is using range beacons",(unsigned)imu_index);
-                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u initial pos NE = %3.1f,%3.1f (m)",(unsigned)imu_index,(double)receiverPos.x,(double)receiverPos.y);
-                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u initial beacon pos D offset = %3.1f (m)",(unsigned)imu_index,(double)bcnPosOffset);
-            }
-            // We have commenced aiding and external nav usage is allowed
-            if (canUseExtNav) {
-                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u is using external nav data",(unsigned)imu_index);
-                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u initial pos NED = %3.1f,%3.1f,%3.1f (m)",(unsigned)imu_index,(double)extNavDataDelayed.pos.x,(double)extNavDataDelayed.pos.y,(double)extNavDataDelayed.pos.z);
-                // handle yaw reset as special case
-                extNavYawResetRequest = true;
-                controlMagYawReset();
-                // handle height reset as special case
-                hgtMea = -extNavDataDelayed.pos.z;
-                posDownObsNoise = sq(constrain_float(extNavDataDelayed.posErr, 0.1f, 10.0f));
-                ResetHeight();
-            }
+//            bool canUseGPS = ((frontend->_fusionModeGPS) != 3 && readyToUseGPS() && !gpsInhibit);
+//            bool canUseRangeBeacon = readyToUseRangeBeacon();
+//            bool canUseExtNav = readyToUseExtNav();
+//            // We have commenced aiding and GPS usage is allowed
+//            if (canUseGPS) {
+//                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u is using GPS",(unsigned)imu_index);
+//            }
+//            posTimeout = false;
+//            velTimeout = false;
+//            // We have commenced aiding and range beacon usage is allowed
+//            if (canUseRangeBeacon) {
+//                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u is using range beacons",(unsigned)imu_index);
+//                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u initial pos NE = %3.1f,%3.1f (m)",(unsigned)imu_index,(double)receiverPos.x,(double)receiverPos.y);
+//                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u initial beacon pos D offset = %3.1f (m)",(unsigned)imu_index,(double)bcnPosOffset);
+//            }
+//            // We have commenced aiding and external nav usage is allowed
+//            if (canUseExtNav) {
+//                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u is using external nav data",(unsigned)imu_index);
+//                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u initial pos NED = %3.1f,%3.1f,%3.1f (m)",(unsigned)imu_index,(double)extNavDataDelayed.pos.x,(double)extNavDataDelayed.pos.y,(double)extNavDataDelayed.pos.z);
+//                // handle yaw reset as special case
+//                extNavYawResetRequest = true;
+//                controlMagYawReset();
+//                // handle height reset as special case
+//                hgtMea = -extNavDataDelayed.pos.z;
+//                posDownObsNoise = sq(constrain_float(extNavDataDelayed.posErr, 0.1f, 10.0f));
+//                ResetHeight();
+//            }
             // reset the last fusion accepted times to prevent unwanted activation of timeout logic
             lastPosPassTime_ms = imuSampleTime_ms;
             lastVelPassTime_ms = imuSampleTime_ms;
