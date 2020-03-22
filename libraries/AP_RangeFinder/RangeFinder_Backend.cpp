@@ -17,6 +17,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include "RangeFinder.h"
 #include "RangeFinder_Backend.h"
+#include <AP_Notify/AP_Notify.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -82,4 +83,36 @@ void AP_RangeFinder_Backend::update_pre_arm_check()
          ((int16_t)state.pre_arm_distance_min > (MIN(state.ground_clearance_cm,state.min_distance_cm) - 10))) {
         state.pre_arm_check = true;
     }
+
+}
+
+
+uint16_t AP_RangeFinder_Backend::distance_cm_i(uint8_t instance)
+{
+//    zfaulty = state.distance_cm;
+//    zfaulty = zfaulty - 100;
+//    uint8_t flight_mode;
+//    uint32_t t_now;
+//    t_now = AP_HAL::millis();
+//	flight_mode = AP_Notify::flags.flight_mode;
+//
+//	if(flight_mode==3 && fault_counter==false && AP_Notify::flags.armed)
+//	{
+//		fault_counter=true;
+//		t_fault = AP_HAL::millis();
+//		AP_Notify::flags.rng_fault = true;
+//	}
+//	if(instance == 1)
+//		return state.distance_cm;
+//
+//	if(instance ==0){
+//
+//			if((t_now - t_fault)/1000 >17 && (t_now - t_fault)/1000 <24 && fault_counter==true)
+//    					    {
+//				return zfaulty;
+//    					    }
+//    			else return state.distance_cm;
+//    	}
+
+	return state.distance_cm;
 }

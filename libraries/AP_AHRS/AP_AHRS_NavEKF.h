@@ -149,6 +149,7 @@ public:
 
 
     void get_pos12(Vector2f &posNE, Vector2f &posNE1) const;
+    void get_posD12(float &z1, float &z2) const;
 
     // return the relative position down to either home or origin
     // baro will be used for the _home relative one if the EKF isn't

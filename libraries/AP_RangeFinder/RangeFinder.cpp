@@ -36,6 +36,7 @@
 #include "AP_RangeFinder_Wasp.h"
 #include "AP_RangeFinder_Benewake.h"
 #include <AP_BoardConfig/AP_BoardConfig.h>
+#include <AP_Notify/AP_Notify.h>
 
 extern const AP_HAL::HAL &hal;
 
@@ -617,6 +618,21 @@ void RangeFinder::update(void)
             }
             drivers[i]->update();
             drivers[i]->update_pre_arm_check();
+//        	uint32_t t_now = AP_HAL::millis();
+//        	flight_mode = AP_Notify::flags.flight_mode;
+//
+//        	if(flight_mode==3 && fault_counter==false && AP_Notify::flags.armed)
+//        	{
+//        		fault_counter=true;
+//        		t_fault = AP_HAL::millis();
+//        	}
+//				if((t_now - t_fault)/1000 >17 && (t_now - t_fault)/1000 <30 && fault_counter==true)
+//        					    {
+//        	        			drivers[i]->injecfault();
+//        					    }
+//        			else drivers[i]->no_injecfault();
+//        	}
+
         }
     }
 }
@@ -927,3 +943,12 @@ MAV_DISTANCE_SENSOR RangeFinder::get_mav_distance_sensor_type_orient(enum Rotati
 }
 
 RangeFinder *RangeFinder::_singleton;
+
+namespace AP {
+
+RangeFinder &rng()
+{
+    return RangeFinder::rng();
+}
+
+};

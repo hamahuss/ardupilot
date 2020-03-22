@@ -37,6 +37,7 @@ public:
 
     enum Rotation orientation() const { return (Rotation)state.orientation.get(); }
     uint16_t distance_cm() const { return state.distance_cm; }
+    uint16_t distance_cm_i(uint8_t instance);
     uint16_t voltage_mv() const { return state.voltage_mv; }
     int16_t max_distance_cm() const { return state.max_distance_cm; }
     int16_t min_distance_cm() const { return state.min_distance_cm; }
@@ -69,6 +70,13 @@ public:
     // in metres relative to the body frame origin
     const Vector3f &get_pos_offset() const { return state.pos_offset; }
 
+
+    void injecfault() {
+    	zfaulty = state.distance_cm + 20;
+    }
+    void no_injecfault() {
+    	zfaulty = state.distance_cm;
+    }
 protected:
 
     // update status based on distance measurement
@@ -81,6 +89,11 @@ protected:
 
     // semaphore for access to shared frontend data
     AP_HAL::Semaphore *_sem;    
+    uint16_t zfaulty=0;
+    bool fault_counter{false};
+    uint32_t t_fault;
+
+
 
     virtual MAV_DISTANCE_SENSOR _get_mav_distance_sensor_type() const = 0;
 };

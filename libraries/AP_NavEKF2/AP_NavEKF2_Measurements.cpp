@@ -115,6 +115,106 @@ void NavEKF2_core::readRangeFinder(void)
     }
 }
 
+
+// Read the range finder and take new measurements if available
+// Apply a median filter
+void NavEKF2_core::readRangeFinder1(uint8_t i)
+{
+    uint8_t midIndex;
+    uint8_t maxIndex;
+    uint8_t minIndex;
+
+    // get theoretical correct range when the vehicle is on the ground
+    // don't allow range to go below 5cm because this can cause problems with optical flow processing
+    rngOnGnd = MAX(frontend->_rng.ground_clearance_cm_orient(ROTATION_PITCH_270) * 0.01f, 0.05f);
+
+    // read range finder at 20Hz
+    // TODO better way of knowing if it has new data
+    if ((imuSampleTime_ms - lastRngMeasTime_ms) > 50) {
+
+        // reset the timer used to control the measurement rate
+        lastRngMeasTime_ms =  imuSampleTime_ms;
+
+        // store samples and sample time into a ring buffer if valid
+        // use data from two range finders if available
+
+        for (uint8_t sensorIndex = 0; sensorIndex <= 1; sensorIndex++) {
+            AP_RangeFinder_Backend *sensor = frontend->_rng.get_backend(sensorIndex);
+            if (sensor == nullptr) {
+                continue;
+            }
+            if ((sensor->orientation() == ROTATION_PITCH_270) && (sensor->status() == RangeFinder::RangeFinder_Good)) {
+                rngMeasIndex[sensorIndex] ++;
+                if (rngMeasIndex[sensorIndex] > 2) {
+                    rngMeasIndex[sensorIndex] = 0;
+                }
+                storedRngMeasTime_ms[sensorIndex][rngMeasIndex[sensorIndex]] = imuSampleTime_ms - 25;
+//                storedRngMeas[sensorIndex][rngMeasIndex[sensorIndex]] = sensor->distance_cm() * 0.01f;
+                storedRngMeas[sensorIndex][rngMeasIndex[sensorIndex]] = sensor->distance_cm_i(i) * 0.01f;
+            }
+
+            // check for three fresh samples
+            bool sampleFresh[2][3] = {};
+            for (uint8_t index = 0; index <= 2; index++) {
+                sampleFresh[sensorIndex][index] = (imuSampleTime_ms - storedRngMeasTime_ms[sensorIndex][index]) < 500;
+            }
+
+            // find the median value if we have three fresh samples
+            if (sampleFresh[sensorIndex][0] && sampleFresh[sensorIndex][1] && sampleFresh[sensorIndex][2]) {
+                if (storedRngMeas[sensorIndex][0] > storedRngMeas[sensorIndex][1]) {
+                    minIndex = 1;
+                    maxIndex = 0;
+                } else {
+                    minIndex = 0;
+                    maxIndex = 1;
+                }
+                if (storedRngMeas[sensorIndex][2] > storedRngMeas[sensorIndex][maxIndex]) {
+                    midIndex = maxIndex;
+                } else if (storedRngMeas[sensorIndex][2] < storedRngMeas[sensorIndex][minIndex]) {
+                    midIndex = minIndex;
+                } else {
+                    midIndex = 2;
+                }
+
+                // don't allow time to go backwards
+                if (storedRngMeasTime_ms[sensorIndex][midIndex] > rangeDataNew.time_ms) {
+                    rangeDataNew.time_ms = storedRngMeasTime_ms[sensorIndex][midIndex];
+                }
+
+                // limit the measured range to be no less than the on-ground range
+                rangeDataNew.rng = MAX(storedRngMeas[sensorIndex][midIndex],rngOnGnd);
+
+                // get position in body frame for the current sensor
+                rangeDataNew.sensor_idx = sensorIndex;
+
+                // write data to buffer with time stamp to be fused when the fusion time horizon catches up with it
+                storedRange.push(rangeDataNew);
+
+                // indicate we have updated the measurement
+                rngValidMeaTime_ms = imuSampleTime_ms;
+
+            } else if (!takeOffDetected && ((imuSampleTime_ms - rngValidMeaTime_ms) > 200)) {
+                // before takeoff we assume on-ground range value if there is no data
+                rangeDataNew.time_ms = imuSampleTime_ms;
+                rangeDataNew.rng = rngOnGnd;
+                rangeDataNew.time_ms = imuSampleTime_ms;
+
+                // don't allow time to go backwards
+                if (imuSampleTime_ms > rangeDataNew.time_ms) {
+                    rangeDataNew.time_ms = imuSampleTime_ms;
+                }
+
+                // write data to buffer with time stamp to be fused when the fusion time horizon catches up with it
+                storedRange.push(rangeDataNew);
+
+                // indicate we have updated the measurement
+                rngValidMeaTime_ms = imuSampleTime_ms;
+
+            }
+        }
+    }
+}
+
 // write the raw optical flow measurements
 // this needs to be called externally.
 void NavEKF2_core::writeOptFlowMeas(uint8_t &rawFlowQuality, Vector2f &rawFlowRates, Vector2f &rawGyroRates, uint32_t &msecFlowMeas, const Vector3f &posOffset)

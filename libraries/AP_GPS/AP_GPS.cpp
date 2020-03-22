@@ -713,17 +713,17 @@ void AP_GPS::update(void)
 
 //	// real
 
-	uint16_t radio_in;
-	radio_in = RC_Channels::get_radio_in(7);
-
-		if(radio_in > 1700)
-		    {
-//				state[0].location.lat += state[0].location.lat*(t_now - t_fault)*2e-7;
-//				state[0].location.lng += state[0].location.lng*(t_now - t_fault)*2e-7;
-				state[0].location.lat += 500;
-				state[0].location.lng += 500;
-		//	    		state[1].location.lng+=1e2;
-		    }
+//	uint16_t radio_in;
+//	radio_in = RC_Channels::get_radio_in(7);
+//
+//		if(radio_in > 1700)
+//		    {
+////				state[0].location.lat += state[0].location.lat*(t_now - t_fault)*2e-7;
+////				state[0].location.lng += state[0].location.lng*(t_now - t_fault)*2e-7;
+//				state[0].location.lat += 500;
+//				state[0].location.lng += 500;
+//		//	    		state[1].location.lng+=1e2;
+//		    }
 
 
 

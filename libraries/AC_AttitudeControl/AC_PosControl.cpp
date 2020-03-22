@@ -6,6 +6,7 @@
 #include <AP_NavEKF2/AP_NavEKF2_core.h>
 #include <AP_Notify/AP_Notify.h>
 
+
 extern const AP_HAL::HAL& hal;
 
 #if APM_BUILD_TYPE(APM_BUILD_ArduPlane)
@@ -530,9 +531,24 @@ void AC_PosControl::calc_leash_length_z()
 // vel_up_max, vel_down_max should have already been set before calling this method
 void AC_PosControl::run_z_controller()
 {
-	_z1 = _inav.get_altitude();
-	_z2 = _inav.get_altitude();
+	float z1, z2;
+	_inav.get_altitude12(z1,z2);
     float curr_alt = _inav.get_altitude();
+    const uint64_t now_us = AP_HAL::micros64();
+
+
+	if(_z_faulty && _use_voter == 1 && !detect_z_fault)
+	{
+//    curr_pos.x = _xv*100;
+//    curr_pos.y = _yv*100;
+		detect_z_fault = true;
+		counter_z = AP_HAL::micros64();
+//		curr_alt = _zv;
+	}
+
+	if(detect_z_fault && ((now_us-counter_z)* 1.0e-6f)>0.1)
+		curr_alt = -z2*100;
+
 
     // clear position limit flags
     _limit.pos_up = false;
@@ -874,15 +890,20 @@ void AC_PosControl::write_log()
      Vector2f pos1;
      Vector2f pos2;
 
-     if(_inject==1 && !_fault_injected)
-     {
-    	 AP_GPS &gps = AP::gps();
-    	 gps.injecfault();
-    	 _fault_injected = true;
-     }
+     float z1, z2;
+     _inav.get_altitude12(z1,z2);
 
 
-     _inav.get_position12(pos1,pos2);
+     pos1 = _pos1;
+     pos2 = _pos2;
+
+     pos1.x = pos1.x - _pos1x_bias;
+     pos1.y = pos1.y - _pos1y_bias;
+     pos2.x = pos2.x - _pos2x_bias;
+     pos2.y = pos2.y - _pos2y_bias;
+     z1 = z1 - _z1_bias;
+     z2 = z2 - _z2_bias;
+
 
     lean_angles_to_accel(accel_x, accel_y);
 
@@ -890,10 +911,11 @@ void AC_PosControl::write_log()
     if(AP_Notify::flags.gps_fusion) p=1;
     else p=0;
 
-    pos1.x = pos1.x - _pos1x_bias;
-    pos1.y = pos1.y - _pos1y_bias;
-    pos2.x = pos2.x - _pos2x_bias;
-    pos2.y = pos2.y - _pos2y_bias;
+    uint64_t pz;
+    if(AP_Notify::flags.rng_fault) pz=1;
+    else pz=0;
+
+
 
 
     DataFlash_Class::instance()->Log_Write("PSC", "TimeUS,TPX,TPY,PX,PY,TVX,TVY,VX,VY,TAX,TAY,AX,AY",
@@ -922,6 +944,15 @@ void AC_PosControl::write_log()
 										   (double)_pos1x_bias,
 										   (double)_pos1y_bias);
 
+
+    DataFlash_Class::instance()->Log_Write("P1Z", "TimeUS,Z1,Z2,fm,b1,b2", "QffQff",
+                                           AP_HAL::micros64(),
+                                           (double)z1,
+                                           (double)z2,
+										   pz,
+										   (double)_z1_bias,
+										   (double)_z2_bias);
+
      calculate_virtual_inputs();
      thrust = _uts;
      troll = _urs;
@@ -935,7 +966,7 @@ void AC_PosControl::write_log()
 	 tpitch1 = _attitude_control._tp;
 	 tyaw1 = _attitude_control._ty;
 
-	 float accxh, vxh,xh, accyh, vyh, yh;
+	 float accxh, vxh,xh, accyh, vyh, yh, acczh, vzh,zh;
 
 
 	 observer();
@@ -947,13 +978,24 @@ void AC_PosControl::write_log()
 	 accyh = _ddyh;
 	 vyh = _dyh;
 	 yh = _yh;
+	 acczh = _ddzh;
+	 vzh = _dzh;
+	 zh = _zh;
 	 uint64_t i;
 	 if(!_detected_gps1_fault) i=0;
 	 else i = 1;
 
+	 uint64_t iz;
+	 if(!_detected_z_fault) iz=0;
+	 else iz = 1;
+
 	 uint64_t k;
 	 if(!_start_voter) k=0;
 	 else k=1;
+
+	 uint64_t in;
+	 if(!_fault_injected) in=0;
+	 else in=1;
 
 
     DataFlash_Class::instance()->Log_Write("IN", "TimeUS,uts,trs,tps,tys,ut,tr,tp,ty ", "Qffffffff",
@@ -967,16 +1009,19 @@ void AC_PosControl::write_log()
 											(double)tpitch1,
 											(double)tyaw1);
 
-    DataFlash_Class::instance()->Log_Write("OBS", "TimeUS,ddx,dx,x,ddy,dy,y", "Qffffff",
+    DataFlash_Class::instance()->Log_Write("OBS", "TimeUS,ddx,dx,x,ddy,dy,y,ddz,dz,z", "Qfffffffff",
                                             AP_HAL::micros64(),
                                             (double)accxh,
 											(double)vxh,
 											(double)xh,
 											(double)accyh,
 											(double)vyh,
-											(double)yh);
+											(double)yh,
+											(double)acczh,
+											(double)vzh,
+											(double)zh);
 
-    DataFlash_Class::instance()->Log_Write("VOT", "TimeUS,sx1,sx2,sx3,sy1,sy2,sy3,xv,yv", "Qffffffff",
+    DataFlash_Class::instance()->Log_Write("VOT", "TimeUS,sx1,sx2,sx3,sy1,sy2,sy3,xv,yv,sz1,sz2,sz3,zv", "Qffffffffffff",
                                             AP_HAL::micros64(),
                                             (double)_s_x_kf1_kf2,
 											(double)_s_x_kf1_mod,
@@ -985,11 +1030,15 @@ void AC_PosControl::write_log()
 											(double)_s_y_kf1_mod,
 											(double)_s_y_kf2_mod,
 											(double)_xv,
-											(double)_yv);
+											(double)_yv,
+											(double)_s_z_kf1_kf2,
+											(double)_s_z_kf1_mod,
+											(double)_s_z_kf2_mod,
+											(double)_zv);
 
 
 
-    DataFlash_Class::instance()->Log_Write("VTD", "TimeUS,sd1,sd2,sd3,d1,d2,dm,dv,i,sto", "QfffffffQQ",
+    DataFlash_Class::instance()->Log_Write("VTD", "TimeUS,sd1,sd2,sd3,d1,d2,dm,dv,i,sto,iz,inj", "QfffffffQQQQ",
                                             AP_HAL::micros64(),
                                             (double)_s_d_kf1_kf2,
 											(double)_s_d_kf1_mod,
@@ -999,7 +1048,9 @@ void AC_PosControl::write_log()
 											(double)_dmod,
 											(double)_dv,
 											i,
-											k);
+											k,
+											iz,
+											in);
 
 }
 
@@ -1116,7 +1167,41 @@ void AC_PosControl::observer()
 
     Vector2f pos1;
     Vector2f pos2;
-    _inav.get_position12(pos1,pos2);
+    _inav.get_position12(_pos1,_pos2);
+
+    float z1, z2;
+    _inav.get_altitude12(z1,z2);
+
+    // Software faults
+
+    uint8_t flight_mode;
+    uint32_t t_now;
+    t_now = AP_HAL::millis();
+    flight_mode = AP_Notify::flags.flight_mode;
+
+    if(flight_mode==3 && fault_counter==false && AP_Notify::flags.armed)
+    {
+    	fault_counter=true;
+    	t_fault = AP_HAL::millis();
+    	AP_Notify::flags.rng_fault = true;
+    }
+
+
+
+//    if((t_now - t_fault)/1000 >17 && (t_now - t_fault)/1000 <24 && fault_counter==true)
+    if((t_now - t_fault)/1000 >17 &&  fault_counter==true)
+    {
+    	_fault_injected = true;
+    	_pos1.x += 0.1*((t_now - t_fault)/1000-17);
+    	_pos1.y += 0.1*((t_now - t_fault)/1000-17);
+    }
+    pos1 = _pos1;
+    pos2 = _pos2;
+
+
+
+    // end Software
+
 
     if(AP_Notify::flags.gps_fusion && !_initialize_filter)
     	{
@@ -1130,6 +1215,8 @@ void AC_PosControl::observer()
     	_pos1y_bias = pos1.y;
     	_pos2x_bias = pos2.x;
     	_pos2y_bias = pos2.y;
+    	_z1_bias = z1;
+    	_z2_bias = z2;
     	_start_voter = true;
     }
 
@@ -1137,16 +1224,25 @@ void AC_PosControl::observer()
     pos1.y = pos1.y - _pos1y_bias;
     pos2.x = pos2.x - _pos2x_bias;
     pos2.y = pos2.y - _pos2y_bias;
+    z1 = z1 - _z1_bias;
+    z2 = z2 - _z2_bias;
 
 
 
     if (_start_voter)
     {
-    if(_s_x_kf1_kf2==0 && (_s_x_kf1_mod<_s_x_kf2_mod) && _detected_gps1_fault==false)
+    if(_s_d_kf1_kf2==0 && (_s_d_kf1_mod<_s_d_kf2_mod) && _detected_gps1_fault==false)
     {
     	_gps1_faulty = true;
     	_detected_gps1_fault =true;
     }
+    if(_s_z_kf1_kf2==0 && (_s_z_kf1_mod<_s_z_kf2_mod) && _detected_z_fault==false)
+    {
+    	_z_faulty = true;
+    	_detected_z_fault =true;
+    }
+
+
 
     	if(!_gps1_faulty )
     	{
@@ -1164,6 +1260,8 @@ void AC_PosControl::observer()
     	_prev_dy = _yhd;
     	_yhd = _dyh +  2*sqrt(3) * sqrt(absf((0.3*pos1.y+1.7*pos2.y)/2 - _yh)) * sign((0.3*pos1.y+1.7*pos2.y)/2 - _yh);
     	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
+
+
     	}
 
     	else
@@ -1182,27 +1280,70 @@ void AC_PosControl::observer()
     	_prev_dy = _yhd;
     	_yhd = _dyh +  1.5*sqrt(2.5) * sqrt(absf(pos2.y - _yh)) * sign(pos2.y - _yh);
     	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
+
+
+    	}
+
+    	float cur = _inav.get_altitude();
+    	if(cur > 10){
+    	if(!_z_faulty )
+    	    	{
+        	_prev_ddz = _ddzh;
+    		_ddzh = (float)(-(cosf(_ahrs.roll) * cosf(_ahrs.pitch))* _uts) + GRAVITY_MSS + 1.5*3*sign((0.3*z1+1.7*z2)/2 - _zh);
+    		_dzh = _dzh + 0.5*dt*(_prev_ddz + _ddzh);
+    		_prev_dz = _zhd;
+    		_zhd = _dzh +  2*sqrt(3) * sqrt(absf((0.3*z1+1.7*z2)/2 - _zh)) * sign((0.3*z1+1.7*z2)/2 - _zh);
+    		_zh = _zh + (float)(dt*(_prev_dz + _zhd)*0.5f);
+    	    	}
+
+    	    	else
+    	    	{
+    	        	_prev_ddz = _ddzh;
+    	        	_ddzh = (float)(-(cosf(_ahrs.roll) * cosf(_ahrs.pitch))* _uts) + GRAVITY_MSS + 1.5*2.5*sign(z2 - _zh);
+    	        	_dzh = _dzh + 0.5*dt*(_prev_ddz + _ddzh);
+    	        	_prev_dz = _zhd;
+    	        	_zhd = _dzh +  1.5*sqrt(2.5) * sqrt(absf(z2 - _zh)) * sign(z2 - _zh);
+    	        	_zh = _zh + (float)(dt*(_prev_dz + _zhd)*0.5f);
+    	    	}}
+    	else {
+    		_ddzh = 0;
+    		_zhd = 0;
+    		_zh =0;
+    		_prev_ddz = 0;
+    		_prev_dz = 0;
     	}
     }
+
+
 }
 
 
 void AC_PosControl::voter()
 {
 
-
+    float z1, z2;
+    _inav.get_altitude12(z1,z2);
     Vector2f pos1;
     Vector2f pos2;
-    _inav.get_position12(pos1,pos2);
     float e_x_kf1_kf2, e_x_kf1_mod, e_x_kf2_mod;
     float e_y_kf1_kf2, e_y_kf1_mod, e_y_kf2_mod;
     float e_d_kf1_kf2, e_d_kf1_mod, e_d_kf2_mod;
+    float e_z_kf1_kf2, e_z_kf1_mod, e_z_kf2_mod;
+
+
+
+    pos1 = _pos1;
+    pos2 = _pos2;
 
 
     pos1.x = pos1.x - _pos1x_bias;
     pos1.y = pos1.y - _pos1y_bias;
     pos2.x = pos2.x - _pos2x_bias;
     pos2.y = pos2.y - _pos2y_bias;
+    z1 = z1 - _z1_bias;
+    z2 = z2 - _z2_bias;
+
+
 
     if (_start_voter)
     {
@@ -1266,6 +1407,27 @@ void AC_PosControl::voter()
 	_dv = voter_output(_s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod, _dkf1, _dkf2, _dmod);
 	}
 
+    if(_z_faulty && _use_voter == 1)
+    {
+        e_z_kf1_kf2 = absf((z2+_zh)/2 - z2);
+        e_z_kf1_mod = absf((z2+_zh)/2 - _zh);
+        e_z_kf2_mod = absf(z2 - _zh);
+        _s_z_kf1_kf2 = calculate_indicator(e_z_kf1_kf2, 0.5, 2);
+        _s_z_kf1_mod = calculate_indicator(e_z_kf1_mod, 0.5, 2);
+        _s_z_kf2_mod = calculate_indicator(e_z_kf2_mod, 0.5, 2);
+    	_zv = voter_output(_s_z_kf1_kf2, _s_z_kf1_mod, _s_z_kf2_mod, (z2+_zh)/2, z2, _zh);
+    	}
+
+        else
+    	{
+        e_z_kf1_kf2 = absf(z1 - z2);
+        e_z_kf1_mod = absf(z1 - _zh);
+        e_z_kf2_mod = absf(z2 - _zh);
+        _s_z_kf1_kf2 = calculate_indicator(e_z_kf1_kf2, 0.5, 2);
+        _s_z_kf1_mod = calculate_indicator(e_z_kf1_mod, 0.5, 2);
+        _s_z_kf2_mod = calculate_indicator(e_z_kf2_mod, 0.5, 2);
+    	_zv = voter_output(_s_z_kf1_kf2, _s_z_kf1_mod, _s_z_kf2_mod, z1, z2, _zh);
+    	}
     }
 
 }
@@ -1358,15 +1520,23 @@ void AC_PosControl::run_xy_controller(float dt, float ekfNavVelGainScaler)
 
     Vector2f pos1;
     Vector2f pos2;
-    _inav.get_position12(pos1,pos2);
+    pos1 = _pos1;
+    pos2 = _pos2;
+
+
+    pos1.x = pos1.x - _pos1x_bias;
+    pos1.y = pos1.y - _pos1y_bias;
+    pos2.x = pos2.x - _pos2x_bias;
+    pos2.y = pos2.y - _pos2y_bias;
 
 	if(_gps1_faulty && _use_voter == 1)
 	{
-//    curr_pos.x = _xv*100;
-//    curr_pos.y = _yv*100;
-		curr_pos.x = pos2.x;
-		curr_pos.y = pos2.y;
+    curr_pos.x = _xv*100;
+    curr_pos.y = _yv*100;
+//		curr_pos.x = pos2.x*100;
+//		curr_pos.y = pos2.y*100;
 	}
+
 
     float kP = ekfNavVelGainScaler * _p_pos_xy.kP(); // scale gains to compensate for noisy optical flow measurement in the EKF
 

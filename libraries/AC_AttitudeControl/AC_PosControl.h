@@ -11,6 +11,8 @@
 #include "AC_AttitudeControl.h" // Attitude control library
 #include <AP_Motors/AP_Motors.h>          // motors library
 #include <AP_Vehicle/AP_Vehicle.h>         // common vehicle parameters
+#include <AP_RangeFinder/RangeFinder.h>
+#include <AP_RangeFinder/RangeFinder_Backend.h>
 
 
 // position controller default definitions
@@ -325,6 +327,8 @@ protected:
         uint8_t accel_xy    : 1;    // 1 if we have hit the horizontal accel limit
     } _limit;
 
+
+
     ///
     /// z controller private methods
     ///
@@ -433,28 +437,38 @@ protected:
     double _xh=0;
     double  _dxh=0;
     double _ddxh=0;
-    double _prev_ddx, _prev_dx, _xhd, _yhd;
+    double _prev_ddx, _prev_dx, _xhd, _yhd, _zhd;
     double _yh=0;
     double  _dyh=0;
     double _ddyh=0;
     double _prev_ddy, _prev_dy;
+    double _zh=0;
+    double  _dzh=0;
+    double _ddzh=0;
+    double _prev_ddz, _prev_dz;
     int8_t _i;
     uint64_t _now_us_p;
     float _s_x_kf1_kf2, _s_x_kf1_mod, _s_x_kf2_mod;
     float _s_y_kf1_kf2, _s_y_kf1_mod, _s_y_kf2_mod;
-    float _s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod;
-    bool _fault_injected;
+    float _s_d_kf1_kf2, _s_d_kf1_mod, _s_d_kf2_mod, _s_z_kf1_kf2, _s_z_kf1_mod, _s_z_kf2_mod;
 
 
-    float _xv, _yv, _dv, _dkf1, _dkf2, _dmod;
+    float _xv, _yv, _dv, _dkf1, _dkf2, _dmod, _zkf1, _zkf2, _zmod, _zv;
     bool _gps1_faulty{false};
+    bool _z_faulty{false};
     bool _detected_gps1_fault{false};
+    bool _detected_z_fault{false};
     bool _initialize_filter{false};
-    uint64_t counter_filter;
+    uint64_t counter_filter, counter_z;
     bool _start_voter{false};
     double _pos1x_bias, _pos1y_bias;
     double _pos2x_bias, _pos2y_bias;
-    float _z1, _z2;
+    float _z1, _z2, _z1_bias, _z2_bias;
+    bool detect_z_fault{false};
+    Vector2f _pos1, _pos2;
+    bool fault_counter{false};
+    uint32_t t_fault;
+    bool _fault_injected{false};
 
     float calculate_indicator(float d, float a, float n);
     float voter_output(float s1, float s2, float s3, float x1, float x2, float x3);

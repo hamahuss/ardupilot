@@ -167,6 +167,11 @@ public:
 
     static RangeFinder *get_singleton(void) { return _singleton; }
 
+    static RangeFinder &rng() {
+        return *_singleton;
+    }
+
+
 
 private:
     static RangeFinder *_singleton;
@@ -182,4 +187,19 @@ private:
     void update_instance(uint8_t instance);  
 
     bool _add_backend(AP_RangeFinder_Backend *driver);
+    bool _fault{false};
+
+
+
+    bool fault_counter{false};
+    uint32_t t_fault;
+    uint8_t flight_mode;
+
 };
+
+
+namespace AP {
+	RangeFinder &rng();
+};
+
+

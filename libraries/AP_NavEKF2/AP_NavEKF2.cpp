@@ -799,6 +799,15 @@ void NavEKF2::getPos12( Vector2f &posNE, Vector2f &posNE1) const
     core[1].getPosNE(posNE1);
 }
 
+void NavEKF2::getPosD12(float &z1, float &z2) const
+{
+    if (!core) {
+        return ;
+    }
+    core[0].getPosD(z1);
+    core[1].getPosD(z2);
+}
+
 // Write the last calculated D position relative to the reference point (m).
 // If a calculated solution is not available, use the best available data and return false
 // If false returned, do not use for flight control

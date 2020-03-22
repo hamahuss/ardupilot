@@ -84,6 +84,11 @@ void AP_InertialNav_NavEKF::get_position12(Vector2f &posNE, Vector2f &posNE1) co
 	_ahrs_ekf.get_pos12(posNE, posNE1);
 		}
 
+void  AP_InertialNav_NavEKF::get_altitude12(float &z1,float &z2) const
+{
+	_ahrs_ekf.get_posD12(z1, z2);
+}
+
 /**
  * get_location - updates the provided location with the latest calculated location
  *  returns true on success (i.e. the EKF knows it's latest position), false on failure

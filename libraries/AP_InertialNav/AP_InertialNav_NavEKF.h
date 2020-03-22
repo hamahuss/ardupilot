@@ -90,6 +90,7 @@ public:
      * @return
      */
     float       get_altitude() const;
+    void  		get_altitude12(float &z1,float &z2) const;
 
     /**
      * get_velocity_z - returns the current climbrate.

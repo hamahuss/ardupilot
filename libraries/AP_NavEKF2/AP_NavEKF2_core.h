@@ -709,6 +709,7 @@ private:
     // Read the range finder and take new measurements if available
     // Apply a median filter to range finder data
     void readRangeFinder();
+    void readRangeFinder1(uint8_t i);
 
     // check if the vehicle has taken off during optical flow navigation by looking at inertial and range finder data
     void detectOptFlowTakeoff(void);
@@ -735,6 +736,7 @@ private:
 
     // Select height data to be fused from the available baro, range finder and GPS sources
     void selectHeightForFusion();
+    void selectHeightForFusion1(uint8_t i);
 
     // zero attitude state covariances, but preserve variances
     void zeroAttCovOnly();
