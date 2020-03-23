@@ -240,7 +240,7 @@ void Copter::fast_loop()
     read_inertia();
 
     // check if ekf has reset target heading or position
-    check_ekf_reset();
+//    check_ekf_reset();
 
     // run the attitude controllers
     update_flight_mode();

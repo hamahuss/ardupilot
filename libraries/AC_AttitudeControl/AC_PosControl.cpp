@@ -1190,11 +1190,11 @@ void AC_PosControl::observer()
 
 //    if((t_now - t_fault)/1000 >17 && (t_now - t_fault)/1000 <24 && fault_counter==true)
     if((t_now - t_fault)/1000 >17 &&  fault_counter==true)
-    {
-    	_fault_injected = true;
-    	_pos1.x += 0.1*((t_now - t_fault)/1000-17);
-    	_pos1.y += 0.1*((t_now - t_fault)/1000-17);
-    }
+//    {
+//    	_fault_injected = true;
+//    	_pos1.x += 0.1*((t_now - t_fault)/1000-17);
+//    	_pos1.y += 0.1*((t_now - t_fault)/1000-17);
+//    }
     pos1 = _pos1;
     pos2 = _pos2;
 
@@ -1247,18 +1247,18 @@ void AC_PosControl::observer()
     	if(!_gps1_faulty )
     	{
     	_prev_ddx = _ddxh;
-    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*3*sign((0.3*pos1.x+1.7*pos2.x)/2 - _xh);
+    	_ddxh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.6*3*sign((0.3*pos1.x+1.7*pos2.x)/2 - _xh);
     	_dxh = _dxh + 0.5*dt*(_prev_ddx + _ddxh);
     	_prev_dx = _xhd;
-    	_xhd = _dxh +  2*sqrt(3) * sqrt(absf((0.3*pos1.x+1.7*pos2.x)/2 - _xh)) * sign((0.3*pos1.x+1.7*pos2.x)/2 - _xh);
+    	_xhd = _dxh +  2*sqrt(3) * sqrt(absf((0.4*pos1.x+1.6*pos2.x)/2 - _xh)) * sign((0.4*pos1.x+1.6*pos2.x)/2 - _xh);
     	_xh = _xh + (float)(dt*(_prev_dx + _xhd)*0.5f);
 
 
     	_prev_ddy = _ddyh;
-    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.5*3*sign((0.3*pos1.y+1.7*pos2.y)/2 - _yh);
+    	_ddyh = (float)(-(cosf(_ahrs.roll) * sinf(_ahrs.pitch) * cosf(_ahrs.yaw) + sinf(_ahrs.yaw) * sinf(_ahrs.roll)) * _uts) + 1.6*3*sign((0.3*pos1.y+1.7*pos2.y)/2 - _yh);
     	_dyh = _dyh + 0.5*dt*(_prev_ddy + _ddyh);
     	_prev_dy = _yhd;
-    	_yhd = _dyh +  2*sqrt(3) * sqrt(absf((0.3*pos1.y+1.7*pos2.y)/2 - _yh)) * sign((0.3*pos1.y+1.7*pos2.y)/2 - _yh);
+    	_yhd = _dyh +  2*sqrt(3) * sqrt(absf((0.4*pos1.y+1.6*pos2.y)/2 - _yh)) * sign((0.4*pos1.y+1.6*pos2.y)/2 - _yh);
     	_yh = _yh + (float)(dt*(_prev_dy + _yhd)*0.5f);
 
 

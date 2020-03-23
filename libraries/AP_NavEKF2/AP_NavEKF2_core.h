@@ -479,6 +479,8 @@ private:
     // calculate the predicted state covariance matrix
     void CovariancePrediction();
 
+    void CovariancePrediction(uint8_t instance);
+
     // force symmetry on the state covariance matrix
     void ForceSymmetry();
 
